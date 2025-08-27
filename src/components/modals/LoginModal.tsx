@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Alert, AlertDescription } from "../ui/alert";
-import { Mail, Lock, LogIn, Shield, AlertCircle, Loader2 } from "lucide-react";
+import { Mail, Lock, LogIn, AlertCircle, Loader2 } from "lucide-react";
 import { apiService, ApiError } from "../../config/api";
 
 interface LoginModalProps {
@@ -127,21 +127,6 @@ export function LoginModal({
     setIsLoading(false);
   };
 
-  const fillDemo = (type: 'user' | 'admin') => {
-    setGeneralError('');
-    if (type === 'user') {
-      setFormData({
-        email: 'maret.benoit@gmail.com',
-        password: ']]cyvH?5g6t)Tpq'
-      });
-    } else {
-      setFormData({
-        email: 'maret.benoit.pro@gmail.com',
-        password: ']]cyvH?5g6t)Tpq'
-      });
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
@@ -239,54 +224,6 @@ export function LoginModal({
             </Button>
           </div>
         </form>
-
-        <div className="space-y-4 mt-6">
-          <div className="bg-muted rounded-lg p-4">
-            <h4 className="font-medium mb-3 flex items-center gap-2">
-              <LogIn className="w-4 h-4" />
-              Compte contributeur de démonstration
-            </h4>
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Email: <code className="bg-background px-1 rounded">maret.benoit@gmail.com</code>
-                <br />
-                Mot de passe: <code className="bg-background px-1 rounded">]]cyvH?5g6t)Tpq</code>
-              </div>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={() => fillDemo('user')}
-                className="ml-2"
-                disabled={isLoading}
-              >
-                Utiliser
-              </Button>
-            </div>
-          </div>
-
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-            <h4 className="font-medium mb-3 flex items-center gap-2 text-orange-800">
-              <Shield className="w-4 h-4" />
-              Compte administrateur de démonstration
-            </h4>
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-orange-700">
-                Email: <code className="bg-white px-1 rounded">maret.benoit.pro@gmail.com</code>
-                <br />
-                Mot de passe: <code className="bg-white px-1 rounded">]]cyvH?5g6t)Tpq</code>
-              </div>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={() => fillDemo('admin')}
-                className="ml-2 border-orange-300 text-orange-700 hover:bg-orange-100"
-                disabled={isLoading}
-              >
-                Utiliser
-              </Button>
-            </div>
-          </div>
-        </div>
       </DialogContent>
     </Dialog>
   );
