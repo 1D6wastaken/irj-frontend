@@ -1,5 +1,5 @@
 import { AdvancedFilters } from "../App";
-import { SearchRequestBody, FilterOption, apiService } from "../config/api";
+import {SearchRequestBody, FilterOption, apiService, API_CONFIG} from "../config/api";
 
 // Mapping des badges de source vers les labels d'affichage
 export const SOURCE_LABELS = {
@@ -221,5 +221,5 @@ export function debounce<T extends (...args: any[]) => any>(
 
 // Fonction pour générer l'URL de l'image à partir d'un media
 export function getMediaImageUrl(mediaId: string): string {
-  return `http://localhost:5000/media/${mediaId}`;
+  return `${API_CONFIG.baseUrl}/media/${mediaId}`;
 }

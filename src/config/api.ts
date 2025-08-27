@@ -17,9 +17,7 @@ class ApiError extends Error {
 
 // Configuration de l'API backend
 export const API_CONFIG = {
-  baseUrl: (typeof window !== 'undefined' && typeof process !== 'undefined') 
-    ? process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000'
-    : 'http://localhost:5000',
+  baseUrl: 'https://test.saintjacquesinfo.eu',
   endpoints: {
     users: '/api/v1/users',
     login: '/api/v1/login',
