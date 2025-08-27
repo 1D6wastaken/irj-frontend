@@ -17,6 +17,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "./ui/card";
 import {Separator} from "./ui/separator";
 import {AspectRatio} from "./ui/aspect-ratio";
 import {ImageWithFallback} from "./ImageWithFallback.tsx";
+import { ImageModal } from "./modals/ImageModal";
 import {
     apiService,
     ApiError,
@@ -78,6 +79,8 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingRelated, setIsLoadingRelated] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showImageModal, setShowImageModal] = useState(false);
+    const [modalImageIndex, setModalImageIndex] = useState(0);
 
     useEffect(() => {
         window.scrollTo({top: 0, behavior: 'smooth'});
@@ -361,6 +364,18 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
         }
         return `Image de ${getTitle()}`;
     };
+
+    // Fonction pour ouvrir la modal d'image
+    const handleImageClick = (index: number) => {
+        setModalImageIndex(index);
+        setShowImageModal(true);
+    };
+
+    // Préparer les images pour la modal
+    const modalImages = allImages.map(media => ({
+        url: getMediaImageUrl(media.id),
+        title: media.title || `Image de ${getTitle()}`
+    }));
 
     // Composant pour l'affichage standardisé des informations techniques
     const TechnicalInfoItem = ({label, children, className = ""}: {
@@ -1358,7 +1373,8 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                                             <ImageWithFallback
                                                 src={getMediaImageUrl(allImages[currentImageIndex].id)}
                                                 alt={allImages[currentImageIndex].title}
-                                                className="w-full h-full object-cover rounded-t-lg"
+                                                className="w-full h-full object-cover rounded-t-lg cursor-pointer"
+                                                onClick={() => handleImageClick(currentImageIndex)}
                                             />
 
                                             {/* Contrôles de navigation d'images */}
@@ -1413,6 +1429,14 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Modal d'image */}
+            <ImageModal
+                isOpen={showImageModal}
+                onClose={() => setShowImageModal(false)}
+                images={modalImages}
+                initialIndex={modalImageIndex}
+            />
         </div>
     );
 }

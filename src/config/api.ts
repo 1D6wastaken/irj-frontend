@@ -17,7 +17,7 @@ class ApiError extends Error {
 
 // Configuration de l'API backend
 export const API_CONFIG = {
-  baseUrl: 'https://test.saintjacquesinfo.eu',
+  baseUrl: 'http://localhost:5000',//'https://test.saintjacquesinfo.eu',
   endpoints: {
     users: '/api/v1/users',
     login: '/api/v1/login',
