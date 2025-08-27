@@ -1,1 +1,1 @@
-# irj-frontend
+# Institut de recherche Jacquaire - Mock up
