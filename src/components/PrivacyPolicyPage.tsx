@@ -121,6 +121,14 @@ export function PrivacyPolicyPage({ onBack }: PrivacyPolicyPageProps) {
                                         <li>Date et heure des contributions</li>
                                     </ul>
                                 </div>
+                                <div>
+                                    <h4 className="font-medium mb-2">Lors de la navigation :</h4>
+                                    <ul className="list-disc pl-6 space-y-1">
+                                        <li>Type de navigateur</li>
+                                        <li>Système d'exploitation</li>
+                                        <li>Messages d'erreurs</li>
+                                    </ul>
+                                </div>
                             </CardContent>
                         </Card>
 
@@ -165,6 +173,13 @@ export function PrivacyPolicyPage({ onBack }: PrivacyPolicyPageProps) {
                                         <li>Amélioration de l'expérience utilisateur</li>
                                         <li>Détection et prévention des abus</li>
                                     </ul>
+                                    <br/>
+                                    <p className="mb-2">
+                                        Pour assurer la disponibilité et la fiabilité de notre site, nous utilisons le service Sentry (Sentry, Inc. San Francisco, USA).<br/>
+                                        Les données sont envoyées sur les serveurs localisés en Europe.<br/>
+                                        Ce service nous permet de détecter automatiquement les erreurs techniques et de les corriger rapidement.<br/>
+                                        Les informations collectées et anonymisées décrites plus haut ne sont utilisées qu’à des fins de diagnostic et ne servent pas à établir de profils utilisateurs ni à des fins publicitaires.
+                                    </p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -213,6 +228,7 @@ export function PrivacyPolicyPage({ onBack }: PrivacyPolicyPageProps) {
                                     <ul className="list-disc pl-6 space-y-1">
                                         <li>Hébergeur (OVH SAS) - serveurs situés en France</li>
                                         <li>Service de sauvegarde (données chiffrées)</li>
+                                        <li>Sentry - serveurs situés en Europe</li>
                                     </ul>
                                 </div>
                                 <div>

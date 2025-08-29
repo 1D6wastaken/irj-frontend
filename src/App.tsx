@@ -23,6 +23,7 @@ import {ResetPasswordModal} from "./components/modals/ResetPasswordModal";
 import {NewPasswordModal} from "./components/modals/NewPasswordModal";
 import {PendingApprovalModal} from "./components/modals/PendingApprovalModal";
 import {EmailConfirmationModal} from "./components/modals/EmailConfirmationModal";
+import {CookieBanner} from "./components/CookieBanner";
 import {toast, Toaster} from "sonner";
 import {apiService, ApiError, PendingUser, PendingForm} from "./config/api";
 
@@ -496,7 +497,9 @@ export default function App() {
 
     const handleNavigateToLegal = (page: 'legal-mentions' | 'privacy-policy' | 'terms-of-use') => {
         setCurrentPage(page);
-        setTimeout(() => {window.scrollTo({top: 0, behavior: 'smooth'});}, 50);
+        setTimeout(() => {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }, 50);
     };
 
     // Fonction pour valider le token de réinitialisation de mot de passe
@@ -578,6 +581,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -627,6 +632,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -676,6 +683,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -725,6 +734,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -778,6 +789,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -800,6 +813,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -826,6 +841,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -854,6 +871,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -882,6 +901,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -908,6 +929,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -963,6 +986,8 @@ export default function App() {
 
                 {/* Toast notifications */}
                 <Toaster/>
+
+                <CookieBanner />
             </div>
         );
     }
@@ -1032,6 +1057,8 @@ export default function App() {
 
             {/* Toast notifications */}
             <Toaster/>
+
+            <CookieBanner />
         </div>
     );
 }
