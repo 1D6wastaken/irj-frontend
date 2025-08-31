@@ -26,6 +26,7 @@ import {EmailConfirmationModal} from "./components/modals/EmailConfirmationModal
 import {CookieBanner} from "./components/CookieBanner";
 import {toast, Toaster} from "sonner";
 import {apiService, ApiError, PendingUser, PendingForm} from "./config/api";
+import {CrashBoundary} from "./components/CrashBoundary.tsx";
 
 export interface AdvancedFilters {
     location?: {
@@ -536,6 +537,7 @@ export default function App() {
     // Page de validation d'email
     if (currentPage === 'email-validation') {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -584,12 +586,14 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     // Pages légales
     if (currentPage === 'legal-mentions') {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -635,12 +639,14 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     // Politique de confidentialité
     if (currentPage === 'privacy-policy') {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -686,12 +692,14 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     // CGU
     if (currentPage === 'terms-of-use') {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -737,12 +745,14 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     // Page de détail
     if (currentPage === 'detail') {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -792,12 +802,14 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     // Pages spécifiques aux utilisateurs connectés
     if (currentPage === 'contribute' && user) {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -816,11 +828,13 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     if (currentPage === 'account' && user) {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -844,12 +858,14 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     // Pages admin
     if (currentPage === 'validate-forms' && user?.role === 'admin') {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -874,11 +890,13 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     if (currentPage === 'validate-form-detail' && user?.role === 'admin') {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -904,11 +922,13 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     if (currentPage === 'validate-contributors' && user?.role === 'admin') {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -932,11 +952,13 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     if (currentPage === 'search') {
         return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
             <div className="min-h-screen bg-white">
                 <Header
                     user={user}
@@ -989,10 +1011,12 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+            </CrashBoundary>
         );
     }
 
     return (
+        <CrashBoundary onResetToHome={handleBackToHome}>
         <div className="min-h-screen bg-white">
             <Header
                 user={user}
@@ -1060,5 +1084,6 @@ export default function App() {
 
             <CookieBanner />
         </div>
+        </CrashBoundary>
     );
 }
