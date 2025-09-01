@@ -38,7 +38,7 @@ export function Header({
     return (
         <header className="bg-primary text-primary-foreground shadow-lg">
             <div className="container mx-auto px-4">
-                <div className="flex items-center h-16 md:h-20 gap-4 md:gap-6">
+                <div className="flex items-center h-16 md:h-20">
                     {/* Logo et titre */}
                     <div
                         className="flex items-center space-x-2 md:space-x-4 flex-shrink-0 cursor-pointer"
@@ -48,7 +48,7 @@ export function Header({
                             <img src="https://saintjacquesinfo.eu/assets/logo_bw.png" alt="logo saint jacques" />
                         </div>
                         <div className="min-w-0">
-                            <h1 className="text-lg md:text-2xl font-bold text-white leading-tight">
+                            <h1 className="lg:text-lg md:text-2xl sm:text-lg font-bold text-white leading-tight">
                                 Le site du Patrimoine Saint-Jacques
                             </h1>
                         </div>
@@ -237,7 +237,7 @@ export function Header({
                         /* Utilisateur non connecté */
                         <div className="flex items-center gap-4 flex-shrink-0">
                             {/* Desktop */}
-                            <div className="hidden md:flex space-x-3">
+                            <div className="hidden lg:flex space-x-3">
                                 <Button
                                     variant="outline"
                                     onClick={onLogin}
@@ -256,7 +256,7 @@ export function Header({
                             </div>
 
                             {/* Mobile */}
-                            <div className="md:hidden">
+                            <div className="lg:hidden">
                                 <Sheet>
                                     <SheetTrigger asChild>
                                         <Button
