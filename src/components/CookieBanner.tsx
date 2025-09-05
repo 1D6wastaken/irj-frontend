@@ -53,7 +53,7 @@ export const CookieBanner: React.FC = () => {
                     {/* Stockage de sentry */}
                     <div className="border border-gray-200 rounded">
                         <button
-                            className="flex justify-between w-full px-3 py-2 items-center text-sm text-gray-700 hover:bg-gray-50"
+                            className="flex justify-between w-full px-3 py-2 items-center text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                             onClick={() => toggleSection("dataStorage")}
                         >
 

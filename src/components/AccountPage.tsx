@@ -305,7 +305,7 @@ export function AccountPage({ user, onUpdateUser, onBack, onSessionExpired }: Ac
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="flex items-center gap-4 mb-6">
               <Button variant="ghost" onClick={onBack} className="flex items-center gap-2">
                 <ArrowLeft className="w-4 h-4" />
@@ -365,7 +365,7 @@ export function AccountPage({ user, onUpdateUser, onBack, onSessionExpired }: Ac
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <Button variant="ghost" onClick={onBack} className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
@@ -536,7 +536,7 @@ export function AccountPage({ user, onUpdateUser, onBack, onSessionExpired }: Ac
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                     >
                       {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -560,7 +560,7 @@ export function AccountPage({ user, onUpdateUser, onBack, onSessionExpired }: Ac
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                       >
                         {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -616,7 +616,7 @@ export function AccountPage({ user, onUpdateUser, onBack, onSessionExpired }: Ac
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                       >
                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>

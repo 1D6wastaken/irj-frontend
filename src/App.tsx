@@ -1,7 +1,6 @@
 import {useState, useEffect, useRef} from "react";
 import {Header} from "./components/Header";
 import {HeroSection} from "./components/HeroSection";
-import {IntroSection} from "./components/IntroSection";
 import {CategoriesSection} from "./components/CategoriesSection";
 import {SearchSection} from "./components/SearchSection";
 import {WhySection} from "./components/WhySection";
@@ -312,7 +311,7 @@ export default function App() {
 
     // Force scroll to top on page change
     useEffect(() => {
-        if (currentPage === 'search' || currentPage === 'detail' || currentPage === 'validate-form-detail') {
+        if (currentPage === 'search' || currentPage === 'detail' || currentPage === 'validate-form-detail' || currentPage === 'contribute') {
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
     }, [currentPage]);
@@ -1031,13 +1030,12 @@ export default function App() {
                 onLearnMore={() => scrollToSection('mission-section')}
                 onExploreNow={() => scrollToSection('categories-section')}
             />
-            <IntroSection/>
             <div id="categories-section">
                 <CategoriesSection onCategoryClick={handleCategorySearch}/>
             </div>
             <SearchSection onSearch={handleSearch} onViewDetail={handleViewDetail}/>
             <div id="mission-section">
-                <WhySection user={user} onContribute={openSignupModal}/>
+                <WhySection user={user} onBecomeContributor={openSignupModal} onContribute={() => setCurrentPage('contribute')}/>
             </div>
             <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 

@@ -80,7 +80,7 @@ export function ResetPasswordModal({ isOpen, onClose }: ResetPasswordModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="md:max-w-3xl sm:max-w-md">
         {isSubmitted ? (
           <div className="text-center py-8">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />

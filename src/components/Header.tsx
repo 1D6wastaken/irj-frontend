@@ -49,13 +49,13 @@ export function Header({
                         </div>
                         <div className="min-w-0">
                             <h1 className="lg:text-lg md:text-2xl sm:text-lg font-bold text-white leading-tight">
-                                Le site du Patrimoine Saint-Jacques
+                                Le site du Patrimoine jacquaire européen
                             </h1>
                         </div>
                     </div>
 
                     {/* Espacement flexible pour séparer le titre des éléments de droite */}
-                    <div className="flex-1 min-w-4"></div>
+                    <div className="flex-1 min-w-1"></div>
 
                     {user ? (
                         <div className="flex items-center gap-4 flex-shrink-0">

@@ -139,7 +139,7 @@ export function ImageModal({ isOpen, onClose, images, initialIndex = 0 }: ImageM
                                 {images.map((_, index) => (
                                     <button
                                         key={index}
-                                        className={`w-2 h-2 rounded-full transition-colors ${
+                                        className={`w-2 h-2 rounded-full transition-colors cursor-pointer ${
                                             index === currentIndex
                                                 ? 'bg-white'
                                                 : 'bg-white/30 hover:bg-white/50'

@@ -10,7 +10,7 @@ interface PendingApprovalModalProps {
 export function PendingApprovalModal({ isOpen, onClose }: PendingApprovalModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="md:max-w-3xl sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-center">
             <Clock className="w-5 h-5 text-amber-500" />

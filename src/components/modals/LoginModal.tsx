@@ -129,7 +129,7 @@ export function LoginModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="md:max-w-3xl sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             <LogIn className="w-6 h-6 text-primary" />

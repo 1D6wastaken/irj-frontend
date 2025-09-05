@@ -1330,7 +1330,7 @@ export function ValidateFormDetailPage({
 
                 {/* Contenu */}
                 <div className="flex-1 min-w-0">
-                    <Badge className={badgeClassName} variant="secondary">
+                    <Badge className={badgeClassName} variant="outline">
                         {badge.label}
                     </Badge>
                     <h4 className="text-sm font-medium line-clamp-2 mb-1">
@@ -1417,7 +1417,7 @@ export function ValidateFormDetailPage({
 
                         {/* Conteneur responsive pour badge et boutons */}
                         <div className="flex items-center gap-2 min-w-0 flex-shrink">
-                            <Badge className={`${typeBadge.color} hidden sm:flex`} variant="secondary">
+                            <Badge className={`${typeBadge.color} hidden sm:flex`} variant="outline">
                                 {typeBadge.label}
                             </Badge>
 

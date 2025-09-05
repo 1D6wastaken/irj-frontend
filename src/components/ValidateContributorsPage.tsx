@@ -241,7 +241,7 @@ export function ValidateContributorsPage({ onBack, pendingUsers, onRefresh, onSe
       {/* Vue détaillée d'un contributeur */}
       {selectedContributor && (
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-8">
               <Button 
@@ -301,7 +301,7 @@ export function ValidateContributorsPage({ onBack, pendingUsers, onRefresh, onSe
                     <h2 className="text-2xl font-bold">
                       {selectedContributor.firstname} {selectedContributor.lastname}
                     </h2>
-                    <Badge className={getExpertiseColor(selectedContributor.domain)}>
+                    <Badge className={getExpertiseColor(selectedContributor.domain)} variant="outline">
                       {getExpertiseLabel(selectedContributor.domain)}
                     </Badge>
                   </div>
@@ -422,7 +422,7 @@ export function ValidateContributorsPage({ onBack, pendingUsers, onRefresh, onSe
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
-                      <Badge className={getExpertiseColor(contributor.domain)}>
+                      <Badge className={getExpertiseColor(contributor.domain)} variant="outline">
                         {getExpertiseLabel(contributor.domain)}
                       </Badge>
                       <div className="text-xs text-muted-foreground">

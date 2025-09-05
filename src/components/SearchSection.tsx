@@ -171,12 +171,13 @@ export function SearchSection({ onSearch, onViewDetail }: SearchSectionProps) {
   return (
     <section className="py-20 bg-secondary">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className=" mx-auto text-center">
           <h2 className="text-4xl font-bold text-foreground mb-4">
-            Rechercher dans le patrimoine
+            Recherches détaillées
           </h2>
-          <p className="text-xl text-muted-foreground mb-12">
-            Explorez notre base de données complète du patrimoine religieux de Saint-Jacques
+          <p className="text-lg text-muted-foreground mb-12">
+            Explorez toute la base de données pour découvrir les caractéristiques détaillées connues de chaque élément répertorié dans la base.<br/>
+              Le choix des caractéristiques souhaitées est fait en actionnant des filtres qui indiquent le nom de la catégorie et les valeurs enregistrées.
           </p>
           
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-border">
@@ -249,7 +250,7 @@ export function SearchSection({ onSearch, onViewDetail }: SearchSectionProps) {
                         <div className="p-2 bg-muted/30 text-center">
                           <button
                             onClick={handleSearch}
-                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                           >
                             Voir tous les résultats pour "{searchQuery}"
                           </button>

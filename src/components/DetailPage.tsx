@@ -451,7 +451,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                     <div className="space-y-3">
                         {/* En-tête avec badge de type */}
                         <div className="flex items-start justify-between gap-2">
-                            <Badge className={typeBadge.color} variant="secondary">
+                            <Badge className={typeBadge.color} variant="outline">
                                 {typeBadge.label}
                             </Badge>
                         </div>
@@ -1332,7 +1332,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
     return (
         <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-8">
-                <div className="max-w-6xl mx-auto">
+                <div className="max-w-7xl mx-auto">
                     <div className="mb-8">
                         <Button
                             variant="ghost"
@@ -1346,7 +1346,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                         <div className="flex items-start justify-between">
                             <div className="flex-1">
                                 {/* Badge de type */}
-                                <Badge className={`mb-3 ${typeBadge.color}`}>
+                                <Badge className={`mb-3 ${typeBadge.color}`} variant="outline">
                                     {typeBadge.label}
                                 </Badge>
 
@@ -1381,26 +1381,24 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                                             {allImages.length > 1 && (
                                                 <>
                                                     <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                                                        size="default"
+                                                        className="absolute left-7/20 bottom-2 transform -translate-y-2 bg-black/65 text-white hover:bg-black/75"
                                                         onClick={prevImage}
                                                     >
-                                                        <ChevronLeft className="w-4 h-4"/>
+                                                        <ChevronLeft className="sm:w-4 md:h-4 h-2 w-2"/>
                                                     </Button>
                                                     <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                                                        size="default"
+                                                        className="absolute right-7/20 bottom-2 transform -translate-y-2 bg-black/65 text-white hover:bg-black/75"
                                                         onClick={nextImage}
                                                     >
-                                                        <ChevronRight className="w-4 h-4"/>
+                                                        <ChevronRight className="sm:w-4 md:h-4 h-2 w-2"/>
                                                     </Button>
 
                                                     {/* Indicateur de position */}
                                                     <div
-                                                        className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                                                        {currentImageIndex + 1} / {allImages.length}
+                                                        className="absolute bottom-2 left-1/2 transform -translate-y-3/8 -translate-x-1/2 bg-black/65 text-white px-2 py-1 rounded sm:text-sm text-xs">
+                                                        <p>{currentImageIndex + 1} / {allImages.length}</p>
                                                     </div>
                                                 </>
                                             )}

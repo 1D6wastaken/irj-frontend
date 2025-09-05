@@ -131,14 +131,14 @@ export function SignupModal({ isOpen, onClose, onSubmit }: SignupModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="md:max-w-6xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             <User className="w-6 h-6 text-primary" />
             Devenir contributeur
           </DialogTitle>
           <DialogDescription>
-            Rejoignez notre communauté de contributeurs et participez à la préservation du patrimoine religieux de Saint-Jacques.
+            Rejoignez notre communauté de contributeurs et participez à la préservation du patrimoine jacquaire.
           </DialogDescription>
         </DialogHeader>
 
@@ -203,7 +203,7 @@ export function SignupModal({ isOpen, onClose, onSubmit }: SignupModalProps) {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -280,7 +280,7 @@ export function SignupModal({ isOpen, onClose, onSubmit }: SignupModalProps) {
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                       >
                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>

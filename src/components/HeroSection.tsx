@@ -18,7 +18,7 @@ export function HeroSection({ onLearnMore, onExploreNow }: HeroSectionProps) {
           <div className="lg:w-1/2 space-y-6 md:space-y-8">
             <div className="space-y-4">
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
-                Patrimoine spécifique hérité des cultes européens à saint Jacques
+                Patrimoine hérité de Compostelle et des cultes et pèlerinages à saint Jacques
               </h1>
               <p className="text-lg md:text-xl text-red-100 leading-relaxed">
                 Découvrez et explorez le patrimoine « jacquaire » (relatif à saint Jacques) à travers notre base de données interactive et moderne
@@ -28,13 +28,13 @@ export function HeroSection({ onLearnMore, onExploreNow }: HeroSectionProps) {
             <div className="flex flex-col sm:flex-row gap-4">
               <button 
                 onClick={onExploreNow}
-                className="bg-white text-primary px-6 md:px-8 py-3 md:py-4 rounded-xl font-medium shadow-lg hover:shadow-xl hover:bg-red-50 transition-all duration-200"
+                className="bg-white text-primary px-6 md:px-8 py-3 md:py-4 rounded-xl font-medium shadow-lg hover:shadow-xl hover:bg-red-50 transition-all duration-200 cursor-pointer"
               >
                 Explorer maintenant
               </button>
               <button 
                 onClick={onLearnMore}
-                className="border border-white/20 text-white hover:bg-white/10 px-6 md:px-8 py-3 md:py-4 rounded-xl font-small transition-all duration-200"
+                className="border border-white/20 text-white hover:bg-white/10 px-6 md:px-8 py-3 md:py-4 rounded-xl font-small transition-all duration-200 cursor-pointer"
               >
                 Pourquoi cet inventaire ?
               </button>
@@ -52,7 +52,7 @@ export function HeroSection({ onLearnMore, onExploreNow }: HeroSectionProps) {
               
               {/* Légende de l'image alignée à droite */}
               <div className="mt-3 text-right">
-                <p className="text-xs md:text-sm text-red-100/80 leading-relaxed max-w-md ml-auto italic">
+                <p className="text-sm md:text-sm text-red-100/80 leading-relaxed max-w-md ml-auto italic">
                   Saint Jacques apparaît en songe à Charlemagne et lui demande de venir délivrer son tombeau en suivant la Voie Lactée (arch. cath. Compostelle, Codex calixtinus, XII<sup>e</sup> s., fol. 162, restitution Janine Michel)
                 </p>
               </div>

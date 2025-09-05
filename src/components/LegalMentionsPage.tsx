@@ -13,7 +13,7 @@ export function LegalMentionsPage({onBack}: LegalMentionsPageProps) {
             {/* En-tête */}
             <div
                 className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center h-16">
                         <Button
                             variant="ghost"
@@ -28,7 +28,7 @@ export function LegalMentionsPage({onBack}: LegalMentionsPageProps) {
             </div>
 
             {/* Contenu */}
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="space-y-8">
                     {/* Titre principal */}
                     <div className="text-center space-y-4">
@@ -69,8 +69,8 @@ export function LegalMentionsPage({onBack}: LegalMentionsPageProps) {
 
                                     <div className="flex items-center space-x-3">
                                         <Mail className="w-5 h-5"/>
-                                        <a href="mailto:institut.irj@gmail.com"
-                                           className="text-sm md:text-base">institut.irj@gmail.com</a>
+                                        <a href="mailto:contact@saintjacquesinfo.eu"
+                                           className="text-sm md:text-base">contact@saintjacquesinfo.eu</a>
                                     </div>
                                 </div>
                             </CardContent>
@@ -138,11 +138,11 @@ export function LegalMentionsPage({onBack}: LegalMentionsPageProps) {
                                 </p>
                                 <p>
                                     Pour un meilleur confort d'utilisation et un graphisme plus agréable, nous vous
-                                    recommandons de recourir à des navigateurs mordernes.
+                                    recommandons de recourir à des navigateurs modernes.
                                 </p>
                                 <p>
-                                    L’Institut de Recherche Jacquaire met en œuvre tous les moyens dont elle dispose,
-                                    pour assurer une information fiable et une mise à jour fiable du site internet.
+                                    L’Institut de Recherche Jacquaire met en œuvre tous les moyens dont il dispose,
+                                    pour assurer la fiabilité des informations et des mises à jour du site internet.
                                     Toutefois, des erreurs ou omissions peuvent survenir. L’internaute devra donc
                                     s’assurer de l’exactitude des informations auprès de l’Institut de Recherche
                                     Jacquaire, et signaler toutes modifications du site qu’il jugerait utile. L’Institut
@@ -168,7 +168,7 @@ export function LegalMentionsPage({onBack}: LegalMentionsPageProps) {
                                 <p>
                                     Si vous constatez une lacune, erreur ou ce qui parait être un dysfonctionnement,
                                     merci de
-                                    bien vouloir le signaler par email à institut.irj@gmail.com, en
+                                    bien vouloir le signaler par email à contact@saintjacquesinfo.eu, en
                                     décrivant le
                                     problème de la manière la plus précise possible.
                                 </p>
@@ -177,7 +177,7 @@ export function LegalMentionsPage({onBack}: LegalMentionsPageProps) {
                                     seule
                                     responsabilité. En conséquence, l'éditeur ne saurait être tenu responsable d'un
                                     quelconque
-                                    dommage subi par l'ordinateur de l'utilisateur ou d'une quelconque perte de données
+                                    dommage subi par l'ordinateur de l'utilisateur ou de quelconques pertes de données
                                     consécutives au téléchargement.
                                 </p>
                             </CardContent>
@@ -218,7 +218,7 @@ export function LegalMentionsPage({onBack}: LegalMentionsPageProps) {
                                 <p>
                                     Pour toute question relative aux présentes mentions légales, vous pouvez nous
                                     contacter à
-                                    l'adresse institut.irj@gmail.com.
+                                    l'adresse contact@saintjacquesinfo.eu.
                                 </p>
                             </CardContent>
                         </Card>

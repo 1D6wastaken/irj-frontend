@@ -1217,7 +1217,8 @@ class ApiService {
   // Récupérer la liste des pays
   async getCountries(): Promise<Country[]> {
     try {
-      return await this.request(API_CONFIG.endpoints.countries);
+        const c: Country[] = await this.request(API_CONFIG.endpoints.countries);
+        return c.sort((a: Country, b: Country) => a.name.localeCompare(b.name));
     } catch (error) {
       console.error('Erreur lors du chargement des pays:', error);
       // Fallback avec données mock
@@ -1237,7 +1238,8 @@ class ApiService {
   // Récupérer la liste des régions
   async getRegions(): Promise<Region[]> {
     try {
-      return await this.request(API_CONFIG.endpoints.regions);
+      const r: Region[] = await this.request(API_CONFIG.endpoints.regions);
+      return r.sort((a: Region, b: Region) => a.name.localeCompare(b.name));
     } catch (error) {
       console.error('Erreur lors du chargement des régions:', error);
       // Fallback avec données mock

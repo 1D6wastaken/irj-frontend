@@ -351,7 +351,7 @@ export function SearchResults({
                                                     >
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center gap-2 mb-1">
-                                                                <Badge variant="secondary"
+                                                                <Badge variant="outline"
                                                                        className={`text-xs ${categoryInfo ? categoryInfo.color : ''}`}>
                                                                     <MapPin className="w-3 h-3 mr-1"/>
                                                                     {SOURCE_LABELS[item.source]}
@@ -378,7 +378,7 @@ export function SearchResults({
                                                 <div className="p-2 bg-muted/30 text-center">
                                                     <button
                                                         onClick={handleSearch}
-                                                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                                        className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                                                     >
                                                         Voir tous les résultats pour "{searchQuery}"
                                                     </button>
@@ -574,7 +574,7 @@ export function SearchResults({
                                                         alt={result.medias[0].title}
                                                         className="w-full h-full object-cover"
                                                     />
-                                                    <Badge className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
+                                                    <Badge variant="outline" className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
                                                         <MapPin className="w-3 h-3 mr-1"/>
                                                         {SOURCE_LABELS[result.source]}
                                                     </Badge>
@@ -585,7 +585,7 @@ export function SearchResults({
                                                         className="w-full h-full bg-muted flex items-center justify-center">
                                                         <Search className="w-12 h-12 text-muted-foreground"/>
                                                     </div>
-                                                    <Badge className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
+                                                    <Badge variant="outline" className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
                                                         <MapPin className="w-3 h-3 mr-1"/>
                                                         {SOURCE_LABELS[result.source]}
                                                     </Badge>
