@@ -204,7 +204,7 @@ export function SearchSection({ onSearch, onViewDetail }: SearchSectionProps) {
                 {showAutocomplete && (
                   <div
                     ref={autocompleteRef}
-                    className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-90 overflow-y-auto"
                   >
                     {isLoadingAutocomplete ? (
                       <div className="p-4 text-center text-muted-foreground">

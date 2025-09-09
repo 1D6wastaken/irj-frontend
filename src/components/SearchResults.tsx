@@ -140,12 +140,11 @@ export function SearchResults({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-
     // Effet pour effectuer la recherche initiale
     useEffect(() => {
         performSearch(initialQuery, initialCategories, initialFilters, 1, resultsPerPage);
-        // Scroll vers le haut lors du chargement
-        window.scrollTo({top: 0, behavior: 'smooth'});
+
+
     }, []);
 
     // Effet pour rechercher quand la page ou le nombre de résultats par page change
@@ -154,6 +153,14 @@ export function SearchResults({
             performSearch(searchQuery, selectedCategories, appliedFilters, currentPage, resultsPerPage);
         }
     }, [currentPage, resultsPerPage]);
+
+    // Effet delayé pour ne pas afficher l'autocomplete
+    useEffect(() => {
+        // Scroll vers le haut lors du chargement
+        setTimeout(() => {
+            setShowAutocomplete(false);
+        }, 100);
+    })
 
     const totalPages = Math.ceil(totalResults / resultsPerPage);
 
@@ -329,7 +336,7 @@ export function SearchResults({
                                 {showAutocomplete && (
                                     <div
                                         ref={autocompleteRef}
-                                        className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+                                        className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-90 overflow-y-auto"
                                     >
                                         {isLoadingAutocomplete ? (
                                             <div className="p-4 text-center text-muted-foreground">

@@ -312,7 +312,7 @@ export default function App() {
     // Force scroll to top on page change
     useEffect(() => {
         if (currentPage === 'search' || currentPage === 'detail' || currentPage === 'validate-form-detail' || currentPage === 'contribute') {
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            setTimeout(() => {window.scrollTo({top: 0, behavior: 'smooth'});}, 50);
         }
     }, [currentPage]);
 
