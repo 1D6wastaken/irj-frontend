@@ -73,7 +73,7 @@ export function Footer({ user, onContribute, onNavigateToLegal }: FooterProps) {
                             </div>
                             <div className="flex items-center space-x-3">
                                 <MousePointerClick className="w-5 h-5 text-red-200" />
-                                <a href="https://1d6.com" className="text-red-100 text-sm md:text-base">1D6.com</a>
+                                <a href="https://1d6.fr" className="text-red-100 text-sm md:text-base">1D6.fr</a>
                             </div>
                         </div>
                     </div>
