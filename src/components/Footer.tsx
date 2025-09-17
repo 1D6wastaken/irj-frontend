@@ -1,4 +1,5 @@
 import {Mail, MapPin, MousePointerClick, Phone, User} from "lucide-react";
+import {dynamicHomeText} from "../hooks/dynamicHomeText.tsx";
 
 interface FooterProps {
     user?: any;
@@ -7,6 +8,7 @@ interface FooterProps {
 }
 
 export function Footer({ user, onContribute, onNavigateToLegal }: FooterProps) {
+    const {t} = dynamicHomeText();
     return (
         <footer className="bg-primary text-primary-foreground">
             <div className="container mx-auto px-4 py-12 md:py-16">
@@ -22,8 +24,8 @@ export function Footer({ user, onContribute, onNavigateToLegal }: FooterProps) {
                             </div>
                         </div>
                         <p className="text-red-100 mb-6 max-w-md">
-                            Site dédié à l'inventaire et à la valorisation du patrimoine jacquaire européen.<br/>
-                            Découvrez, explorez et contribuez à la préservation de cet héritage.
+                            {t('footer.description1')}<br/>
+                            {t('footer.description2')}
                         </p>
                     </div>
 

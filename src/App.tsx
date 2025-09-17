@@ -26,6 +26,7 @@ import {CookieBanner} from "./components/CookieBanner";
 import {toast, Toaster} from "sonner";
 import {apiService, ApiError, PendingUser, PendingForm} from "./config/api";
 import {CrashBoundary} from "./components/CrashBoundary.tsx";
+import {LanguageProvider} from "./hooks/dynamicHomeText.tsx";
 
 export interface AdvancedFilters {
     location?: {
@@ -537,54 +538,56 @@ export default function App() {
     if (currentPage === 'email-validation') {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <EmailValidationPage
-                    token={emailValidationToken}
-                    onBack={handleBackToHome}
-                />
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <EmailValidationPage
+                            token={emailValidationToken}
+                            onBack={handleBackToHome}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Modals */}
-                <SignupModal
-                    isOpen={showSignupModal}
-                    onClose={() => setShowSignupModal(false)}
-                    onSubmit={handleSignup}
-                />
-                <LoginModal
-                    isOpen={showLoginModal}
-                    onClose={() => setShowLoginModal(false)}
-                    onSubmit={handleLogin}
-                    onForgotPassword={openResetPasswordModal}
-                    onPendingApproval={handlePendingApproval}
-                    onEmailConfirmation={handleEmailConfirmation}
-                />
-                <ResetPasswordModal
-                    isOpen={showResetPasswordModal}
-                    onClose={() => setShowResetPasswordModal(false)}
-                />
-                <PendingApprovalModal
-                    isOpen={showPendingApprovalModal}
-                    onClose={() => setShowPendingApprovalModal(false)}
-                />
-                <EmailConfirmationModal
-                    isOpen={showEmailConfirmationModal}
-                    onClose={() => setShowEmailConfirmationModal(false)}
-                />
+                        {/* Modals */}
+                        <SignupModal
+                            isOpen={showSignupModal}
+                            onClose={() => setShowSignupModal(false)}
+                            onSubmit={handleSignup}
+                        />
+                        <LoginModal
+                            isOpen={showLoginModal}
+                            onClose={() => setShowLoginModal(false)}
+                            onSubmit={handleLogin}
+                            onForgotPassword={openResetPasswordModal}
+                            onPendingApproval={handlePendingApproval}
+                            onEmailConfirmation={handleEmailConfirmation}
+                        />
+                        <ResetPasswordModal
+                            isOpen={showResetPasswordModal}
+                            onClose={() => setShowResetPasswordModal(false)}
+                        />
+                        <PendingApprovalModal
+                            isOpen={showPendingApprovalModal}
+                            onClose={() => setShowPendingApprovalModal(false)}
+                        />
+                        <EmailConfirmationModal
+                            isOpen={showEmailConfirmationModal}
+                            onClose={() => setShowEmailConfirmationModal(false)}
+                        />
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner />
+                    </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -593,7 +596,8 @@ export default function App() {
     if (currentPage === 'legal-mentions') {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -638,6 +642,7 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -646,7 +651,8 @@ export default function App() {
     if (currentPage === 'privacy-policy') {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -691,6 +697,7 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -699,7 +706,8 @@ export default function App() {
     if (currentPage === 'terms-of-use') {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -744,6 +752,7 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -752,7 +761,8 @@ export default function App() {
     if (currentPage === 'detail') {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -801,6 +811,7 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -809,7 +820,8 @@ export default function App() {
     if (currentPage === 'contribute' && user) {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -827,6 +839,7 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -834,7 +847,8 @@ export default function App() {
     if (currentPage === 'account' && user) {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -857,6 +871,7 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -865,7 +880,8 @@ export default function App() {
     if (currentPage === 'validate-forms' && user?.role === 'admin') {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -889,6 +905,7 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -896,7 +913,8 @@ export default function App() {
     if (currentPage === 'validate-form-detail' && user?.role === 'admin') {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -921,6 +939,7 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -928,7 +947,8 @@ export default function App() {
     if (currentPage === 'validate-contributors' && user?.role === 'admin') {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -951,6 +971,7 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
@@ -958,7 +979,8 @@ export default function App() {
     if (currentPage === 'search') {
         return (
             <CrashBoundary onResetToHome={handleBackToHome}>
-            <div className="min-h-screen bg-white">
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
                 <Header
                     user={user}
                     onSignup={openSignupModal}
@@ -1010,13 +1032,15 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
             </CrashBoundary>
         );
     }
 
     return (
         <CrashBoundary onResetToHome={handleBackToHome}>
-        <div className="min-h-screen bg-white">
+            <LanguageProvider>
+                <div className="min-h-screen bg-white">
             <Header
                 user={user}
                 onSignup={openSignupModal}
@@ -1082,6 +1106,7 @@ export default function App() {
 
             <CookieBanner />
         </div>
+            </LanguageProvider>
         </CrashBoundary>
     );
 }
