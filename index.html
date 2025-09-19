@@ -1,13 +1,68 @@
-<!doctype html>
-<html lang="fr" translate="no">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="favico.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Encodage et compatibilité -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Balises SEO principales -->
     <title>Patrimoine de Saint-Jacques</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="src/main.tsx"></script>
-  </body>
+    <meta name="description"
+          content="Découvrez le patrimoine jacquaire : monuments, lieux, objets, images et figures liés à Saint-Jacques-de-Compostelle. Consultez la base de données interactive et contribuez en vous inscrivant.">
+
+    <!-- Balises de référencement sémantique -->
+    <meta name="keywords"
+          content="Patrimoine Jacquaire, Saint-Jacques-de-Compostelle, monuments, pèlerinage, base de données, patrimoine culturel, fiches patrimoine, contribution, France, Europe">
+    <meta name="author" content="Benoit Maret">
+    <!-- Open Graph (partage réseaux sociaux) -->
+    <meta property="og:title"
+          content="Le site du patrimoine jacquaire européen">
+    <meta property="og:description"
+          content="Explorez et contribuez à la base de données interactive dédiée au patrimoine jacquaire : monuments, objets, personnes et lieux.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://test.saintjacquesinfo.eu/#/">
+    <meta property="og:image" content="https://test.saintjacquesinfo.eu/#/images/aperçu.jpg">
+    <meta property="og:locale" content="fr_FR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title"
+          content="Le site du patrimoine jacquaire européen">
+    <meta name="twitter:description"
+          content="Découvrez et contribuez à la base de données interactive sur le patrimoine jacquaire.">
+    <meta name="twitter:image" content="https://test.saintjacquesinfo.eu/#/images/aperçu.jpg">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://test.saintjacquesinfo.eu/#/">
+
+    <!-- Favicons -->
+    <link rel="icon" href="/favico.ico" type="image/x-icon">
+
+    <!-- Données structurées Schema.org (JSON-LD) -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Le site du patrimoine jacquaire européen",
+            "url": "https://test.saintjacquesinfo.eu/#/",
+            "description": "Base de données interactive dédiée au patrimoine jacquaire : monuments, lieux, mobiliers, images et figures liées à Saint-Jacques-de-Compostelle.",
+            "inLanguage": "fr",
+            "publisher": {
+                "@type": "Organization",
+                "name": "Le site du patrimoine jacquaire européen",
+                "url": "https://test.saintjacquesinfo.eu/#/"
+            },
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://test.saintjacquesinfo.eu/#/search?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+            }
+        }
+    </script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="src/main.tsx"></script>
+</body>
 </html>
