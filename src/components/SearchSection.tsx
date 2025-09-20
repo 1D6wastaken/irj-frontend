@@ -297,7 +297,7 @@ export function SearchSection({onSearch, onViewDetail}: SearchSectionProps) {
                                         <Badge
                                             key={category.id}
                                             variant={isSelected ? "default" : "outline"}
-                                            className={`cursor-pointer px-4 py-2 transition-all duration-200 ${
+                                            className={`cursor-pointer px-4 py-3 transition-all duration-200 text-xs lg:text-sm ${
                                                 isSelected
                                                     ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                                                     : 'hover:bg-accent hover:text-accent-foreground'

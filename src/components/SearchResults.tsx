@@ -448,7 +448,7 @@ export function SearchResults({
                                                 <Badge
                                                     key={category.id}
                                                     variant={isSelected ? "default" : "outline"}
-                                                    className={`cursor-pointer px-3 py-2 transition-all duration-200 ${
+                                                    className={`cursor-pointer px-4 py-3 transition-all duration-200 text-xs lg:text-sm ${
                                                         isSelected ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
                                                     }`}
                                                     onClick={() => toggleCategory(category.id)}
