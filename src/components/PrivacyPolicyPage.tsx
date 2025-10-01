@@ -12,7 +12,7 @@ export function PrivacyPolicyPage({ onBack }: PrivacyPolicyPageProps) {
         <div className="min-h-screen bg-background">
             {/* En-tête */}
             <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center h-16">
                         <Button
                             variant="ghost"
@@ -27,7 +27,7 @@ export function PrivacyPolicyPage({ onBack }: PrivacyPolicyPageProps) {
             </div>
 
             {/* Contenu */}
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="space-y-8">
                     {/* Titre principal */}
                     <div className="text-center space-y-4">
@@ -88,8 +88,8 @@ export function PrivacyPolicyPage({ onBack }: PrivacyPolicyPageProps) {
 
                                     <div className="flex items-center space-x-3">
                                         <Mail className="w-5 h-5"/>
-                                        <a href="mailto:institut.irj@gmail.com"
-                                           className="text-sm md:text-base">institut.irj@gmail.com</a>
+                                        <a href="mailto:contact@saintjacquesinfo.eu"
+                                           className="text-sm md:text-base">contact@saintjacquesinfo.eu</a>
                                     </div>
                                 </div>
                             </CardContent>
@@ -204,8 +204,8 @@ export function PrivacyPolicyPage({ onBack }: PrivacyPolicyPageProps) {
                                 </div>
                                 <div>
                                     <h4 className="font-medium mb-2">Compte supprimé :</h4>
-                                    <p>Lors qu'un utilisateur demande la suppression de son compte, les informations sont automatiquement supprimées.<br/>
-                                    Seul le nom et le prénom persiste en base de données si le contributeur a soumis une fiche.<br/>Ces informations sont alors utiliser pour tracer l'auteur de la fiche</p>
+                                    <p>Lorsqu'un utilisateur demande la suppression de son compte, les informations sont automatiquement supprimées.<br/>
+                                    Seuls les nom et le prénom persistent en base de données si le contributeur a soumis une fiche.<br/>Ces informations sont alors utilisées pour tracer l'auteur de la fiche</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -270,7 +270,7 @@ export function PrivacyPolicyPage({ onBack }: PrivacyPolicyPageProps) {
                                     <p>S'opposer au traitement pour des raisons légitimes.</p>
                                 </div>
                                 <p className="mt-4 p-4 bg-muted rounded-lg">
-                                    <strong>Pour exercer vos droits :</strong> Contactez-nous à institut.irj@gmail.com
+                                    <strong>Pour exercer vos droits :</strong> Contactez-nous à contact@saintjacquesinfo.eu
                                     en précisant votre demande et en joignant une copie de votre pièce d'identité.
                                 </p>
                             </CardContent>
@@ -330,7 +330,7 @@ export function PrivacyPolicyPage({ onBack }: PrivacyPolicyPageProps) {
                             <p>Dernière mise à jour : Août 2025</p>
                             <p className="mt-2">
                                 Pour toute question concernant cette politique de confidentialité,
-                                contactez-nous à institut.irj@gmail.com
+                                contactez-nous à contact@saintjacquesinfo.eu
                             </p>
                         </div>
                     </div>

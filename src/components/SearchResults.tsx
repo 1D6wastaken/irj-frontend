@@ -140,12 +140,11 @@ export function SearchResults({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-
     // Effet pour effectuer la recherche initiale
     useEffect(() => {
         performSearch(initialQuery, initialCategories, initialFilters, 1, resultsPerPage);
-        // Scroll vers le haut lors du chargement
-        window.scrollTo({top: 0, behavior: 'smooth'});
+
+
     }, []);
 
     // Effet pour rechercher quand la page ou le nombre de résultats par page change
@@ -154,6 +153,14 @@ export function SearchResults({
             performSearch(searchQuery, selectedCategories, appliedFilters, currentPage, resultsPerPage);
         }
     }, [currentPage, resultsPerPage]);
+
+    // Effet delayé pour ne pas afficher l'autocomplete
+    useEffect(() => {
+        // Scroll vers le haut lors du chargement
+        setTimeout(() => {
+            setShowAutocomplete(false);
+        }, 100);
+    })
 
     const totalPages = Math.ceil(totalResults / resultsPerPage);
 
@@ -329,7 +336,7 @@ export function SearchResults({
                                 {showAutocomplete && (
                                     <div
                                         ref={autocompleteRef}
-                                        className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+                                        className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-90 overflow-y-auto"
                                     >
                                         {isLoadingAutocomplete ? (
                                             <div className="p-4 text-center text-muted-foreground">
@@ -351,7 +358,7 @@ export function SearchResults({
                                                     >
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center gap-2 mb-1">
-                                                                <Badge variant="secondary"
+                                                                <Badge variant="outline"
                                                                        className={`text-xs ${categoryInfo ? categoryInfo.color : ''}`}>
                                                                     <MapPin className="w-3 h-3 mr-1"/>
                                                                     {SOURCE_LABELS[item.source]}
@@ -378,7 +385,7 @@ export function SearchResults({
                                                 <div className="p-2 bg-muted/30 text-center">
                                                     <button
                                                         onClick={handleSearch}
-                                                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                                        className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                                                     >
                                                         Voir tous les résultats pour "{searchQuery}"
                                                     </button>
@@ -441,7 +448,7 @@ export function SearchResults({
                                                 <Badge
                                                     key={category.id}
                                                     variant={isSelected ? "default" : "outline"}
-                                                    className={`cursor-pointer px-3 py-2 transition-all duration-200 ${
+                                                    className={`cursor-pointer px-4 py-3 transition-all duration-200 text-xs lg:text-sm ${
                                                         isSelected ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
                                                     }`}
                                                     onClick={() => toggleCategory(category.id)}
@@ -574,7 +581,7 @@ export function SearchResults({
                                                         alt={result.medias[0].title}
                                                         className="w-full h-full object-cover"
                                                     />
-                                                    <Badge className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
+                                                    <Badge variant="outline" className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
                                                         <MapPin className="w-3 h-3 mr-1"/>
                                                         {SOURCE_LABELS[result.source]}
                                                     </Badge>
@@ -585,7 +592,7 @@ export function SearchResults({
                                                         className="w-full h-full bg-muted flex items-center justify-center">
                                                         <Search className="w-12 h-12 text-muted-foreground"/>
                                                     </div>
-                                                    <Badge className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
+                                                    <Badge variant="outline" className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
                                                         <MapPin className="w-3 h-3 mr-1"/>
                                                         {SOURCE_LABELS[result.source]}
                                                     </Badge>

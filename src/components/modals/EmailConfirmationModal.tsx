@@ -9,7 +9,7 @@ interface EmailConfirmationModalProps {
 
 export function EmailConfirmationModal({ isOpen, onClose }: EmailConfirmationModalProps) {
   const handleContactSupport = () => {
-    window.location.href = 'mailto:institut.irj@gmail.com?subject=Problème de validation d\'email';
+    window.location.href = 'mailto:contact@saintjacquesinfo.eu?subject=Problème de validation d\'email';
   };
 
   return (

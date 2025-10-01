@@ -69,7 +69,7 @@ export function EmailValidationPage({ token, onBack }: EmailValidationPageProps)
             </div>
             <h1 className="mb-4 text-green-700">Email validé avec succès !</h1>
             <p className="text-muted-foreground mb-6">
-              Votre adresse email a été confirmée. Vous pouvez maintenant vous connecter à votre compte pour contribuer au patrimoine religieux de Saint-Jacques.
+              Votre adresse email a été confirmée. Vous pouvez maintenant vous connecter à votre compte pour contribuer au patrimoine jacquaire.
             </p>
             <div className="flex gap-3 justify-center">
               <Button onClick={onBack}>

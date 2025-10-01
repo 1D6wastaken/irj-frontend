@@ -197,7 +197,7 @@ export function PasswordResetPage({ token, onBack }: PasswordResetPageProps) {
           <div className="bg-muted rounded-lg p-4">
             <h4 className="mb-2">Besoin d'aide ?</h4>
             <p className="text-sm text-muted-foreground">
-              Si vous rencontrez des difficultés, n'hésitez pas à contacter notre support technique à l'adresse institut.irj@gmail.com
+              Si vous rencontrez des difficultés, n'hésitez pas à contacter notre support technique à l'adresse contact@saintjacquesinfo.eu
             </p>
           </div>
         </div>

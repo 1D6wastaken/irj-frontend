@@ -12,7 +12,7 @@ export function TermsOfUsePage({ onBack }: TermsOfUsePageProps) {
         <div className="min-h-screen bg-background">
             {/* En-tête */}
             <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center h-16">
                         <Button
                             variant="ghost"
@@ -27,7 +27,7 @@ export function TermsOfUsePage({ onBack }: TermsOfUsePageProps) {
             </div>
 
             {/* Contenu */}
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="space-y-8">
                     {/* Titre principal */}
                     <div className="text-center space-y-4">
@@ -49,8 +49,7 @@ export function TermsOfUsePage({ onBack }: TermsOfUsePageProps) {
                                     saintjacquesinfo.eu (ci-après "le Site"), édité par l'Institut de Recherche Jacquaire.
                                 </p>
                                 <p>
-                                    Le Site a pour objet la constitution d'un inventaire collaboratif du patrimoine religieux lié
-                                    aux chemins de Saint-Jacques-de-Compostelle, permettant la recherche, la consultation et la
+                                    Le Site a pour objet la constitution d'un inventaire collaboratif du patrimoine jacquaire, permettant la recherche, la consultation et la
                                     contribution de données patrimoniales.
                                 </p>
                                 <p>
@@ -132,7 +131,7 @@ export function TermsOfUsePage({ onBack }: TermsOfUsePageProps) {
                                 <div>
                                     <h4 className="font-medium mb-2">Usage conforme :</h4>
                                     <ul className="list-disc pl-6 space-y-1">
-                                        <li>Utiliser le Site uniquement aux fins prévues</li>
+                                        <li>Utiliser le Site uniquement à des fins de recherche</li>
                                         <li>Respecter les droits de propriété intellectuelle</li>
                                         <li>Ne pas porter atteinte au fonctionnement du Site</li>
                                         <li>Ne pas diffuser de contenu illicite ou contraire aux bonnes mœurs</li>
@@ -293,7 +292,7 @@ export function TermsOfUsePage({ onBack }: TermsOfUsePageProps) {
                                 <p>
                                     Ces sanctions peuvent être appliquées sans préavis en cas de manquement grave
                                     ou répété. L'utilisateur concerné peut contester la sanction en écrivant à
-                                    institut.irj@gmail.com.
+                                    contact@saintjacquesinfo.eu.
                                 </p>
                             </CardContent>
                         </Card>
@@ -401,7 +400,7 @@ export function TermsOfUsePage({ onBack }: TermsOfUsePageProps) {
                                         39 rue du Sergent Bobillot<br/>
                                         37000 Tours<br/>
                                         France<br/>
-                                        Email : institut.irj@gmail.com
+                                        Email : contact@saintjacquesinfo.eu
                                     </p>
                                 </div>
                             </CardContent>

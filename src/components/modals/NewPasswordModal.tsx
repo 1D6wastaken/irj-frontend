@@ -139,7 +139,7 @@ export function NewPasswordModal({ isOpen, onClose, token, onSuccess }: NewPassw
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="md:max-w-3xl sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             <Lock className="w-6 h-6 text-primary" />
@@ -175,7 +175,7 @@ export function NewPasswordModal({ isOpen, onClose, token, onSuccess }: NewPassw
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
                   disabled={isLoading}
                 >
                   {showPassword ? (
@@ -223,7 +223,7 @@ export function NewPasswordModal({ isOpen, onClose, token, onSuccess }: NewPassw
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
                   disabled={isLoading}
                 >
                   {showConfirmPassword ? (

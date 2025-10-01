@@ -15,5 +15,5 @@ createRoot(document.getElementById('root')!).render(
         <Sentry.ErrorBoundary fallback={<div>⚠️ Une erreur est survenue</div>}>
             <App/>
         </Sentry.ErrorBoundary>
-    </StrictMode>,
+    </StrictMode>
 )
