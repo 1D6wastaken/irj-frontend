@@ -1057,7 +1057,13 @@ export default function App() {
             <div id="categories-section">
                 <CategoriesSection onCategoryClick={handleCategorySearch}/>
             </div>
-            <SearchSection onSearch={handleSearch} onViewDetail={handleViewDetail}/>
+            <SearchSection
+                onSearch={handleSearch}
+                onViewDetail={handleViewDetail}
+                initialQuery={searchQuery}
+                initialCategories={selectedCategories}
+                initialFilters={advancedFilters}
+            />
             <div id="mission-section">
                 <WhySection user={user} onBecomeContributor={openSignupModal} onContribute={() => setCurrentPage('contribute')}/>
             </div>

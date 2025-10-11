@@ -15,13 +15,25 @@ import {dynamicHomeText} from "../hooks/dynamicHomeText.tsx";
 interface SearchSectionProps {
     onSearch: (query: string, categories: string[], filters: AdvancedFilters) => void;
     onViewDetail?: (resultId: string, source?: string) => void;
+    initialQuery?: string;
+    initialCategories?: string[];
+    initialFilters?: AdvancedFilters;
 }
 
-export function SearchSection({onSearch, onViewDetail}: SearchSectionProps) {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-    const [pendingFilters, setPendingFilters] = useState<AdvancedFilters>({});
+export function SearchSection({
+  onSearch,
+  onViewDetail,
+  initialQuery = '',
+  initialCategories = [],
+  initialFilters = {}
+}: SearchSectionProps) {
+    const [searchQuery, setSearchQuery] = useState(initialQuery);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategories);
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(
+        // Ouvrir automatiquement si des filtres initiaux sont présents
+        Object.keys(initialFilters).length > 0
+    );
+    const [pendingFilters, setPendingFilters] = useState<AdvancedFilters>(initialFilters);
 
     // États pour l'autocomplétion
     const [autocompleteResults, setAutocompleteResults] = useState<SearchItem[]>([]);
@@ -31,6 +43,14 @@ export function SearchSection({onSearch, onViewDetail}: SearchSectionProps) {
 
     const inputRef = useRef<HTMLInputElement>(null);
     const autocompleteRef = useRef<HTMLDivElement>(null);
+
+    // Mettre à jour les états quand les props initiales changent
+    useEffect(() => {
+        setSearchQuery(initialQuery);
+        setSelectedCategories(initialCategories);
+        setPendingFilters(initialFilters);
+        setShowAdvancedFilters(Object.keys(initialFilters).length > 0);
+    }, [initialQuery, initialCategories, initialFilters]);
 
     const toggleCategory = (categoryId: string) => {
         setSelectedCategories(prev =>

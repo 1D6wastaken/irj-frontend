@@ -1,5 +1,5 @@
 import {useState, useEffect, useRef} from "react";
-import {Search, ArrowLeft, Filter, MapPin, Users, Trophy, Church, Calendar} from "lucide-react";
+import {Search, ArrowLeft, Filter, MapPin, Users, Trophy, Church, Calendar, ChevronUp, ChevronDown} from "lucide-react";
 import {Button} from "./ui/button";
 import {Input} from "./ui/input";
 import {Badge} from "./ui/badge";
@@ -15,7 +15,7 @@ import {
     PaginationNext,
     PaginationPrevious
 } from "./ui/pagination";
-import {LocationFilter} from "./filters/LocationFilter";
+import {LocationFilter, LocationFilterRef} from "./filters/LocationFilter";
 import {DynamicFilters} from "./filters/DynamicFilters";
 import {AdvancedFilters} from "../App";
 import {categories} from "../constants/filters";
@@ -47,6 +47,9 @@ export function SearchResults({
     const [showFilters, setShowFilters] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [resultsPerPage, setResultsPerPage] = useState(20); // 20 par page comme spécifié
+
+    // Ref pour accéder aux méthodes du LocationFilter
+    const locationFilterRef = useRef<LocationFilterRef>(null);
 
     // États pour l'autocomplétion
     const [autocompleteResults, setAutocompleteResults] = useState<SearchItem[]>([]);
@@ -158,7 +161,7 @@ export function SearchResults({
     useEffect(() => {
         // Scroll vers le haut lors du chargement
         setTimeout(() => {
-            setShowAutocomplete(false);
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }, 100);
     })
 
@@ -258,6 +261,12 @@ export function SearchResults({
         setAppliedFilters({});
         setPendingFilters({});
         setCurrentPage(1);
+
+        // Réinitialiser le LocationFilter via sa ref
+        if (locationFilterRef.current) {
+            locationFilterRef.current.clearAll();
+        }
+
         performSearch(searchQuery, [], {}, 1, resultsPerPage);
         onSearch(searchQuery, [], {});
     };
@@ -276,6 +285,50 @@ export function SearchResults({
         }
         return Array.isArray(value) && value.length > 0;
     });
+    // Vérifier s'il y a des filtres pendants (pour afficher le bouton "Effacer tous les filtres")
+    const hasPendingFilters = selectedCategories.length > 0 || Object.keys(pendingFilters).some(key => {
+        const value = pendingFilters[key as keyof AdvancedFilters];
+        if (key === 'location') {
+            if (typeof value === 'object' && value) {
+                return Object.values(value).some(v => Array.isArray(v) ? v.length > 0 : v);
+            }
+            return false;
+        }
+        return Array.isArray(value) && value.length > 0;
+    });
+
+    // Fonction pour compter le nombre de filtres actifs (par type, pas par valeur)
+    // Compte les filtres sélectionnés dans l'interface (pendingFilters), pas seulement ceux appliqués
+    const countActiveFilters = () => {
+        let count = 0;
+
+        // Compter les catégories sélectionnées (chaque catégorie compte pour 1)
+        count += selectedCategories.length;
+
+        // Compter les filtres de localisation (chaque type de localisation = 1 filtre)
+        if (pendingFilters.location) {
+            const locationFilters = pendingFilters.location;
+            if (locationFilters.countries && locationFilters.countries.length > 0) count++;
+            if (locationFilters.regions && locationFilters.regions.length > 0) count++;
+            if (locationFilters.departments && locationFilters.departments.length > 0) count++;
+            if (locationFilters.communes && locationFilters.communes.length > 0) count++;
+        }
+
+        // Compter tous les autres filtres (chaque type = 1 filtre, peu importe le nombre de valeurs)
+        Object.keys(pendingFilters).forEach(key => {
+            if (key !== 'location') {
+                const value = pendingFilters[key as keyof AdvancedFilters];
+                if (Array.isArray(value) && value.length > 0) {
+                    // Chaque type de filtre compte pour 1, peu importe le nombre de valeurs
+                    count++;
+                }
+            }
+        });
+
+        return count;
+    };
+
+    const activeFiltersCount = countActiveFilters();
 
     const hasPendingChanges = JSON.stringify(pendingFilters) !== JSON.stringify(appliedFilters) || JSON.stringify(pendingCategories) !== JSON.stringify(selectedCategories);
 
@@ -312,113 +365,120 @@ export function SearchResults({
                         </div>
 
                         {/* Barre de recherche responsive */}
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            {/* Input de recherche */}
-                            <div className="flex-1 relative">
-                                <Search
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4"/>
-                                <Input
-                                    ref={inputRef}
-                                    type="text"
-                                    placeholder="Rechercher des monuments, objets, personnes... (optionnel)"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    onKeyDown={handleKeyPress}
-                                    onFocus={() => {
-                                        if (autocompleteResults.length > 0) {
-                                            setShowAutocomplete(true);
-                                        }
-                                    }}
-                                    className="pl-12 py-4 text-lg border-input bg-input-background rounded-xl"
-                                />
+                        <div className="flex flex-col gap-3">
+                            {/* Input de recherche et bouton rechercher */}
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                {/* Input de recherche */}
+                                <div className="flex-1 relative">
+                                    <Search
+                                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4"/>
+                                    <Input
+                                        ref={inputRef}
+                                        type="text"
+                                        placeholder="Rechercher des monuments, objets, personnes... (optionnel)"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onKeyDown={handleKeyPress}
+                                        onFocus={() => {
+                                            if (autocompleteResults.length > 0) {
+                                                setShowAutocomplete(true);
+                                            }
+                                        }}
+                                        className="pl-12 py-4 text-lg border-input bg-input-background rounded-xl"
+                                    />
 
-                                {/* Autocomplétion */}
-                                {showAutocomplete && (
-                                    <div
-                                        ref={autocompleteRef}
-                                        className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-90 overflow-y-auto"
-                                    >
-                                        {isLoadingAutocomplete ? (
-                                            <div className="p-4 text-center text-muted-foreground">
-                                                Recherche en cours...
-                                            </div>
-                                        ) : (
-                                            <>
-                                                {autocompleteResults.map((item, index) => {
-                                                    const categoryInfo = categories.find(cat => cat.id === item.source);
+                                    {/* Autocomplétion */}
+                                    {showAutocomplete && (
+                                        <div
+                                            ref={autocompleteRef}
+                                            className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-90 overflow-y-auto"
+                                        >
+                                            {isLoadingAutocomplete ? (
+                                                <div className="p-4 text-center text-muted-foreground">
+                                                    Recherche en cours...
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    {autocompleteResults.map((item, index) => {
+                                                        const categoryInfo = categories.find(cat => cat.id === item.source);
 
-                                                    return <div
-                                                        key={item.id}
-                                                        className={`p-3 border-b border-border last:border-b-0 cursor-pointer transition-colors ${
-                                                            index === selectedAutocompleteIndex
-                                                                ? 'bg-accent'
-                                                                : 'hover:bg-accent/50'
-                                                        }`}
-                                                        onClick={() => handleAutocompleteSelect(item)}
-                                                    >
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <Badge variant="outline"
-                                                                       className={`text-xs ${categoryInfo ? categoryInfo.color : ''}`}>
-                                                                    <MapPin className="w-3 h-3 mr-1"/>
-                                                                    {SOURCE_LABELS[item.source]}
-                                                                </Badge>
-                                                            </div>
-                                                            <p className="font-medium text-sm line-clamp-1">{item.title}</p>
-                                                            <div className="flex flex-wrap gap-1 mt-1">
-                                                                {item.natures?.slice(0, 2).map((nature) => (
-                                                                    <Badge key={nature} variant="outline"
-                                                                           className="text-xs">
-                                                                        {nature}
+                                                        return <div
+                                                            key={item.id}
+                                                            className={`p-3 border-b border-border last:border-b-0 cursor-pointer transition-colors ${
+                                                                index === selectedAutocompleteIndex
+                                                                    ? 'bg-accent'
+                                                                    : 'hover:bg-accent/50'
+                                                            }`}
+                                                            onClick={() => handleAutocompleteSelect(item)}
+                                                        >
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <Badge variant="secondary"
+                                                                           className={`text-xs ${categoryInfo ? categoryInfo.color : ''}`}>
+                                                                        <MapPin className="w-3 h-3 mr-1"/>
+                                                                        {SOURCE_LABELS[item.source]}
                                                                     </Badge>
-                                                                ))}
-                                                                {item.centuries?.slice(0, 1).map((century) => (
-                                                                    <Badge key={century} variant="outline"
-                                                                           className="text-xs">
-                                                                        {century}
-                                                                    </Badge>
-                                                                ))}
+                                                                </div>
+                                                                <p className="font-medium text-sm line-clamp-1">{item.title}</p>
+                                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                                    {item.natures?.slice(0, 2).map((nature) => (
+                                                                        <Badge key={nature} variant="outline"
+                                                                               className="text-xs">
+                                                                            {nature}
+                                                                        </Badge>
+                                                                    ))}
+                                                                    {item.centuries?.slice(0, 1).map((century) => (
+                                                                        <Badge key={century} variant="outline"
+                                                                               className="text-xs">
+                                                                            {century}
+                                                                        </Badge>
+                                                                    ))}
+                                                                </div>
                                                             </div>
                                                         </div>
+                                                    })}
+                                                    <div className="p-2 bg-muted/30 text-center">
+                                                        <button
+                                                            onClick={handleSearch}
+                                                            className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                                                        >
+                                                            Voir tous les résultats pour "{searchQuery}"
+                                                        </button>
                                                     </div>
-                                                })}
-                                                <div className="p-2 bg-muted/30 text-center">
-                                                    <button
-                                                        onClick={handleSearch}
-                                                        className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                                                    >
-                                                        Voir tous les résultats pour "{searchQuery}"
-                                                    </button>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
 
-                            {/* Boutons d'action */}
-                            <div className="flex gap-2 sm:gap-3">
-                                <Button onClick={handleSearch} className="flex-1 sm:flex-none sm:px-6"
+                                {/* Bouton rechercher */}
+                                <Button onClick={handleSearch} className="w-full sm:w-auto sm:px-6"
                                         disabled={isLoading}>
                                     {isLoading ? 'Recherche...' : 'Rechercher'}
                                 </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setShowFilters(!showFilters)}
-                                    className="flex-1 sm:flex-none flex items-center justify-center gap-2"
-                                >
-                                    <Filter className="w-4 h-4"/>
-                                    <span className="hidden xs:inline">Filtres</span>
-                                    {hasActiveFilters && (
-                                        <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">
-                                            Actifs
-                                        </Badge>
-                                    )}
-                                    {hasActiveFilters && (
-                                        <div className="w-2 h-2 bg-primary rounded-full sm:hidden"></div>
-                                    )}
-                                </Button>
                             </div>
+
+                            <Button
+                                variant={showFilters ? "secondary" : "outline"}
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="w-full flex items-center justify-between gap-2 py-6"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Filter className="w-5 h-5"/>
+                                    <span>
+                                        {activeFiltersCount > 0
+                                            ? `Mettre à jour les filtres : ${activeFiltersCount} filtre${activeFiltersCount > 1 ? 's' : ''} actif${activeFiltersCount > 1 ? 's' : ''}`
+                                            : 'Filtrer les résultats'
+                                        }
+                                      </span>
+                                </div>
+                                {showFilters ? (
+                                    <ChevronUp className="w-5 h-5"/>
+                                ) : (
+                                    <ChevronDown className="w-5 h-5"/>
+                                )}
+                            </Button>
+
                         </div>
 
                         {/* Section des filtres */}
@@ -426,7 +486,7 @@ export function SearchResults({
                             <div className="bg-white rounded-lg p-4 border border-border space-y-4">
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-medium">Filtres</h3>
-                                    {hasActiveFilters && (
+                                    {hasPendingFilters && (
                                         <Button variant="ghost" size="sm" onClick={clearFilters}>
                                             <span className="hidden sm:inline">Effacer tous les filtres</span>
                                             <span className="sm:hidden">Effacer tout</span>
@@ -464,8 +524,10 @@ export function SearchResults({
                                 {/* Filtres de localisation */}
                                 <div className="border border-border rounded-lg p-4">
                                     <LocationFilter
+                                        ref={locationFilterRef}
                                         value={pendingFilters.location || {}}
                                         onChange={handleLocationChange}
+                                        showClearButton={false}
                                     />
                                 </div>
 
@@ -497,7 +559,8 @@ export function SearchResults({
             <div className="container mx-auto px-4 py-8">
                 <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Résultats de recherche</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Résultats de
+                            recherche</h1>
                         {isLoading ? (
                             <p className="text-muted-foreground">Recherche en cours...</p>
                         ) : searchError ? (
@@ -515,8 +578,10 @@ export function SearchResults({
                     {!isLoading && !searchError && totalResults > 0 && (
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm">
                             <div className="flex items-center gap-2">
-                                <span className="text-muted-foreground whitespace-nowrap">Résultats par page :</span>
-                                <Select value={resultsPerPage.toString()} onValueChange={handleResultsPerPageChange}>
+                                    <span
+                                        className="text-muted-foreground whitespace-nowrap">Résultats par page :</span>
+                                <Select value={resultsPerPage.toString()}
+                                        onValueChange={handleResultsPerPageChange}>
                                     <SelectTrigger className="w-20">
                                         <SelectValue/>
                                     </SelectTrigger>
@@ -581,7 +646,8 @@ export function SearchResults({
                                                         alt={result.medias[0].title}
                                                         className="w-full h-full object-cover"
                                                     />
-                                                    <Badge variant="outline" className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
+                                                    <Badge variant="outline"
+                                                           className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
                                                         <MapPin className="w-3 h-3 mr-1"/>
                                                         {SOURCE_LABELS[result.source]}
                                                     </Badge>
@@ -592,7 +658,8 @@ export function SearchResults({
                                                         className="w-full h-full bg-muted flex items-center justify-center">
                                                         <Search className="w-12 h-12 text-muted-foreground"/>
                                                     </div>
-                                                    <Badge variant="outline" className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
+                                                    <Badge variant="outline"
+                                                           className={`absolute top-3 left-3 ${categoryInfo?.color}`}>
                                                         <MapPin className="w-3 h-3 mr-1"/>
                                                         {SOURCE_LABELS[result.source]}
                                                     </Badge>
