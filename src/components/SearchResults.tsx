@@ -467,7 +467,7 @@ export function SearchResults({
                                     <Filter className="w-5 h-5"/>
                                     <span>
                                         {activeFiltersCount > 0
-                                            ? `Mettre à jour les filtres : ${activeFiltersCount} filtre${activeFiltersCount > 1 ? 's' : ''} actif${activeFiltersCount > 1 ? 's' : ''}`
+                                            ? `Mettre à jour les filtres (${activeFiltersCount} filtre${activeFiltersCount > 1 ? 's' : ''} actif${activeFiltersCount > 1 ? 's' : ''})`
                                             : 'Filtrer les résultats'
                                         }
                                       </span>
