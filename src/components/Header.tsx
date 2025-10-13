@@ -45,7 +45,7 @@ export function Header({
                         onClick={() => handleNavigation('home')}
                     >
                         <div className="bg-white text-primary w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold shadow-lg">
-                            <img src="https://saintjacquesinfo.eu/assets/logo_bw.png" alt="logo saint jacques" />
+                            <img src="/logo_bw.png" alt="logo saint jacques" />
                         </div>
                         <div className="min-w-0">
                             <h1 className="lg:text-lg md:text-2xl sm:text-lg font-bold text-white leading-tight">

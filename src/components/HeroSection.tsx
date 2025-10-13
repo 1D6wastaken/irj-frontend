@@ -46,7 +46,7 @@ export function HeroSection({onLearnMore, onExploreNow}: HeroSectionProps) {
                     <div className="lg:w-1/2 w-full">
                         <div className="relative">
                             <ImageWithFallback
-                                src="https://saintjacquesinfo.eu/assets/patrimoine_jacquaire.jpg"
+                                src="/patrimoine_jacquaire.jpg"
                                 alt="Patrimoine médiéval de Saint-Jacques"
                                 className="rounded-2xl shadow-2xl w-full h-64 md:h-96 object-cover"
                             />
