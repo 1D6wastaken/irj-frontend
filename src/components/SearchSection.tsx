@@ -21,12 +21,12 @@ interface SearchSectionProps {
 }
 
 export function SearchSection({
-  onSearch,
-  onViewDetail,
-  initialQuery = '',
-  initialCategories = [],
-  initialFilters = {}
-}: SearchSectionProps) {
+                                  onSearch,
+                                  onViewDetail,
+                                  initialQuery = '',
+                                  initialCategories = [],
+                                  initialFilters = {}
+                              }: SearchSectionProps) {
     const [searchQuery, setSearchQuery] = useState(initialQuery);
     const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategories);
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(

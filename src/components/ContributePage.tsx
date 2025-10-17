@@ -1,23 +1,54 @@
-import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Save, MapPin, Plus, X, CheckCircle, Users, Link, ChevronDown, Search, AlertTriangle } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Checkbox } from "./ui/checkbox";
-import { Badge } from "./ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
-import { toast } from "sonner";
-import { categories } from "../constants/filters";
-import { sourceTypes } from "../constants/formConstants";
-import { apiService, FilterOption, Country, Region, Department, Commune, ApiError, SearchRequestBody, SearchItem } from "../config/api";
-import { User } from "../App";
+import {useState, useEffect, useRef} from "react";
+import {
+    ArrowLeft,
+    Save,
+    MapPin,
+    Plus,
+    X,
+    CheckCircle,
+    Users,
+    Link,
+    Search,
+    AlertTriangle,
+    ImageIcon,
+    Trash2
+} from "lucide-react";
+import {Button} from "./ui/button";
+import {Input} from "./ui/input";
+import {Label} from "./ui/label";
+import {Textarea} from "./ui/textarea";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "./ui/select";
+import {Checkbox} from "./ui/checkbox";
+import {Badge} from "./ui/badge";
+import {Card, CardContent, CardHeader, CardTitle} from "./ui/card";
+import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "./ui/dialog";
+import {toast} from "sonner";
+import {categories} from "../constants/filters";
+import {sourceTypes} from "../constants/formConstants";
+import {
+    apiService,
+    FilterOption,
+    Country,
+    Region,
+    Department,
+    Commune,
+    ApiError,
+    SearchRequestBody,
+    SearchItem
+} from "../config/api";
+import {User} from "../App";
+import {SearchableMultiSelect} from "./SearchableMultiSelect";
+import {SearchableSelect} from "./SearchableSelect";
 
 interface ContributePageProps {
     user: User;
     onBack: () => void;
+}
+
+interface ImageUpload {
+    file: File;
+    caption: string;
+    preview: string;
 }
 
 interface FormData {
@@ -30,8 +61,7 @@ interface FormData {
         region: string;
         country: string;
     };
-    image: File | null;
-    imageCaption: string;
+    images: ImageUpload[];
     themes: string[];
     contributors: string[];
     relatedForms: { id: string; title: string; source: string; }[];
@@ -78,7 +108,7 @@ interface FormData {
     deathDate?: string;
 }
 
-export function ContributePage({ user, onBack }: ContributePageProps) {
+export function ContributePage({user, onBack}: ContributePageProps) {
     const [formData, setFormData] = useState<FormData>({
         category: '',
         name: '',
@@ -89,8 +119,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
             region: '',
             country: ''
         },
-        image: null,
-        imageCaption: '',
+        images: [],
         themes: [],
         contributors: [],
         relatedForms: [],
@@ -131,9 +160,6 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
     const [selectedCommune, setSelectedCommune] = useState<Commune | null>(null);
 
     // États pour l'interface de localisation
-    const [openCountries, setOpenCountries] = useState(false);
-    const [openRegions, setOpenRegions] = useState(false);
-    const [openDepartments, setOpenDepartments] = useState(false);
     const [communeQuery, setCommuneQuery] = useState('');
     const [showCommuneResults, setShowCommuneResults] = useState(false);
     const [isSearchingCommunes, setIsSearchingCommunes] = useState(false);
@@ -320,7 +346,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
         setIsSearchingFiches(true);
         try {
-            let searchReqBody : SearchRequestBody = {}
+            let searchReqBody: SearchRequestBody = {}
             switch (formData.category) {
                 case 'monuments_lieux':
                     searchReqBody = {
@@ -386,7 +412,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
             [field]: value
         }));
         if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
+            setErrors(prev => ({...prev, [field]: ''}));
         }
     };
 
@@ -423,7 +449,10 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                 country: country.name
             }
         }));
-        setOpenCountries(false);
+        // Effacer l'erreur de localisation si elle existe
+        if (errors.location) {
+            setErrors(prev => ({...prev, location: ''}));
+        }
     };
 
     // Gestion de la sélection de région
@@ -440,7 +469,6 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                 country: region.pays.name
             }
         }));
-        setOpenRegions(false);
     };
 
     // Gestion de la sélection de département
@@ -456,7 +484,6 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                 country: department.region.pays.name
             }
         }));
-        setOpenDepartments(false);
     };
 
     // Gestion de la sélection de commune
@@ -482,6 +509,11 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
         setCommuneQuery(''); // Vider la query de recherche
         setShowCommuneResults(false);
+
+        // Effacer l'erreur de localisation si elle existe
+        if (errors.location) {
+            setErrors(prev => ({...prev, location: ''}));
+        }
     };
 
     const handleSourceChange = (field: keyof FormData['source'], value: string) => {
@@ -504,39 +536,51 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         }));
     };
 
-    const toggleArrayField = (field: keyof FormData, value: string) => {
-        setFormData(prev => {
-            const currentArray = (prev[field] as string[]) || [];
-            const newArray = currentArray.includes(value)
-                ? currentArray.filter(item => item !== value)
-                : [...currentArray, value];
-            return {
-                ...prev,
-                [field]: newArray
-            };
-        });
-    };
-
-    const handleMultiSelectChange = (field: keyof FormData, value: string) => {
-        setFormData(prev => {
-            const currentArray = (prev[field] as string[]) || [];
-            const newArray = currentArray.includes(value)
-                ? currentArray.filter(item => item !== value)
-                : [...currentArray, value];
-            return {
-                ...prev,
-                [field]: newArray
-                    .map(x => Number(x))
-                    .filter((value, index, self) => self.indexOf(value) === index),
-            };
-        });
-    };
-
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setFormData(prev => ({ ...prev, image: file }));
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            const fileArray = Array.from(files);
+            const imagePromises = fileArray.map((file) => {
+                return new Promise<ImageUpload>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        resolve({
+                            file,
+                            caption: '',
+                            preview: reader.result as string
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // Attendre que toutes les images soient chargées
+            Promise.all(imagePromises).then((newImages) => {
+                setFormData(prev => ({
+                    ...prev,
+                    images: [...prev.images, ...newImages]
+                }));
+            });
         }
+
+        // Réinitialiser l'input pour permettre de sélectionner les mêmes fichiers à nouveau
+        e.target.value = '';
+    };
+
+    const removeImage = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index)
+        }));
+    };
+
+    const updateImageCaption = (index: number, caption: string) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.map((img, i) =>
+                i === index ? {...img, caption} : img
+            )
+        }));
     };
 
     const addContributor = () => {
@@ -611,7 +655,12 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         if (!formData.category) newErrors.category = 'La catégorie est requise';
         if (!formData.name.trim()) newErrors.name = 'Le nom/titre est requis';
         if ((formData.category === 'monuments_lieux' || formData.category === 'mobiliers_images') && !formData.description?.trim()) newErrors.description = 'La description est requise';
-        
+
+        // Validation de la localisation : au moins pays OU commune requis
+        if (!selectedCountry && !selectedCommune) {
+            newErrors.location = 'Veuillez renseigner au moins un pays ou une commune';
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -624,40 +673,48 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         setIsSubmittingForm(true);
 
         try {
-            let mediaId: string | null = null;
+            const mediaIds: string[] = [];
 
-            // Étape 1: Upload de l'image si présente
-            if (formData.image) {
-                try {
-                    const uploadResponse = await apiService.uploadImage(formData.image, formData.imageCaption);
-                    mediaId = uploadResponse.id;
-                    toast.success('Image uploadée avec succès !');
-                } catch (error) {
-                    console.error('Erreur lors de l\'upload de l\'image:', error);
+            // Étape 1: Upload de toutes les images si présentes
+            if (formData.images.length > 0) {
+                toast.info(`Upload de ${formData.images.length} image(s) en cours...`);
 
-                    if (error instanceof ApiError) {
-                        if (error.status === 400) {
-                            // Erreur de chargement - demander à l'utilisateur s'il veut continuer
-                            setImageErrorType('400');
-                            setShowImageErrorModal(true);
-                            setIsSubmittingForm(false);
-                            return; // Arrêter ici et attendre la décision de l'utilisateur
-                        } else if (error.status === 500) {
-                            // Erreur interne - informer l'utilisateur
-                            setImageErrorType('500');
-                            setShowImageErrorModal(true);
-                            setIsSubmittingForm(false);
-                            return; // Arrêter ici
+                for (let i = 0; i < formData.images.length; i++) {
+                    const imageUpload = formData.images[i];
+                    try {
+                        const uploadResponse = await apiService.uploadImage(
+                            imageUpload.file,
+                            imageUpload.caption
+                        );
+                        mediaIds.push(uploadResponse.id);
+                        toast.success(`Image ${i + 1}/${formData.images.length} uploadée avec succès`);
+                    } catch (error) {
+                        console.error(`Erreur lors de l'upload de l'image ${i + 1}:`, error);
+
+                        if (error instanceof ApiError) {
+                            if (error.status === 400) {
+                                // Erreur de chargement - demander à l'utilisateur s'il veut continuer
+                                setImageErrorType('400');
+                                setShowImageErrorModal(true);
+                                setIsSubmittingForm(false);
+                                return; // Arrêter ici et attendre la décision de l'utilisateur
+                            } else if (error.status === 500) {
+                                // Erreur interne - informer l'utilisateur
+                                setImageErrorType('500');
+                                setShowImageErrorModal(true);
+                                setIsSubmittingForm(false);
+                                return; // Arrêter ici
+                            }
                         }
-                    }
 
-                    // Pour autres erreurs, continuer sans l'image
-                    toast.error('Erreur lors de l\'upload de l\'image. La fiche sera soumise sans image.');
+                        // Pour autres erreurs, continuer sans cette image
+                        toast.warning(`Erreur lors de l'upload de l'image ${i + 1}. Elle ne sera pas incluse.`);
+                    }
                 }
             }
 
-            // Étape 2: Soumission de la fiche
-            await submitFormData(mediaId);
+            // Étape 2: Soumission de la fiche avec tous les IDs d'images
+            await submitFormData(mediaIds);
 
         } catch (error) {
             console.error('Erreur lors de la soumission:', error);
@@ -670,10 +727,10 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         }
     };
 
-    const submitFormData = async (mediaId: string | null = null) => {
+    const submitFormData = async (mediaIds: string[] = []) => {
         // Préparer les données selon le type de fiche
         let submissionData: any;
-      
+
         const linkedMonumentsLieux = formData.relatedForms
             .filter(form => form.source === 'monuments_lieux')
             .map(form => form.id);
@@ -695,19 +752,19 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         if (formData.source.details) sourceComponents.push(`Détails: ${formData.source.details}`);
 
         const sourceInfo = sourceComponents.join(' | ') || undefined;
-      
+
         switch (formData.category) {
             case 'monuments_lieux':
                 submissionData = {
                     title: formData.name,
                     centuries: formData.centuries,
-                    medias: mediaId ? [mediaId] : [],
+                    medias: mediaIds,
                     city: selectedCommune?.id || undefined, // Optionnel maintenant
                     department: selectedDepartment?.id || undefined,
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined ,
+                    contributors: formData.contributors || undefined,
                     source: sourceInfo,
                     description: formData.description || '',
                     history: formData.history || undefined,
@@ -731,17 +788,17 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                 await apiService.submitMonumentLieu(submissionData);
 
                 break;
-          case 'mobiliers_images':
+            case 'mobiliers_images':
                 submissionData = {
                     title: formData.name,
                     centuries: formData.centuries,
-                    medias: mediaId ? [mediaId] : [],
+                    medias: mediaIds,
                     city: selectedCommune?.id || undefined, // Optionnel maintenant
                     department: selectedDepartment?.id || undefined,
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined ,
+                    contributors: formData.contributors || undefined,
                     source: sourceInfo,
                     description: formData.description || '',
                     inscription: formData.inscription || undefined,
@@ -763,24 +820,24 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                 await apiService.submitMobilierImage(submissionData);
 
                 break;
-          case 'personnes_morales':
+            case 'personnes_morales':
                 submissionData = {
                     title: formData.name,
                     centuries: formData.centuries,
-                    medias: mediaId ? [mediaId] : [],
+                    medias: mediaIds,
                     city: selectedCommune?.id || undefined, // Optionnel maintenant
                     department: selectedDepartment?.id || undefined,
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined ,
+                    contributors: formData.contributors || undefined,
                     source: sourceInfo,
                     simple_mention: formData.simpleMention,
                     foundation_deed: formData.foundationAct,
                     status_text: formData.statutesText,
                     functionning: formData.functioningDescription || undefined,
                     history: formData.history || undefined,
-                    social_involvement: formData.socialParticipation || undefined,  
+                    social_involvement: formData.socialParticipation || undefined,
                     linked_objects: formData.relatedObjects || undefined,
                     bibliography: formData.bibliography || undefined,
                     natures: formData.natures || [],
@@ -793,17 +850,17 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                 await apiService.submitPersonneMorale(submissionData);
 
                 break;
-          case 'personnes_physiques':
+            case 'personnes_physiques':
                 submissionData = {
                     title: formData.name,
                     centuries: formData.centuries,
-                    medias: mediaId ? [mediaId] : [],
+                    medias: mediaIds,
                     city: selectedCommune?.id || undefined, // Optionnel maintenant
                     department: selectedDepartment?.id || undefined,
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined ,
+                    contributors: formData.contributors || undefined,
                     source: sourceInfo,
                     birthday: formData.birthDate || undefined,
                     death: formData.deathDate || undefined,
@@ -832,13 +889,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         toast.success('Fiche soumise avec succès !');
     };
 
-    // Fonction pour continuer sans image (après erreur 400)
+    // Fonction pour continuer sans images (après erreur 400)
     const handleContinueWithoutImage = async () => {
         setShowImageErrorModal(false);
         setImageErrorType(null);
 
         try {
-            await submitFormData(null);
+            await submitFormData([]);
         } catch (error) {
             console.error('Erreur lors de la soumission sans image:', error);
             if (error instanceof ApiError) {
@@ -869,8 +926,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                 region: '',
                 country: ''
             },
-            image: null,
-            imageCaption: '',
+            images: [],
             themes: [],
             contributors: [],
             relatedForms: [],
@@ -910,77 +966,6 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         setIsSubmittingForm(false);
     };
 
-    // Composant réutilisable pour les selects multiples
-    const MultiSelectField = ({
-                                  options,
-                                  selected,
-                                  onSelectionChange,
-                                  placeholder,
-                                  label
-                              }: {
-        options: FilterOption[];
-        selected: string[];
-        onSelectionChange: (value: string) => void;
-        placeholder: string;
-        label: string;
-    }) => {
-        if (!Array.isArray(options) || options.length === 0) {
-            return (
-                <div>
-                    <Label>{label}</Label>
-                    <div className="text-sm text-muted-foreground mt-2">
-                        Chargement des options...
-                    </div>
-                </div>
-            );
-        }
-
-        return (
-            <div>
-                <Label>{label}</Label>
-                <div className="space-y-3 mt-3">
-                    <Select onValueChange={onSelectionChange}>
-                        <SelectTrigger>
-                            <SelectValue placeholder={placeholder} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                            {options.filter(option => option && option.id && option.name).map((option) => (
-                                <SelectItem
-                                    key={option.id}
-                                    value={option.id}
-                                    className={selected.includes(option.id) ? 'bg-accent text-accent-foreground' : ''}
-                                >
-                                    {option.name} {selected.includes(option.id) ? '✓' : ''}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    {selected.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                            {selected.map((selectedId) => {
-                                const option = options.find(o => o && o.id === selectedId);
-                                return option ? (
-                                    <Badge
-                                        key={selectedId}
-                                        variant="secondary"
-                                        className="flex items-center gap-2"
-                                    >
-                                        {option.name}
-                                        <X
-                                            className="w-3 h-3 cursor-pointer"
-                                            onClick={() => onSelectionChange(selectedId)}
-                                        />
-                                    </Badge>
-                                ) : null;
-                            })}
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
     if (isLoading) {
         return (
             <div className="min-h-screen bg-secondary py-8">
@@ -1005,7 +990,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                     <div className="max-w-2xl mx-auto">
                         <Card className="border-green-200 bg-green-50">
                             <CardContent className="text-center py-12">
-                                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
+                                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6"/>
                                 <h2 className="text-2xl font-bold text-green-800 mb-4">
                                     Fiche soumise avec succès !
                                 </h2>
@@ -1040,7 +1025,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                             onClick={onBack}
                             className="mb-4"
                         >
-                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            <ArrowLeft className="w-4 h-4 mr-2"/>
                             Retour
                         </Button>
                         <h1 className="text-3xl font-bold text-foreground">
@@ -1051,7 +1036,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                         </p>
                         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 text-blue-600" />
+                                <Users className="w-4 h-4 text-blue-600"/>
                                 <span className="text-sm font-medium text-blue-800">Auteur de la fiche</span>
                             </div>
                             <p className="text-sm text-blue-700 mt-1">
@@ -1104,7 +1089,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 className={errors.name ? 'border-destructive' : ''}
                                                 placeholder="Nom ou titre de l'élément"
                                             />
-                                            {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
+                                            {errors.name &&
+                                                <p className="text-destructive text-sm mt-1">{errors.name}</p>}
                                         </div>
 
                                         {/* Siècles */}
@@ -1114,136 +1100,113 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 Sélectionnez les siècles concernés (optionnel)
                                             </p>
                                             {Array.isArray(centuries) && centuries.length > 0 ? (
-                                                <div className="flex flex-wrap gap-2">
-                                                    {centuries.filter(century => century && century.id && century.name).map((century) => {
-                                                        const isSelected = formData.centuries.includes(century.id);
-                                                        return (
-                                                            <Badge
-                                                                key={century.id}
-                                                                variant={isSelected ? "default" : "outline"}
-                                                                className={`cursor-pointer ${
-                                                                    isSelected ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                                                                }`}
-                                                                onClick={() => toggleArrayField('centuries', century.id)}
-                                                            >
-                                                                {century.name}
-                                                            </Badge>
-                                                        );
-                                                    })}
-                                                </div>
+                                                <SearchableMultiSelect
+                                                    options={centuries.filter(c => c && c.id && c.name).map(c => ({
+                                                        id: c.id,
+                                                        name: c.name
+                                                    }))}
+                                                    selectedValues={formData.centuries || []}
+                                                    onChange={(selected) => setFormData(prev => ({
+                                                        ...prev,
+                                                        centuries: selected
+                                                    }))}
+                                                    placeholder="Sélectionner des siècles"
+                                                    searchPlaceholder="Rechercher un siècle..."
+                                                    emptyMessage="Aucun siècle trouvé"
+                                                />
                                             ) : (
                                                 <div className="text-sm text-muted-foreground">
                                                     Chargement des siècles...
                                                 </div>
                                             )}
-                                            {errors.centuries && <p className="text-destructive text-sm mt-2">{errors.centuries}</p>}
+                                            {errors.centuries &&
+                                                <p className="text-destructive text-sm mt-2">{errors.centuries}</p>}
                                         </div>
 
                                         {/* Localisation */}
                                         <div>
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <MapPin className="w-4 h-4 text-muted-foreground" />
-                                                <Label>Localisation</Label>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <MapPin className="w-4 h-4 text-muted-foreground"/>
+                                                <Label>Localisation *</Label>
                                             </div>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                Renseignez au moins un pays ou une commune
+                                            </p>
 
                                             <div className="space-y-4">
                                                 {/* Pays */}
-                                                <div className="relative">
+                                                <div>
                                                     <Label className="text-sm">Pays</Label>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full justify-between mt-1"
-                                                        onClick={() => setOpenCountries(!openCountries)}
-                                                    >
-                            <span className="truncate">
-                              {selectedCountry ? selectedCountry.name : 'Sélectionner un pays'}
-                            </span>
-                                                        <ChevronDown className="w-4 h-4 opacity-50" />
-                                                    </Button>
-
-                                                    {openCountries && (
-                                                        <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
-                                                            {countries.filter(country => country && country.id && country.name).map((country) => (
-                                                                <div
-                                                                    key={country.id}
-                                                                    onClick={() => handleCountryChange(country)}
-                                                                    className="p-3 hover:bg-accent rounded cursor-pointer border-b border-border last:border-b-0"
-                                                                >
-                                                                    <div className="font-medium">{country.name}</div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
+                                                    <div className="mt-1">
+                                                        <SearchableSelect
+                                                            options={countries.filter(c => c && c.id && c.name).map(c => ({
+                                                                id: c.id,
+                                                                name: c.name
+                                                            }))}
+                                                            selectedValue={selectedCountry?.id || ''}
+                                                            onChange={(countryId) => {
+                                                                const country = countries.find(c => c.id === countryId);
+                                                                if (country) handleCountryChange(country);
+                                                            }}
+                                                            placeholder="Sélectionner un pays"
+                                                            searchPlaceholder="Rechercher un pays..."
+                                                            emptyMessage="Aucun pays trouvé"
+                                                        />
+                                                    </div>
                                                 </div>
 
                                                 {/* Régions */}
-                                                <div className="relative">
+                                                <div>
                                                     <Label className="text-sm">Région</Label>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full justify-between mt-1"
-                                                        onClick={() => setOpenRegions(!openRegions)}
-                                                        disabled={!selectedCountry}
-                                                    >
-                            <span className="truncate">
-                              {selectedRegion ? selectedRegion.name : 'Sélectionner une région'}
-                            </span>
-                                                        <ChevronDown className="w-4 h-4 opacity-50" />
-                                                    </Button>
-
-                                                    {openRegions && selectedCountry && (
-                                                        <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
-                                                            {getFilteredRegions().map((region) => (
-                                                                <div
-                                                                    key={region.id}
-                                                                    onClick={() => handleRegionChange(region)}
-                                                                    className="p-3 hover:bg-accent rounded cursor-pointer border-b border-border last:border-b-0"
-                                                                >
-                                                                    <div className="font-medium">{region.name}</div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
+                                                    <div className="mt-1">
+                                                        <SearchableSelect
+                                                            options={getFilteredRegions().map(r => ({
+                                                                id: r.id,
+                                                                name: r.name,
+                                                                description: r.pays.name
+                                                            }))}
+                                                            selectedValue={selectedRegion?.id || ''}
+                                                            onChange={(regionId) => {
+                                                                const region = regions.find(r => r.id === regionId);
+                                                                if (region) handleRegionChange(region);
+                                                            }}
+                                                            placeholder="Sélectionner une région"
+                                                            searchPlaceholder="Rechercher une région..."
+                                                            emptyMessage="Aucune région trouvée"
+                                                            disabled={!selectedCountry}
+                                                        />
+                                                    </div>
                                                 </div>
 
                                                 {/* Départements */}
-                                                <div className="relative">
+                                                <div>
                                                     <Label className="text-sm">Département</Label>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full justify-between mt-1"
-                                                        onClick={() => setOpenDepartments(!openDepartments)}
-                                                        disabled={!selectedCountry}
-                                                    >
-                            <span className="truncate">
-                              {selectedDepartment ? selectedDepartment.name : 'Sélectionner un département'}
-                            </span>
-                                                        <ChevronDown className="w-4 h-4 opacity-50" />
-                                                    </Button>
-
-                                                    {openDepartments && selectedCountry && (
-                                                        <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
-                                                            {getFilteredDepartments().map((department) => (
-                                                                <div
-                                                                    key={department.id}
-                                                                    onClick={() => handleDepartmentChange(department)}
-                                                                    className="p-3 hover:bg-accent rounded cursor-pointer border-b border-border last:border-b-0"
-                                                                >
-                                                                    <div className="font-medium">{department.name}</div>
-                                                                    <div className="text-xs text-muted-foreground">
-                                                                        {department.region.name}
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
+                                                    <div className="mt-1">
+                                                        <SearchableSelect
+                                                            options={getFilteredDepartments().map(d => ({
+                                                                id: d.id,
+                                                                name: d.name,
+                                                                description: `${d.region.name}, ${d.region.pays.name}`
+                                                            }))}
+                                                            selectedValue={selectedDepartment?.id || ''}
+                                                            onChange={(departmentId) => {
+                                                                const department = departments.find(d => d.id === departmentId);
+                                                                if (department) handleDepartmentChange(department);
+                                                            }}
+                                                            placeholder="Sélectionner un département"
+                                                            searchPlaceholder="Rechercher un département..."
+                                                            emptyMessage="Aucun département trouvé"
+                                                            disabled={!selectedCountry}
+                                                        />
+                                                    </div>
                                                 </div>
 
                                                 {/* Communes */}
                                                 <div className="relative">
                                                     <Label className="text-sm">Commune</Label>
                                                     <div className="relative mt-1">
-                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                                        <Search
+                                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
                                                         <Input
                                                             placeholder={selectedCommune ? selectedCommune.name : "Rechercher une commune..."}
                                                             value={selectedCommune ? selectedCommune.name : communeQuery}
@@ -1274,14 +1237,17 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     </div>
 
                                                     {showCommuneResults && !selectedCommune && (
-                                                        <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
+                                                        <div
+                                                            className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
                                                             {isSearchingCommunes && (
-                                                                <div className="p-4 text-center text-sm text-muted-foreground">
+                                                                <div
+                                                                    className="p-4 text-center text-sm text-muted-foreground">
                                                                     Recherche en cours...
                                                                 </div>
                                                             )}
                                                             {!isSearchingCommunes && communes.length === 0 && communeQuery.length >= 2 && (
-                                                                <div className="p-4 text-center text-sm text-muted-foreground">
+                                                                <div
+                                                                    className="p-4 text-center text-sm text-muted-foreground">
                                                                     Aucune commune trouvée
                                                                 </div>
                                                             )}
@@ -1300,7 +1266,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         </div>
                                                     )}
 
-                                                    {errors.commune && <p className="text-destructive text-sm mt-1">{errors.commune}</p>}
+                                                    {errors.commune &&
+                                                        <p className="text-destructive text-sm mt-1">{errors.commune}</p>}
                                                 </div>
 
                                                 {/* Affichage de la localisation sélectionnée */}
@@ -1308,7 +1275,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     <div className="p-3 bg-accent rounded-lg">
                                                         <div className="flex items-center justify-between">
                                                             <div>
-                                                                <div className="text-sm font-medium text-accent-foreground">
+                                                                <div
+                                                                    className="text-sm font-medium text-accent-foreground">
                                                                     Localisation sélectionnée :
                                                                 </div>
                                                                 <div className="text-xs text-muted-foreground mt-1">
@@ -1337,74 +1305,148 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                 }}
                                                                 className="ml-2"
                                                             >
-                                                                <X className="w-4 h-4" />
+                                                                <X className="w-4 h-4"/>
                                                             </Button>
                                                         </div>
                                                     </div>
                                                 )}
                                             </div>
 
-                                            {/* Fermer les dropdowns quand on clique ailleurs */}
-                                            {(openCountries || openRegions || openDepartments || showCommuneResults) && (
+                                            {/* Fermer le dropdown des communes quand on clique ailleurs */}
+                                            {showCommuneResults && (
                                                 <div
                                                     className="fixed inset-0 z-0"
                                                     onClick={() => {
-                                                        setOpenCountries(false);
-                                                        setOpenRegions(false);
-                                                        setOpenDepartments(false);
                                                         setShowCommuneResults(false);
                                                     }}
                                                 />
                                             )}
+
+                                            {/* Message d'erreur pour la localisation */}
+                                            {errors.location && (
+                                                <div
+                                                    className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg mt-4">
+                                                    <AlertTriangle className="w-4 h-4 text-destructive"/>
+                                                    <p className="text-sm text-destructive">{errors.location}</p>
+                                                </div>
+                                            )}
                                         </div>
 
-                                        {/* Image */}
+                                        {/* Images */}
                                         <div>
-                                            <Label htmlFor="image">Image</Label>
-                                            <div className="space-y-4">
-                                                <div>
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-2">
+                                                    <ImageIcon className="w-4 h-4 text-muted-foreground"/>
+                                                    <Label>Images</Label>
+                                                </div>
+                                                <Badge variant="secondary">
+                                                    {formData.images.length} image{formData.images.length !== 1 ? 's' : ''}
+                                                </Badge>
+                                            </div>
+
+                                            {/* Bouton d'ajout d'images */}
+                                            <div className="mb-4">
+                                                <label htmlFor="imageInput" className="cursor-pointer">
+                                                    <div
+                                                        className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-muted-foreground/25 rounded-lg hover:border-primary/50 hover:bg-accent/50 transition-colors">
+                                                        <Plus className="w-5 h-5"/>
+                                                        <span className="text-sm">Ajouter des images</span>
+                                                    </div>
                                                     <input
-                                                        id="image"
+                                                        id="imageInput"
                                                         type="file"
                                                         accept="image/*"
+                                                        multiple
                                                         onChange={handleImageUpload}
-                                                        className="block w-full text-sm text-muted-foreground
-                              file:mr-4 file:py-2 file:px-4
-                              file:rounded-lg file:border-0
-                              file:text-sm file:font-medium
-                              file:bg-primary file:text-primary-foreground
-                              hover:file:bg-primary/90"
+                                                        className="hidden"
                                                     />
-                                                    {formData.image && (
-                                                        <p className="text-sm text-muted-foreground mt-2">
-                                                            Fichier sélectionné: {formData.image.name}
-                                                        </p>
-                                                    )}
-                                                </div>
-
-                                              {formData.image && formData.image.name && (
-                                                  <div>
-                                                    <Label htmlFor="imageCaption" className="text-sm">Légende de l'image</Label>
-                                                    <Textarea
-                                                        id="imageCaption"
-                                                        value={formData.imageCaption}
-                                                        onChange={(e) => handleInputChange('imageCaption', e.target.value)}
-                                                        placeholder="Décrivez ce que montre l'image..."
-                                                        rows={2}
-                                                    />
-                                                  </div>
-                                                )}
+                                                </label>
                                             </div>
+
+                                            {/* Liste des images uploadées */}
+                                            {formData.images.length > 0 && (
+                                                <div className="space-y-4">
+                                                    {formData.images.map((image, index) => (
+                                                        <div key={index} className="p-4 border rounded-lg bg-accent/30">
+                                                            <div className="flex gap-4">
+                                                                {/* Preview de l'image */}
+                                                                <div className="flex-shrink-0">
+                                                                    <img
+                                                                        src={image.preview}
+                                                                        alt={`Preview ${index + 1}`}
+                                                                        className="w-24 h-24 object-cover rounded-lg border"
+                                                                    />
+                                                                </div>
+
+                                                                {/* Informations et légende */}
+                                                                <div className="flex-1 space-y-2">
+                                                                    <div
+                                                                        className="flex items-start justify-between gap-2">
+                                                                        <div>
+                                                                            <p className="text-sm font-medium truncate">
+                                                                                {image.file.name}
+                                                                            </p>
+                                                                            <p className="text-xs text-muted-foreground">
+                                                                                {(image.file.size / 1024).toFixed(1)} KB
+                                                                            </p>
+                                                                        </div>
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant="ghost"
+                                                                            size="sm"
+                                                                            onClick={() => removeImage(index)}
+                                                                            className="text-destructive hover:text-destructive"
+                                                                        >
+                                                                            <Trash2 className="w-4 h-4"/>
+                                                                        </Button>
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <Label htmlFor={`caption-${index}`}
+                                                                               className="text-xs">
+                                                                            Légende
+                                                                        </Label>
+                                                                        <Textarea
+                                                                            id={`caption-${index}`}
+                                                                            value={image.caption}
+                                                                            onChange={(e) => updateImageCaption(index, e.target.value)}
+                                                                            placeholder="Décrivez ce que montre l'image..."
+                                                                            rows={2}
+                                                                            className="mt-1"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Thèmes */}
-                                        <MultiSelectField
-                                            options={themes}
-                                            selected={formData.themes || []}
-                                            onSelectionChange={(value) => handleMultiSelectChange('themes', value)}
-                                            placeholder="Sélectionner un thème"
-                                            label="Thèmes"
-                                        />
+                                        <div>
+                                            <Label>Thèmes</Label>
+                                            {Array.isArray(themes) && themes.length > 0 ? (
+                                                <SearchableMultiSelect
+                                                    options={themes.filter(t => t && t.id && t.name).map(t => ({
+                                                        id: t.id,
+                                                        name: t.name
+                                                    }))}
+                                                    selectedValues={formData.themes || []}
+                                                    onChange={(selected) => setFormData(prev => ({
+                                                        ...prev,
+                                                        themes: selected
+                                                    }))}
+                                                    placeholder="Sélectionner des thèmes"
+                                                    searchPlaceholder="Rechercher un thème..."
+                                                    emptyMessage="Aucun thème trouvé"
+                                                />
+                                            ) : (
+                                                <div className="text-sm text-muted-foreground mt-2">
+                                                    Chargement des thèmes...
+                                                </div>
+                                            )}
+                                        </div>
 
                                         {/* Contributeurs */}
                                         <div>
@@ -1421,13 +1463,14 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addContributor())}
                                                     />
                                                     <Button type="button" onClick={addContributor} size="sm">
-                                                        <Plus className="w-4 h-4" />
+                                                        <Plus className="w-4 h-4"/>
                                                     </Button>
                                                 </div>
                                                 {formData.contributors.length > 0 && (
                                                     <div className="flex flex-wrap gap-2">
                                                         {formData.contributors.map((contributor, index) => (
-                                                            <Badge key={index} variant="secondary" className="flex items-center gap-2">
+                                                            <Badge key={index} variant="secondary"
+                                                                   className="flex items-center gap-2">
                                                                 {contributor}
                                                                 <X
                                                                     className="w-3 h-3 cursor-pointer"
@@ -1445,10 +1488,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                             <Label>Source de l'information</Label>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                                                 <div>
-                                                    <Label htmlFor="sourceType" className="text-sm">Type de source</Label>
-                                                    <Select onValueChange={(value) => handleSourceChange('type', value)}>
-                                                        <SelectTrigger className={errors.sourceType ? 'border-destructive' : ''}>
-                                                            <SelectValue placeholder="Sélectionner" />
+                                                    <Label htmlFor="sourceType" className="text-sm">Type de
+                                                        source</Label>
+                                                    <Select
+                                                        onValueChange={(value) => handleSourceChange('type', value)}>
+                                                        <SelectTrigger
+                                                            className={errors.sourceType ? 'border-destructive' : ''}>
+                                                            <SelectValue placeholder="Sélectionner"/>
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             {Array.isArray(sourceTypes) && sourceTypes.filter(type => type).map((type) => (
@@ -1456,7 +1502,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                             ))}
                                                         </SelectContent>
                                                     </Select>
-                                                    {errors.sourceType && <p className="text-destructive text-sm mt-1">{errors.sourceType}</p>}
+                                                    {errors.sourceType &&
+                                                        <p className="text-destructive text-sm mt-1">{errors.sourceType}</p>}
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="sourceAuthor" className="text-sm">Auteur</Label>
@@ -1467,7 +1514,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         className={errors.sourceAuthor ? 'border-destructive' : ''}
                                                         placeholder="Nom de l'auteur"
                                                     />
-                                                    {errors.sourceAuthor && <p className="text-destructive text-sm mt-1">{errors.sourceAuthor}</p>}
+                                                    {errors.sourceAuthor &&
+                                                        <p className="text-destructive text-sm mt-1">{errors.sourceAuthor}</p>}
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="sourceTitle" className="text-sm">Titre</Label>
@@ -1511,13 +1559,29 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                         {/* Monuments & Lieux */}
                                         {formData.category === 'monuments_lieux' && (
                                             <>
-                                                <MultiSelectField
-                                                    options={buildingNatures}
-                                                    selected={formData.natures || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('natures', value)}
-                                                    placeholder="Sélectionner un type d'élément"
-                                                    label="Types d'éléments"
-                                                />
+                                                <div>
+                                                    <Label>Types d'éléments</Label>
+                                                    {Array.isArray(buildingNatures) && buildingNatures.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={buildingNatures.filter(n => n && n.id && n.name).map(n => ({
+                                                                id: n.id,
+                                                                name: n.name
+                                                            }))}
+                                                            selectedValues={formData.natures || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                natures: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des types"
+                                                            searchPlaceholder="Rechercher un type..."
+                                                            emptyMessage="Aucun type trouvé"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
                                                 <div>
                                                     <Label htmlFor="description">Description *</Label>
@@ -1529,7 +1593,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         placeholder="Description détaillée du monument ou lieu"
                                                         rows={4}
                                                     />
-                                                    {errors.description && <p className="text-destructive text-sm mt-1">{errors.description}</p>}
+                                                    {errors.description &&
+                                                        <p className="text-destructive text-sm mt-1">{errors.description}</p>}
                                                 </div>
 
                                                 <div>
@@ -1558,7 +1623,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     <Label>Coordonnées GPS</Label>
                                                     <div className="grid grid-cols-2 gap-4 mt-3">
                                                         <div>
-                                                            <Label htmlFor="latitude" className="text-sm">Latitude</Label>
+                                                            <Label htmlFor="latitude"
+                                                                   className="text-sm">Latitude</Label>
                                                             <Input
                                                                 id="latitude"
                                                                 value={formData.coordinates?.latitude || ''}
@@ -1567,7 +1633,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Label htmlFor="longitude" className="text-sm">Longitude</Label>
+                                                            <Label htmlFor="longitude"
+                                                                   className="text-sm">Longitude</Label>
                                                             <Input
                                                                 id="longitude"
                                                                 value={formData.coordinates?.longitude || ''}
@@ -1578,21 +1645,53 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     </div>
                                                 </div>
 
-                                                <MultiSelectField
-                                                    options={conservationStates}
-                                                    selected={formData.conservationStates || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('conservationStates', value)}
-                                                    placeholder="Sélectionner un état de conservation"
-                                                    label="États de conservation"
-                                                />
+                                                <div>
+                                                    <Label>États de conservation</Label>
+                                                    {Array.isArray(conservationStates) && conservationStates.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({
+                                                                id: c.id,
+                                                                name: c.name
+                                                            }))}
+                                                            selectedValues={formData.conservationStates || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                conservationStates: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des états"
+                                                            searchPlaceholder="Rechercher un état..."
+                                                            emptyMessage="Aucun état trouvé"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
-                                                <MultiSelectField
-                                                    options={materials}
-                                                    selected={formData.materials || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('materials', value)}
-                                                    placeholder="Sélectionner un matériau"
-                                                    label="Matériaux"
-                                                />
+                                                <div>
+                                                    <Label>Matériaux</Label>
+                                                    {Array.isArray(materials) && materials.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({
+                                                                id: m.id,
+                                                                name: m.name
+                                                            }))}
+                                                            selectedValues={formData.materials || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                materials: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des matériaux"
+                                                            searchPlaceholder="Rechercher un matériau..."
+                                                            emptyMessage="Aucun matériau trouvé"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
                                                 <div>
                                                     <Label>Protection</Label>
@@ -1603,11 +1702,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                 checked={formData.protected || false}
                                                                 onCheckedChange={(checked) => handleInputChange('protected', checked)}
                                                             />
-                                                            <Label htmlFor="protected" className="text-sm">Monument protégé</Label>
+                                                            <Label htmlFor="protected" className="text-sm">Monument
+                                                                protégé</Label>
                                                         </div>
 
                                                         <div>
-                                                            <Label htmlFor="protectionComment" className="text-sm">Commentaire de protection</Label>
+                                                            <Label htmlFor="protectionComment" className="text-sm">Commentaire
+                                                                de protection</Label>
                                                             <Textarea
                                                                 id="protectionComment"
                                                                 value={formData.protectionComment || ''}
@@ -1624,13 +1725,29 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                         {/* Mobiliers & Images */}
                                         {formData.category === 'mobiliers_images' && (
                                             <>
-                                                <MultiSelectField
-                                                    options={furnituresNatures}
-                                                    selected={formData.natures || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('natures', value)}
-                                                    placeholder="Sélectionner un type d'élément"
-                                                    label="Types d'éléments"
-                                                />
+                                                <div>
+                                                    <Label>Types d'éléments</Label>
+                                                    {Array.isArray(furnituresNatures) && furnituresNatures.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={furnituresNatures.filter(n => n && n.id && n.name).map(n => ({
+                                                                id: n.id,
+                                                                name: n.name
+                                                            }))}
+                                                            selectedValues={formData.natures || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                natures: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des types"
+                                                            searchPlaceholder="Rechercher un type..."
+                                                            emptyMessage="Aucun type trouvé"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
                                                 <div>
                                                     <Label htmlFor="description">Description</Label>
@@ -1685,30 +1802,78 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         placeholder="Emplacement d'origine de l'objet"
                                                     />
                                                 </div>
-                                                
-                                                <MultiSelectField
-                                                    options={conservationStates}
-                                                    selected={formData.conservationStates || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('conservationStates', value)}
-                                                    placeholder="Sélectionner un état de conservation"
-                                                    label="États de conservation"
-                                                />
 
-                                                <MultiSelectField
-                                                    options={materials}
-                                                    selected={formData.materials || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('materials', value)}
-                                                    placeholder="Sélectionner un matériau"
-                                                    label="Matériaux"
-                                                />
+                                                <div>
+                                                    <Label>États de conservation</Label>
+                                                    {Array.isArray(conservationStates) && conservationStates.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({
+                                                                id: c.id,
+                                                                name: c.name
+                                                            }))}
+                                                            selectedValues={formData.conservationStates || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                conservationStates: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des états"
+                                                            searchPlaceholder="Rechercher un état..."
+                                                            emptyMessage="Aucun état trouvé"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
-                                                <MultiSelectField
-                                                    options={furnituresTechniques}
-                                                    selected={formData.techniques || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('techniques', value)}
-                                                    placeholder="Sélectionner une technique"
-                                                    label="Techniques"
-                                                />
+                                                <div>
+                                                    <Label>Matériaux</Label>
+                                                    {Array.isArray(materials) && materials.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({
+                                                                id: m.id,
+                                                                name: m.name
+                                                            }))}
+                                                            selectedValues={formData.materials || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                materials: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des matériaux"
+                                                            searchPlaceholder="Rechercher un matériau..."
+                                                            emptyMessage="Aucun matériau trouvé"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div>
+                                                    <Label>Techniques</Label>
+                                                    {Array.isArray(furnituresTechniques) && furnituresTechniques.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({
+                                                                id: t.id,
+                                                                name: t.name
+                                                            }))}
+                                                            selectedValues={formData.techniques || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                techniques: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des techniques"
+                                                            searchPlaceholder="Rechercher une technique..."
+                                                            emptyMessage="Aucune technique trouvée"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
                                                 <div>
                                                     <Label>Protection</Label>
@@ -1719,11 +1884,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                 checked={formData.protected || false}
                                                                 onCheckedChange={(checked) => handleInputChange('protected', checked)}
                                                             />
-                                                            <Label htmlFor="protected" className="text-sm">Objet protégé</Label>
+                                                            <Label htmlFor="protected" className="text-sm">Objet
+                                                                protégé</Label>
                                                         </div>
 
                                                         <div>
-                                                            <Label htmlFor="protectionComment" className="text-sm">Commentaire de protection</Label>
+                                                            <Label htmlFor="protectionComment" className="text-sm">Commentaire
+                                                                de protection</Label>
                                                             <Textarea
                                                                 id="protectionComment"
                                                                 value={formData.protectionComment || ''}
@@ -1751,13 +1918,29 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                         {/* Personnes Morales */}
                                         {formData.category === 'personnes_morales' && (
                                             <>
-                                                <MultiSelectField
-                                                    options={legalEntityNatures}
-                                                    selected={formData.natures || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('natures', value)}
-                                                    placeholder="Sélectionner un type d'organisation"
-                                                    label="Types d'organisation"
-                                                />
+                                                <div>
+                                                    <Label>Types d'organisation</Label>
+                                                    {Array.isArray(legalEntityNatures) && legalEntityNatures.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={legalEntityNatures.filter(n => n && n.id && n.name).map(n => ({
+                                                                id: n.id,
+                                                                name: n.name
+                                                            }))}
+                                                            selectedValues={formData.natures || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                natures: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des types"
+                                                            searchPlaceholder="Rechercher un type..."
+                                                            emptyMessage="Aucun type trouvé"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
                                                 <div>
                                                     <Label htmlFor="comment">Commentaire</Label>
@@ -1793,7 +1976,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="socialParticipation">Participation à la vie sociale</Label>
+                                                    <Label htmlFor="socialParticipation">Participation à la vie
+                                                        sociale</Label>
                                                     <Textarea
                                                         id="socialParticipation"
                                                         value={formData.socialParticipation || ''}
@@ -1820,7 +2004,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         checked={formData.simpleMention}
                                                         onCheckedChange={(checked) => handleInputChange('simpleMention', checked)}
                                                     />
-                                                    <Label htmlFor="simpleMention" className="text-sm">Simple mention</Label>
+                                                    <Label htmlFor="simpleMention" className="text-sm">Simple
+                                                        mention</Label>
                                                 </div>
 
                                                 <div className="flex items-center space-x-2">
@@ -1829,7 +2014,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         checked={formData.foundationAct}
                                                         onCheckedChange={(checked) => handleInputChange('foundationAct', checked)}
                                                     />
-                                                    <Label htmlFor="foundationAct" className="text-sm">Acte de fondation</Label>
+                                                    <Label htmlFor="foundationAct" className="text-sm">Acte de
+                                                        fondation</Label>
                                                 </div>
 
                                                 <div className="flex items-center space-x-2">
@@ -1838,7 +2024,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         checked={formData.statutesText}
                                                         onCheckedChange={(checked) => handleInputChange('statutesText', checked)}
                                                     />
-                                                    <Label htmlFor="statutesText" className="text-sm">Texte des statuts</Label>
+                                                    <Label htmlFor="statutesText" className="text-sm">Texte des
+                                                        statuts</Label>
                                                 </div>
 
                                                 <div>
@@ -1933,29 +2120,77 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     />
                                                 </div>
 
-                                                <MultiSelectField
-                                                    options={historicalPeriods}
-                                                    selected={formData.historicalPeriods || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('historicalPeriods', value)}
-                                                    placeholder="Sélectionner une période historique"
-                                                    label="Périodes historiques"
-                                                />
+                                                <div>
+                                                    <Label>Périodes historiques</Label>
+                                                    {Array.isArray(historicalPeriods) && historicalPeriods.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={historicalPeriods.filter(h => h && h.id && h.name).map(h => ({
+                                                                id: h.id,
+                                                                name: h.name
+                                                            }))}
+                                                            selectedValues={formData.historicalPeriods || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                historicalPeriods: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des périodes"
+                                                            searchPlaceholder="Rechercher une période..."
+                                                            emptyMessage="Aucune période trouvée"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
-                                                <MultiSelectField
-                                                    options={professions}
-                                                    selected={formData.professions || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('professions', value)}
-                                                    placeholder="Sélectionner une profession"
-                                                    label="Professions"
-                                                />
+                                                <div>
+                                                    <Label>Professions</Label>
+                                                    {Array.isArray(professions) && professions.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={professions.filter(p => p && p.id && p.name).map(p => ({
+                                                                id: p.id,
+                                                                name: p.name
+                                                            }))}
+                                                            selectedValues={formData.professions || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                professions: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des professions"
+                                                            searchPlaceholder="Rechercher une profession..."
+                                                            emptyMessage="Aucune profession trouvée"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
-                                                <MultiSelectField
-                                                    options={travels}
-                                                    selected={formData.transportModes || []}
-                                                    onSelectionChange={(value) => handleMultiSelectChange('transportModes', value)}
-                                                    placeholder="Sélectionner un mode de transport"
-                                                    label="Modes de transport"
-                                                />
+                                                <div>
+                                                    <Label>Modes de transport</Label>
+                                                    {Array.isArray(travels) && travels.length > 0 ? (
+                                                        <SearchableMultiSelect
+                                                            options={travels.filter(t => t && t.id && t.name).map(t => ({
+                                                                id: t.id,
+                                                                name: t.name
+                                                            }))}
+                                                            selectedValues={formData.transportModes || []}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                transportModes: selected
+                                                            }))}
+                                                            placeholder="Sélectionner des modes"
+                                                            searchPlaceholder="Rechercher un mode..."
+                                                            emptyMessage="Aucun mode trouvé"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-sm text-muted-foreground mt-2">
+                                                            Chargement des options...
+                                                        </div>
+                                                    )}
+                                                </div>
 
                                                 <div>
                                                     <Label htmlFor="comment">Commentaire</Label>
@@ -1992,13 +2227,15 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                         <div>
                                             <Label>Rechercher des fiches à lier</Label>
                                             <p className="text-sm text-muted-foreground mb-3">
-                                                Recherchez et sélectionnez des fiches existantes à associer à cette nouvelle fiche
+                                                Recherchez et sélectionnez des fiches existantes à associer à cette
+                                                nouvelle fiche
                                             </p>
 
                                             {/* Barre de recherche avec autocomplétion */}
                                             <div className="relative">
                                                 <div className="relative">
-                                                    <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                                                    <Search
+                                                        className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"/>
                                                     <Input
                                                         value={ficheSearchQuery}
                                                         onChange={(e) => {
@@ -2014,15 +2251,18 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
                                                 {/* Résultats de recherche */}
                                                 {showFicheResults && (
-                                                    <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
+                                                    <div
+                                                        className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
                                                         {isSearchingFiches && (
-                                                            <div className="p-4 text-center text-sm text-muted-foreground">
-                                                                <Search className="w-4 h-4 mx-auto mb-2 animate-spin" />
+                                                            <div
+                                                                className="p-4 text-center text-sm text-muted-foreground">
+                                                                <Search className="w-4 h-4 mx-auto mb-2 animate-spin"/>
                                                                 Recherche en cours...
                                                             </div>
                                                         )}
                                                         {!isSearchingFiches && ficheSearchResults.length === 0 && ficheSearchQuery.length >= 2 && (
-                                                            <div className="p-4 text-center text-sm text-muted-foreground">
+                                                            <div
+                                                                className="p-4 text-center text-sm text-muted-foreground">
                                                                 Aucune fiche trouvée
                                                             </div>
                                                         )}
@@ -2034,8 +2274,10 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                         onClick={() => handleSelectFiche(fiche)}
                                                                         className="p-3 hover:bg-accent rounded cursor-pointer border-b border-border last:border-b-0"
                                                                     >
-                                                                        <div className="font-medium">{fiche.title || 'Titre non disponible'}</div>
-                                                                        <div className="text-xs text-muted-foreground mt-1">
+                                                                        <div
+                                                                            className="font-medium">{fiche.title || 'Titre non disponible'}</div>
+                                                                        <div
+                                                                            className="text-xs text-muted-foreground mt-1">
                                                                             {getCategoryDisplayName(fiche.source)}
                                                                         </div>
                                                                     </div>
@@ -2058,7 +2300,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                             className="flex items-center justify-between p-3 bg-accent rounded-lg"
                                                         >
                                                             <div className="flex items-center gap-3">
-                                                                <Link className="w-4 h-4 text-muted-foreground" />
+                                                                <Link className="w-4 h-4 text-muted-foreground"/>
                                                                 <div>
                                                                     <div className="font-medium">{form.title}</div>
                                                                     <div className="text-xs text-muted-foreground">
@@ -2073,7 +2315,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                 onClick={() => removeRelatedForm(index)}
                                                                 className="text-muted-foreground hover:text-destructive"
                                                             >
-                                                                <X className="w-4 h-4" />
+                                                                <X className="w-4 h-4"/>
                                                             </Button>
                                                         </div>
                                                     ))}
@@ -2092,12 +2334,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                     >
                                         {isSubmittingForm ? (
                                             <>
-                                                <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                                <div
+                                                    className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"/>
                                                 Soumission en cours...
                                             </>
                                         ) : (
                                             <>
-                                                <Save className="w-4 h-4 mr-2" />
+                                                <Save className="w-4 h-4 mr-2"/>
                                                 Soumettre la fiche
                                             </>
                                         )}
@@ -2109,7 +2352,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                     <DialogContent className="sm:max-w-md">
                                         <DialogHeader>
                                             <DialogTitle className="flex items-center gap-2">
-                                                <AlertTriangle className="w-5 h-5 text-destructive" />
+                                                <AlertTriangle className="w-5 h-5 text-destructive"/>
                                                 {imageErrorType === '400' ? 'Erreur de chargement de l\'image' : 'Erreur interne'}
                                             </DialogTitle>
                                             <DialogDescription>

@@ -516,7 +516,7 @@ export function ValidateContributorsPage({ onBack, pendingUsers, onRefresh, onSe
 
       {/* Modal de validation - toujours au niveau le plus haut pour être accessible depuis toute vue */}
       <Dialog open={showValidationModal} onOpenChange={setShowValidationModal}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>
               {validationType === 'approve' ? 'Approuver le contributeur' : 'Rejeter la candidature'}

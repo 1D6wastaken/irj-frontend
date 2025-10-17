@@ -341,7 +341,7 @@ export function ValidateFormsPage({ onBack, pendingForms, onRefresh, onSessionEx
 
       {/* Modal de validation */}
       <Dialog open={showValidationModal} onOpenChange={setShowValidationModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>
               {validationType === 'activate' ? 'Approuver la fiche' : 'Rejeter la fiche'}
