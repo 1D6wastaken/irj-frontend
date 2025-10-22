@@ -1,5 +1,17 @@
 import {useState, useEffect, useRef} from "react";
-import {Search, ArrowLeft, Filter, MapPin, Users, Trophy, Church, Calendar, ChevronUp, ChevronDown} from "lucide-react";
+import {
+    Search,
+    ArrowLeft,
+    Filter,
+    MapPin,
+    Users,
+    Trophy,
+    Church,
+    Calendar,
+    ChevronUp,
+    ChevronDown,
+    User
+} from "lucide-react";
 import {Button} from "./ui/button";
 import {Input} from "./ui/input";
 import {Badge} from "./ui/badge";
@@ -499,9 +511,9 @@ export function SearchResults({
                                     <h4 className="text-sm font-medium mb-2">Catégories</h4>
                                     <div className="flex flex-wrap gap-2">
                                         {categories.map((category) => {
-                                            const IconComponent = category.id === 'monuments' ? Church :
-                                                category.id === 'mobiliers' ? Trophy :
-                                                    category.id === 'morales' ? Users : MapPin;
+                                            const IconComponent = category.id === 'monuments_lieux' ? Church :
+                                                category.id === 'mobiliers_images' ? Trophy :
+                                                    category.id === 'personnes_morales' ? Users : User;
                                             const isSelected = selectedCategories.includes(category.id);
 
                                             return (

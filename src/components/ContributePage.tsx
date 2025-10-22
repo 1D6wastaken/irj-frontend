@@ -540,27 +540,55 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         const files = e.target.files;
         if (files && files.length > 0) {
             const fileArray = Array.from(files);
-            const imagePromises = fileArray.map((file) => {
-                return new Promise<ImageUpload>((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        resolve({
-                            file,
-                            caption: '',
-                            preview: reader.result as string
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                });
+            const MAX_SIZE = 5 * 1024 * 1024; // 5MB en bytes
+            const oversizedFiles: string[] = [];
+            const validFiles: File[] = [];
+
+            // Séparer les fichiers valides des fichiers trop grands
+            fileArray.forEach((file) => {
+                if (file.size > MAX_SIZE) {
+                    oversizedFiles.push(file.name);
+                } else {
+                    validFiles.push(file);
+                }
             });
 
-            // Attendre que toutes les images soient chargées
-            Promise.all(imagePromises).then((newImages) => {
-                setFormData(prev => ({
-                    ...prev,
-                    images: [...prev.images, ...newImages]
-                }));
-            });
+            // Alerter l'utilisateur si certains fichiers sont trop grands
+            if (oversizedFiles.length > 0) {
+                toast.error(
+                    `${oversizedFiles.length} image(s) dépassent 5MB et seront refusées par le serveur : ${oversizedFiles.join(', ')}`,
+                    {duration: 6000}
+                );
+            }
+
+            // Traiter uniquement les fichiers valides
+            if (validFiles.length > 0) {
+                const imagePromises = validFiles.map((file) => {
+                    return new Promise<ImageUpload>((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            resolve({
+                                file,
+                                caption: '',
+                                preview: reader.result as string
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                });
+
+                // Attendre que toutes les images soient chargées
+                Promise.all(imagePromises).then((newImages) => {
+                    setFormData(prev => ({
+                        ...prev,
+                        images: [...prev.images, ...newImages]
+                    }));
+
+                    if (validFiles.length > 0) {
+                        toast.success(`${validFiles.length} image(s) ajoutée(s) avec succès`);
+                    }
+                });
+            }
         }
 
         // Réinitialiser l'input pour permettre de sélectionner les mêmes fichiers à nouveau
@@ -1361,6 +1389,15 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         className="hidden"
                                                     />
                                                 </label>
+                                                <div
+                                                    className="flex items-start gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                                                    <AlertTriangle
+                                                        className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0"/>
+                                                    <p className="text-xs text-amber-800">
+                                                        Les images de plus de 5 MB seront refusées par le serveur.
+                                                        Assurez-vous que vos images ne dépassent pas cette taille.
+                                                    </p>
+                                                </div>
                                             </div>
 
                                             {/* Liste des images uploadées */}
@@ -1386,8 +1423,17 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                                             <p className="text-sm font-medium truncate">
                                                                                 {image.file.name}
                                                                             </p>
-                                                                            <p className="text-xs text-muted-foreground">
-                                                                                {(image.file.size / 1024).toFixed(1)} KB
+                                                                            <p className={`text-xs ${
+                                                                                image.file.size > 5 * 1024 * 1024
+                                                                                    ? 'text-destructive font-medium'
+                                                                                    : 'text-muted-foreground'
+                                                                            }`}>
+                                                                                {image.file.size > 1024 * 1024
+                                                                                    ? `${(image.file.size / (1024 * 1024)).toFixed(2)} MB`
+                                                                                    : `${(image.file.size / 1024).toFixed(1)} KB`}
+                                                                                {image.file.size > 5 * 1024 * 1024 && (
+                                                                                    <span className="ml-1">⚠️ Trop grande</span>
+                                                                                )}
                                                                             </p>
                                                                         </div>
                                                                         <Button
