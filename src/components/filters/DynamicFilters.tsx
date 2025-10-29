@@ -124,7 +124,7 @@ export function DynamicFilters({ selectedCategories, pendingFilters, onToggleArr
     }) => {
         // Transformer les options pour SearchableMultiSelect
         const selectOptions = options.map(opt => ({
-            id: `${opt.id}-${opt.name}`, // Utiliser le nom comme ID car c'est ce qui est utilisé dans les filtres
+            id: opt.name, // Utiliser le nom comme ID car c'est ce qui est utilisé dans les filtres
             name: opt.name
         }));
 
