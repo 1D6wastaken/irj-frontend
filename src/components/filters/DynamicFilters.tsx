@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
-import { Calendar, Church, Trophy, Users, MapPin } from "lucide-react";
-import { Skeleton } from "../ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Badge } from "../ui/badge";
-import { apiService, FilterOption } from "../../config/api";
-import { AdvancedFilters } from "../../App";
+import {useState, useEffect} from "react";
+import {Calendar, Church, Trophy, Users, MapPin} from "lucide-react";
+import {Skeleton} from "../ui/skeleton";
+import {apiService, FilterOption} from "../../config/api";
+import {AdvancedFilters} from "../../App";
+import {SearchableMultiSelect} from "../SearchableMultiSelect";
 
 interface DynamicFiltersProps {
   selectedCategories: string[];
@@ -110,78 +109,49 @@ export function DynamicFilters({ selectedCategories, pendingFilters, onToggleArr
     return categoryMap[categoryId] || categoryId;
   };
 
-  // Composant pour afficher les éléments sélectionnés sous forme de badges
-  const SelectedItems = ({ items, onRemove }: { items: string[], onRemove: (item: string) => void }) => {
-    if (!items || items.length === 0) return null;
-    
-    return (
-      <div className="flex flex-wrap gap-1 mt-2">
-        {items.map((item) => (
-          <Badge
-            key={item}
-            variant="default"
-            className="bg-primary text-primary-foreground cursor-pointer hover:bg-primary/80"
-            onClick={() => onRemove(item)}
-          >
-            {item} ×
-          </Badge>
-        ))}
-      </div>
-    );
-  };
+    // Composant pour un select multiple avec recherche
+    const MultiSelect = ({
+                             options,
+                             selectedItems,
+                             onToggle,
+                             placeholder
+                         }: {
+        options: FilterOption[],
+        selectedItems: string[] | undefined,
+        onToggle: (value: string) => void,
+        placeholder: string,
+        filterKey: keyof AdvancedFilters
+    }) => {
+        // Transformer les options pour SearchableMultiSelect
+        const selectOptions = options.map(opt => ({
+            id: opt.name, // Utiliser le nom comme ID car c'est ce qui est utilisé dans les filtres
+            name: opt.name
+        }));
 
-  // Composant pour un select multiple personnalisé
-  const MultiSelect = ({ 
-    options, 
-    selectedItems, 
-    onToggle, 
-    placeholder
-  }: { 
-    options: FilterOption[], 
-    selectedItems: string[] | undefined,
-    onToggle: (value: string) => void,
-    placeholder: string,
-    filterKey: keyof AdvancedFilters
-  }) => {
-    const handleSelect = (value: string) => {
-      if (value && value !== "placeholder") {
-        onToggle(value);
-      }
+        const handleChange = (selectedNames: string[]) => {
+            // Déterminer quels éléments ont été ajoutés ou retirés
+            const currentItems = selectedItems || [];
+
+            // Trouver les éléments ajoutés
+            const added = selectedNames.filter(name => !currentItems.includes(name));
+            // Trouver les éléments retirés
+            const removed = currentItems.filter(name => !selectedNames.includes(name));
+
+            // Appeler onToggle pour chaque changement
+            [...added, ...removed].forEach(name => onToggle(name));
+        };
+
+        return (
+            <SearchableMultiSelect
+                options={selectOptions}
+                selectedValues={selectedItems || []}
+                onChange={handleChange}
+                placeholder={placeholder}
+                searchPlaceholder="Rechercher..."
+                emptyMessage="Aucun résultat"
+            />
+        );
     };
-
-    const selectedCount = selectedItems?.length || 0;
-    const displayText = selectedCount > 0 
-      ? `${selectedCount} sélectionné${selectedCount > 1 ? 's' : ''}`
-      : placeholder;
-
-    return (
-      <div className="space-y-2">
-        <Select onValueChange={handleSelect}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder={displayText} />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((option) => (
-              <SelectItem key={option.id} value={option.name}>
-                <div className="flex items-center gap-2">
-                  <span className={selectedItems?.includes(option.name) ? "font-medium" : ""}>
-                    {option.name}
-                  </span>
-                  {selectedItems?.includes(option.name) && (
-                    <span className="text-primary">✓</span>
-                  )}
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <SelectedItems 
-          items={selectedItems || []} 
-          onRemove={(item) => onToggle(item)}
-        />
-      </div>
-    );
-  };
 
   return (
     <div className="space-y-6">

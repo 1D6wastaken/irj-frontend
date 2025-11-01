@@ -1553,7 +1553,7 @@ export function ValidateFormDetailPage({
 
             {/* Modal de validation */}
             <Dialog open={showValidationModal} onOpenChange={setShowValidationModal}>
-                <DialogContent>
+                <DialogContent aria-describedby={undefined}>
                     <DialogHeader>
                         <DialogTitle>
                             {validationType === 'activate' ? 'Approuver la fiche' : 'Rejeter la fiche'}

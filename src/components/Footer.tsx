@@ -17,7 +17,7 @@ export function Footer({ user, onContribute, onNavigateToLegal }: FooterProps) {
                     <div>
                         <div className="flex items-center space-x-4 mb-6">
                             <div className="bg-white text-primary w-12 h-12 rounded-xl flex items-center justify-center font-bold">
-                                <img src="https://saintjacquesinfo.eu/assets/logo_bw.png" alt="logo saint jacques" />
+                                <img src="/logo_bw.png" alt="logo saint jacques" />
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-white">Le site du Patrimoine jacquaire</h3>
