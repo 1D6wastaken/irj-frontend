@@ -9,7 +9,8 @@ import {
     ChevronRight,
     ExternalLink,
     CheckCircle,
-    XCircle
+    XCircle,
+    Pencil
 } from "lucide-react";
 import {Button} from "./ui/button";
 import {Badge} from "./ui/badge";
@@ -17,7 +18,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "./ui/card";
 import {Separator} from "./ui/separator";
 import {AspectRatio} from "./ui/aspect-ratio";
 import {ImageWithFallback} from "./ImageWithFallback.tsx";
-import { ImageModal } from "./modals/ImageModal";
+import {ImageModal} from "./modals/ImageModal";
 import {
     apiService,
     ApiError,
@@ -33,6 +34,8 @@ interface DetailPageProps {
     resultId: string;
     onBack: () => void;
     onViewDetail?: (resultId: string) => void;
+    onEdit?: (recordId: string, source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
+    isAuthenticated?: boolean;
 }
 
 // Fonction pour extraire le type de source et l'ID réel depuis l'ID combiné
@@ -71,7 +74,7 @@ function getTypeBadge(source: string) {
     }
 }
 
-export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
+export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthenticated}: DetailPageProps) {
     const [result, setResult] = useState<DetailResult | null>(null);
     const [source, setSource] = useState<'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques' | null>(null);
     const [relatedCards, setRelatedCards] = useState<{ [key: string]: DetailResult[] }>({});
@@ -327,10 +330,10 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
         // Ajouter la localisation
         if (result?.city || result?.department || result?.region || result?.country) {
             const locationParts = [];
-            if (result.city) locationParts.push(result.city);
-            if (result.department) locationParts.push(result.department);
-            if (result.region) locationParts.push(result.region);
-            if (result.country) locationParts.push(result.country);
+            if (result.city && result.city.name) locationParts.push(result.city.name);
+            if (result.department && result.department.name) locationParts.push(result.department.name);
+            if (result.region && result.region.name) locationParts.push(result.region.name);
+            if (result.country && result.country.name) locationParts.push(result.country.name);
 
             if (locationParts.length > 0) {
                 parts.push(locationParts.join(', '));
@@ -339,7 +342,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
 
         // Ajouter les siècles
         if (result?.centuries && result.centuries.length > 0) {
-            const centuriesText = result.centuries.join(', ');
+            const centuriesText = result.centuries.map(o => o.name).join(', ');
             parts.push(centuriesText);
         }
 
@@ -425,14 +428,14 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
         // Description courte pour la localisation
         const getLocationText = () => {
             const parts = [];
-            if (record.city) parts.push(record.city);
-            if (record.department) parts.push(record.department);
+            if (record.city && record.city.name) parts.push(record.city.name);
+            if (record.department && record.department.name) parts.push(record.department.name);
             return parts.length > 0 ? parts.join(', ') : '';
         };
 
         // Siècles
         const centuriesText = record.centuries && record.centuries.length > 0
-            ? record.centuries.join(', ')
+            ? record.centuries.map(c => c.name).join(', ')
             : '';
 
         const handleClick = () => {
@@ -561,7 +564,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 {/* Types d'éléments */}
                 {mobilier.natures && mobilier.natures.length > 0 && (
                     <TechnicalInfoItem label="Types d'éléments">
-                        <TechnicalBadgeList items={mobilier.natures}/>
+                        <TechnicalBadgeList items={mobilier.natures.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
@@ -569,10 +572,10 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
                         <div className="space-y-1 text-sm">
-                            {result.city && <div>{result.city}</div>}
-                            {result.department && <div>{result.department}</div>}
-                            {result.region && <div>{result.region}</div>}
-                            {result.country && <div>{result.country}</div>}
+                            {result.city && <div>{result.city.name}</div>}
+                            {result.department && <div>{result.department.name}</div>}
+                            {result.region && <div>{result.region.name}</div>}
+                            {result.country && <div>{result.country.name}</div>}
                         </div>
                     </TechnicalInfoItem>
                 )}
@@ -599,8 +602,8 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                     <TechnicalInfoItem label="Auteur de la fiche">
                         <div className="flex flex-wrap gap-1">
                             {result.authors.map((author) => (
-                                <Badge key={author} variant="secondary" className="text-xs">
-                                    {author}
+                                <Badge key={author.name} variant="secondary" className="text-xs">
+                                    {author.name}
                                 </Badge>
                             ))}
                         </div>
@@ -633,10 +636,10 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 {(personne.city || personne.department || personne.region || personne.country) && (
                     <TechnicalInfoItem label="Localisation">
                         <div className="space-y-1 text-sm">
-                            {personne.city && <div>{personne.city}</div>}
-                            {personne.department && <div>{personne.department}</div>}
-                            {personne.region && <div>{personne.region}</div>}
-                            {personne.country && <div>{personne.country}</div>}
+                            {personne.city && <div>{personne.city.name}</div>}
+                            {personne.department && <div>{personne.department.name}</div>}
+                            {personne.region && <div>{personne.region.name}</div>}
+                            {personne.country && <div>{personne.country.name}</div>}
                         </div>
                     </TechnicalInfoItem>
                 )}
@@ -644,7 +647,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 {/* Types d'organisation */}
                 {personne.natures && personne.natures.length > 0 && (
                     <TechnicalInfoItem label="Types d'organisation">
-                        <TechnicalBadgeList items={personne.natures}/>
+                        <TechnicalBadgeList items={personne.natures.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
@@ -663,8 +666,8 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                     <TechnicalInfoItem label="Auteur de la fiche">
                         <div className="flex flex-wrap gap-1">
                             {result.authors.map((author) => (
-                                <Badge key={author} variant="secondary" className="text-xs">
-                                    {author}
+                                <Badge key={author.name} variant="secondary" className="text-xs">
+                                    {author.name}
                                 </Badge>
                             ))}
                         </div>
@@ -696,7 +699,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 {/* Types d'éléments */}
                 {monument.natures && monument.natures.length > 0 && (
                     <TechnicalInfoItem label="Types d'éléments">
-                        <TechnicalBadgeList items={monument.natures}/>
+                        <TechnicalBadgeList items={monument.natures.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
@@ -704,10 +707,10 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
                         <div className="space-y-1 text-sm">
-                            {result.city && <div>{result.city}</div>}
-                            {result.department && <div>{result.department}</div>}
-                            {result.region && <div>{result.region}</div>}
-                            {result.country && <div>{result.country}</div>}
+                            {result.city && <div>{result.city.name}</div>}
+                            {result.department && <div>{result.department.name}</div>}
+                            {result.region && <div>{result.region.name}</div>}
+                            {result.country && <div>{result.country.name}</div>}
                         </div>
                     </TechnicalInfoItem>
                 )}
@@ -748,8 +751,8 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                     <TechnicalInfoItem label="Auteur de la fiche">
                         <div className="flex flex-wrap gap-1">
                             {result.authors.map((author) => (
-                                <Badge key={author} variant="secondary" className="text-xs">
-                                    {author}
+                                <Badge key={author.name} variant="secondary" className="text-xs">
+                                    {author.name}
                                 </Badge>
                             ))}
                         </div>
@@ -787,10 +790,10 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
                         <div className="space-y-1 text-sm">
-                            {result.city && <div>{result.city}</div>}
-                            {result.department && <div>{result.department}</div>}
-                            {result.region && <div>{result.region}</div>}
-                            {result.country && <div>{result.country}</div>}
+                            {result.city && <div>{result.city.name}</div>}
+                            {result.department && <div>{result.department.name}</div>}
+                            {result.region && <div>{result.region.name}</div>}
+                            {result.country && <div>{result.country.name}</div>}
                         </div>
                     </TechnicalInfoItem>
                 )}
@@ -798,7 +801,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 {/* Siècles */}
                 {result.centuries && result.centuries.length > 0 && (
                     <TechnicalInfoItem label="Siècles">
-                        <TechnicalBadgeList items={result.centuries}/>
+                        <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
@@ -817,8 +820,8 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                     <TechnicalInfoItem label="Auteur de la fiche">
                         <div className="flex flex-wrap gap-1">
                             {result.authors.map((author) => (
-                                <Badge key={author} variant="secondary" className="text-xs">
-                                    {author}
+                                <Badge key={author.name} variant="secondary" className="text-xs">
+                                    {author.name}
                                 </Badge>
                             ))}
                         </div>
@@ -907,7 +910,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 <TechnicalSection key="technical" title="Informations techniques">
                     {result.centuries && result.centuries.length > 0 && (
                         <TechnicalInfoItem label="Siècles">
-                            <TechnicalBadgeList items={result.centuries}/>
+                            <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
@@ -939,25 +942,25 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
 
                     {mobilier.materials && mobilier.materials.length > 0 && (
                         <TechnicalInfoItem label="Matériaux">
-                            <TechnicalBadgeList items={mobilier.materials}/>
+                            <TechnicalBadgeList items={mobilier.materials.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {mobilier.conservation && mobilier.conservation.length > 0 && (
                         <TechnicalInfoItem label="États de conservation">
-                            <TechnicalBadgeList items={mobilier.conservation}/>
+                            <TechnicalBadgeList items={mobilier.conservation.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {mobilier.techniques && mobilier.techniques.length > 0 && (
                         <TechnicalInfoItem label="Techniques utilisées">
-                            <TechnicalBadgeList items={mobilier.techniques}/>
+                            <TechnicalBadgeList items={mobilier.techniques.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {result.themes && result.themes.length > 0 && (
                         <TechnicalInfoItem label="Thèmes">
-                            <TechnicalBadgeList items={result.themes}/>
+                            <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
@@ -1009,7 +1012,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 <TechnicalSection key="technical" title="Informations techniques">
                     {result.centuries && result.centuries.length > 0 && (
                         <TechnicalInfoItem label="Siècles">
-                            <TechnicalBadgeList items={result.centuries}/>
+                            <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
@@ -1089,7 +1092,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
 
                     {result.themes && result.themes.length > 0 && (
                         <TechnicalInfoItem label="Thèmes associés">
-                            <TechnicalBadgeList items={result.themes}/>
+                            <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>
@@ -1135,7 +1138,7 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                 <TechnicalSection key="technical" title="Informations techniques">
                     {result.centuries && result.centuries.length > 0 && (
                         <TechnicalInfoItem label="Siècles">
-                            <TechnicalBadgeList items={result.centuries}/>
+                            <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
@@ -1161,19 +1164,19 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
 
                     {monument.materials && monument.materials.length > 0 && (
                         <TechnicalInfoItem label="Matériaux">
-                            <TechnicalBadgeList items={monument.materials}/>
+                            <TechnicalBadgeList items={monument.materials.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {monument.conservation && monument.conservation.length > 0 && (
                         <TechnicalInfoItem label="États de conservation">
-                            <TechnicalBadgeList items={monument.conservation}/>
+                            <TechnicalBadgeList items={monument.conservation.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {result.themes && result.themes.length > 0 && (
                         <TechnicalInfoItem label="Thèmes">
-                            <TechnicalBadgeList items={result.themes}/>
+                            <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
@@ -1251,13 +1254,13 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
 
                     {personne.historical_period && personne.historical_period.length > 0 && (
                         <TechnicalInfoItem label="Périodes historiques">
-                            <TechnicalBadgeList items={personne.historical_period}/>
+                            <TechnicalBadgeList items={personne.historical_period.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {personne.professions && personne.professions.length > 0 && (
                         <TechnicalInfoItem label="Professions">
-                            <TechnicalBadgeList items={personne.professions}/>
+                            <TechnicalBadgeList items={personne.professions.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>
@@ -1359,6 +1362,23 @@ export function DetailPage({resultId, onBack, onViewDetail}: DetailPageProps) {
                                     </p>
                                 )}
                             </div>
+
+                            {/* Bouton Modifier (visible uniquement pour les utilisateurs connectés) */}
+                            {isAuthenticated && onEdit && source && result && (
+                                <Button
+                                    onClick={() => {
+                                        const {id: actualId} = extractSourceAndId(resultId);
+                                        onEdit(actualId, source);
+                                    }}
+                                    variant="outline"
+                                    className="ml-4 gap-2 hover:bg-primary hover:text-primary-foreground transition-colors"
+                                    aria-label="Modifier la fiche"
+                                >
+                                    <Pencil className="w-4 h-4"/>
+                                    <span className="hidden sm:inline">Modifier</span>
+                                </Button>
+                            )}
+
                         </div>
                     </div>
 

@@ -17,7 +17,7 @@ class ApiError extends Error {
 
 // Configuration de l'API backend
 export const API_CONFIG = {
-  baseUrl: 'https://test.saintjacquesinfo.eu',
+  baseUrl: 'http://localhost:5000',
   endpoints: {
     users: '/api/v1/users',
     login: '/api/v1/login',
@@ -230,125 +230,125 @@ export interface MediaDetail {
 }
 
 export interface MonumentLieuDetail {
-  id: string;
-  title: string;
-  description?: string;
-  history?: string;
-  bibliography?: string;
-  geolocalisation?: string;
-  creation_date: string;
-  update_date: string;
-  contributors: string;
-  protected?: boolean;
-  protection_comment?: string;
-  authors: string[];
-  sources?: string;
-  city?: string;
-  department?: string;
-  region?: string;
-  country?: string;
-  conservation?: string[];
-  materials?: string[];
-  natures?: string[];
-  medias?: MediaDetail[];
-  centuries?: string[];
-  themes?: string[];
-  linked_furniture_images?: number[];
-  linked_individuals?: number[];
-  linked_legal_entities?: number[];
+    id: string;
+    title: string;
+    description?: string;
+    history?: string;
+    bibliography?: string;
+    geolocalisation?: string;
+    creation_date: string;
+    update_date: string;
+    contributors: string;
+    protected?: boolean;
+    protection_comment?: string;
+    authors: FilterOption[];
+    sources?: string;
+    city?: FilterOption;
+    department?: FilterOption;
+    region?: FilterOption;
+    country?: FilterOption;
+    conservation?: FilterOption[];
+    materials?: FilterOption[];
+    natures?: FilterOption[];
+    medias?: MediaDetail[];
+    centuries?: FilterOption[];
+    themes?: FilterOption[];
+    linked_furniture_images?: number[];
+    linked_individuals?: number[];
+    linked_legal_entities?: number[];
 }
 
 export interface MobilierImageDetail {
-  id: string;
-  title: string;
-  description: string;
-  history?: string;
-  bibliography?: string;
-  inscriptions?: string;
-  creation_date: string;
-  update_date: string;
-  contributors: string;
-  protected?: boolean;
-  protection_comment?: string;
-  conversation_place?: string
-  origin_place?: string
-  authors: string[];
-  sources?: string;
-  city?: string;
-  department?: string;
-  region?: string;
-  country?: string;
-  conservation?: string[];
-  materials?: string[];
-  natures?: string[];
-  medias?: MediaDetail[];
-  centuries?: string[];
-  techniques?: string[];
-  themes?: string[];
-  linked_monuments_places?: number[];
-  linked_individuals?: number[];
-  linked_legal_entities?: number[];
+    id: string;
+    title: string;
+    description: string;
+    history?: string;
+    bibliography?: string;
+    inscriptions?: string;
+    creation_date: string;
+    update_date: string;
+    contributors: string;
+    protected?: boolean;
+    protection_comment?: string;
+    conversation_place?: string
+    origin_place?: string
+    authors: FilterOption[];
+    sources?: string;
+    city?: FilterOption;
+    department?: FilterOption;
+    region?: FilterOption;
+    country?: FilterOption;
+    conservation?: FilterOption[];
+    materials?: FilterOption[];
+    natures?: FilterOption[];
+    medias?: MediaDetail[];
+    centuries?: FilterOption[];
+    techniques?: FilterOption[];
+    themes?: FilterOption[];
+    linked_monuments_places?: number[];
+    linked_individuals?: number[];
+    linked_legal_entities?: number[];
 }
 
 export interface PersonneMoraleDetail {
-  id: string;
-  title: string;
-  foundation_deed?: boolean;
-  history?: string;
-  bibliography?: string;
-  simple_mention?: boolean;
-  process?: string;
-  social_involvement?: string;
-  objects?: string;
-  sources?: string;
-  comment?: string;
-  creation_date: string;
-  update_date: string;
-  contributors: string;
-  authors: string[];
-  city?: string;
-  department?: string;
-  region?: string;
-  country?: string;
-  natures?: string[];
-  medias?: MediaDetail[];
-  centuries?: string[];
-  techniques?: string[];
-  themes?: string[];
-  linked_monuments_places?: number[];
-  linked_individuals?: number[];
-  linked_furniture_images?: number[];
+    id: string;
+    title: string;
+    foundation_deed?: boolean;
+    history?: string;
+    bibliography?: string;
+    simple_mention?: boolean;
+    process?: string;
+    social_involvement?: string;
+    objects?: string;
+    sources?: string;
+    comment?: string;
+    creation_date: string;
+    update_date: string;
+    contributors: string;
+    authors: FilterOption[];
+    city?: FilterOption;
+    department?: FilterOption;
+    region?: FilterOption;
+    country?: FilterOption;
+    natures?: FilterOption[];
+    medias?: MediaDetail[];
+    centuries?: FilterOption[];
+    techniques?: FilterOption[];
+    themes?: FilterOption[];
+    linked_monuments_places?: number[];
+    linked_individuals?: number[];
+    linked_furniture_images?: number[];
 }
 
 export interface PersonnePhysiqueDetail {
-  id: string;
-  firstname: string;
-  birthdate?: string;
-  death?: string;
-  comment?: string;
-  attestation?: string;
-  bibliography?: string;
-  biographical_elements?: string;
-  historical_period?: string[];
-  pilgrimage_elements?: string;
-  event_nature?: string;
-  sources?: string;
-  creation_date: string;
-  update_date: string;
-  contributors: string;
-  authors: string[];
-  city?: string;
-  department?: string;
-  region?: string;
-  country?: string;
-  transport_modes?: string[];
-  professions?: string[];
-  medias?: MediaDetail[];
-  centuries?: string[];
-  themes?: string[];
-  linked_monuments_places?: number[];
-  linked_furniture_images?: number[];
-  linked_legal_entities?: number[];
+    id: string;
+    firstname: string;
+    birthdate?: string;
+    death?: string;
+    comment?: string;
+    attestation?: string;
+    bibliography?: string;
+    biographical_elements?: string;
+    historical_period?: FilterOption[];
+    pilgrimage_elements?: string;
+    event_nature?: string;
+    sources?: string;
+    creation_date: string;
+    update_date: string;
+    contributors: string;
+    authors: FilterOption[];
+    city?: FilterOption;
+    department?: FilterOption;
+    region?: FilterOption;
+    country?: FilterOption;
+    travels?: FilterOption[];
+    professions?: FilterOption[];
+    medias?: MediaDetail[];
+    centuries?: FilterOption[];
+    themes?: FilterOption[];
+    linked_monuments_places?: number[];
+    linked_furniture_images?: number[];
+    linked_legal_entities?: number[];
 }
 
 export type DetailResult = MonumentLieuDetail | MobilierImageDetail | PersonneMoraleDetail | PersonnePhysiqueDetail;
@@ -1120,8 +1120,7 @@ class ApiService {
       throw new ApiError(0, 'Network error', { detail: 'Unable to connect to the server' });
     }
   }
-  
-  // Soumission d'une fiche monuments_lieux
+
   async submitMonumentLieu(formData: any): Promise<void> {
     const url = `${this.baseUrl}/api/v1/monuments_lieux`;
     
@@ -1161,12 +1160,160 @@ class ApiService {
     }
   }
 
-  // Soumission d'une fiche générique (fallback)
-  async submitForm(formData: any) {
-    return this.request(API_CONFIG.endpoints.forms, {
-      method: 'POST',
-      body: JSON.stringify(formData),
-    });
+  async updateMobilierImage(id: string, formData: any): Promise<void> {
+      const url = `${this.baseUrl}/api/v1/mobiliers_images/${id}`;
+
+      const defaultOptions: RequestInit = {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+      };
+
+      // Ajouter le token d'authentification si disponible
+      const tokenData = TokenManager.getToken();
+      if (tokenData) {
+          defaultOptions.headers = {
+              ...defaultOptions.headers,
+              'Authorization': `${tokenData.tokenType} ${tokenData.token}`
+          };
+      }
+
+      try {
+          const response = await fetch(url, defaultOptions);
+
+          if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new ApiError(response.status, errorData.message || `HTTP error! status: ${response.status}`, errorData);
+          }
+
+          // Pour un statut 204 No content, pas de contenu à retourner
+          return;
+      } catch (error) {
+          if (error instanceof ApiError) {
+              throw error;
+          }
+          console.error('API request failed:', error);
+          throw new ApiError(0, 'Network error', { detail: 'Unable to connect to the server' });
+      }
+  }
+
+  async updateMonumentLieu(id: string, formData: any): Promise<void> {
+      const url = `${this.baseUrl}/api/v1/monuments_lieux/${id}`;
+
+      const defaultOptions: RequestInit = {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+      };
+
+      // Ajouter le token d'authentification si disponible
+      const tokenData = TokenManager.getToken();
+      if (tokenData) {
+          defaultOptions.headers = {
+              ...defaultOptions.headers,
+              'Authorization': `${tokenData.tokenType} ${tokenData.token}`
+          };
+      }
+
+      try {
+          const response = await fetch(url, defaultOptions);
+
+          if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new ApiError(response.status, errorData.message || `HTTP error! status: ${response.status}`, errorData);
+          }
+
+          // Pour un statut 204 No content, pas de contenu à retourner
+          return;
+      } catch (error) {
+          if (error instanceof ApiError) {
+              throw error;
+          }
+          console.error('API request failed:', error);
+          throw new ApiError(0, 'Network error', { detail: 'Unable to connect to the server' });
+      }
+  }
+
+  async updatePersonneMorale(id: string, formData: any): Promise<void> {
+      const url = `${this.baseUrl}/api/v1/personnes_morales/${id}`;
+
+      const defaultOptions: RequestInit = {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+      };
+
+      // Ajouter le token d'authentification si disponible
+      const tokenData = TokenManager.getToken();
+      if (tokenData) {
+          defaultOptions.headers = {
+              ...defaultOptions.headers,
+              'Authorization': `${tokenData.tokenType} ${tokenData.token}`
+          };
+      }
+
+      try {
+          const response = await fetch(url, defaultOptions);
+
+          if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new ApiError(response.status, errorData.message || `HTTP error! status: ${response.status}`, errorData);
+          }
+
+          // Pour un statut 204 No content, pas de contenu à retourner
+          return;
+      } catch (error) {
+          if (error instanceof ApiError) {
+              throw error;
+          }
+          console.error('API request failed:', error);
+          throw new ApiError(0, 'Network error', { detail: 'Unable to connect to the server' });
+      }
+  }
+
+  async updatePersonnePhysique(id: string, formData: any): Promise<void> {
+      const url = `${this.baseUrl}/api/v1/personnes_physiques/${id}`;
+
+      const defaultOptions: RequestInit = {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+      };
+
+      // Ajouter le token d'authentification si disponible
+      const tokenData = TokenManager.getToken();
+      if (tokenData) {
+          defaultOptions.headers = {
+              ...defaultOptions.headers,
+              'Authorization': `${tokenData.tokenType} ${tokenData.token}`
+          };
+      }
+
+      try {
+          const response = await fetch(url, defaultOptions);
+
+          if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new ApiError(response.status, errorData.message || `HTTP error! status: ${response.status}`, errorData);
+          }
+
+          // Pour un statut 204 No content, pas de contenu à retourner
+          return;
+      } catch (error) {
+          if (error instanceof ApiError) {
+              throw error;
+          }
+          console.error('API request failed:', error);
+          throw new ApiError(0, 'Network error', { detail: 'Unable to connect to the server' });
+      }
   }
 
   // Recherche avec filtres avancés
@@ -1221,17 +1368,7 @@ class ApiService {
         return c.sort((a: Country, b: Country) => a.name.localeCompare(b.name));
     } catch (error) {
       console.error('Erreur lors du chargement des pays:', error);
-      // Fallback avec données mock
-      return [
-        { id: '1', name: 'France' },
-        { id: '2', name: 'Espagne' },
-        { id: '3', name: 'Portugal' },
-        { id: '4', name: 'Italie' },
-        { id: '5', name: 'Allemagne' },
-        { id: '6', name: 'Belgique' },
-        { id: '7', name: 'Suisse' },
-        { id: '8', name: 'Royaume-Uni' }
-      ];
+      return [];
     }
   }
 
@@ -1242,39 +1379,7 @@ class ApiService {
       return r.sort((a: Region, b: Region) => a.name.localeCompare(b.name));
     } catch (error) {
       console.error('Erreur lors du chargement des régions:', error);
-      // Fallback avec données mock
-      return [
-        { 
-          id: '1', 
-          name: 'Nouvelle-Aquitaine',
-          pays: { id: '1', name: 'France' }
-        },
-        { 
-          id: '2', 
-          name: 'Occitanie',
-          pays: { id: '1', name: 'France' }
-        },
-        { 
-          id: '3', 
-          name: 'Auvergne-Rhône-Alpes',
-          pays: { id: '1', name: 'France' }
-        },
-        { 
-          id: '4', 
-          name: 'Pays de la Loire',
-          pays: { id: '1', name: 'France' }
-        },
-        { 
-          id: '5', 
-          name: 'Centre-Val de Loire',
-          pays: { id: '1', name: 'France' }
-        },
-        { 
-          id: '6', 
-          name: 'Bourgogne-Franche-Comté',
-          pays: { id: '1', name: 'France' }
-        }
-      ];
+      return [];
     }
   }
 
@@ -1285,44 +1390,7 @@ class ApiService {
     } catch (error) {
       console.error('Erreur lors du chargement des départements:', error);
       // Fallback avec données mock
-      return [
-        { 
-          id: '1', 
-          name: 'Gironde',
-          region: { 
-            id: '1', 
-            name: 'Nouvelle-Aquitaine',
-            pays: { id: '1', name: 'France' }
-          }
-        },
-        { 
-          id: '2', 
-          name: 'Landes',
-          region: { 
-            id: '1', 
-            name: 'Nouvelle-Aquitaine',
-            pays: { id: '1', name: 'France' }
-          }
-        },
-        { 
-          id: '3', 
-          name: 'Pyrénées-Atlantiques',
-          region: { 
-            id: '1', 
-            name: 'Nouvelle-Aquitaine',
-            pays: { id: '1', name: 'France' }
-          }
-        },
-        { 
-          id: '4', 
-          name: 'Haute-Garonne',
-          region: { 
-            id: '2', 
-            name: 'Occitanie',
-            pays: { id: '1', name: 'France' }
-          }
-        }
-      ];
+      return [];
     }
   }
 

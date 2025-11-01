@@ -355,10 +355,10 @@ export function ValidateFormDetailPage({
         // Ajouter la localisation
         if (result?.city || result?.department || result?.region || result?.country) {
             const locationParts = [];
-            if (result.city) locationParts.push(result.city);
-            if (result.department) locationParts.push(result.department);
-            if (result.region) locationParts.push(result.region);
-            if (result.country) locationParts.push(result.country);
+            if (result.city && result.city.name) locationParts.push(result.city.name);
+            if (result.department && result.department.name) locationParts.push(result.department.name);
+            if (result.region && result.region.name) locationParts.push(result.region.name);
+            if (result.country && result.country.name) locationParts.push(result.country.name);
 
             if (locationParts.length > 0) {
                 parts.push(locationParts.join(', '));
@@ -367,7 +367,7 @@ export function ValidateFormDetailPage({
 
         // Ajouter les siècles
         if (result?.centuries && result.centuries.length > 0) {
-            const centuriesText = result.centuries.join(', ');
+            const centuriesText = result.centuries.map(o => o.name).join(', ');
             parts.push(centuriesText);
         }
 
@@ -466,7 +466,7 @@ export function ValidateFormDetailPage({
                 {/* Types d'éléments */}
                 {mobilier.natures && mobilier.natures.length > 0 && (
                     <TechnicalInfoItem label="Types d'éléments">
-                        <TechnicalBadgeList items={mobilier.natures}/>
+                        <TechnicalBadgeList items={mobilier.natures.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
@@ -474,10 +474,10 @@ export function ValidateFormDetailPage({
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
                         <div className="space-y-1 text-sm">
-                            {result.city && <div>{result.city}</div>}
-                            {result.department && <div>{result.department}</div>}
-                            {result.region && <div>{result.region}</div>}
-                            {result.country && <div>{result.country}</div>}
+                            {result.city && <div>{result.city.name}</div>}
+                            {result.department && <div>{result.department.name}</div>}
+                            {result.region && <div>{result.region.name}</div>}
+                            {result.country && <div>{result.country.name}</div>}
                         </div>
                     </TechnicalInfoItem>
                 )}
@@ -504,8 +504,8 @@ export function ValidateFormDetailPage({
                     <TechnicalInfoItem label="Auteur de la fiche">
                         <div className="flex flex-wrap gap-1">
                             {result.authors.map((author) => (
-                                <Badge key={author} variant="secondary" className="text-xs">
-                                    {author}
+                                <Badge key={author.name} variant="secondary" className="text-xs">
+                                    {author.name}
                                 </Badge>
                             ))}
                         </div>
@@ -537,7 +537,7 @@ export function ValidateFormDetailPage({
                 {/* Types d'organisation */}
                 {personne.natures && personne.natures.length > 0 && (
                     <TechnicalInfoItem label="Types d'organisation">
-                        <TechnicalBadgeList items={personne.natures}/>
+                        <TechnicalBadgeList items={personne.natures.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
@@ -545,10 +545,10 @@ export function ValidateFormDetailPage({
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
                         <div className="space-y-1 text-sm">
-                            {result.city && <div>{result.city}</div>}
-                            {result.department && <div>{result.department}</div>}
-                            {result.region && <div>{result.region}</div>}
-                            {result.country && <div>{result.country}</div>}
+                            {result.city && <div>{result.city.name}</div>}
+                            {result.department && <div>{result.department.name}</div>}
+                            {result.region && <div>{result.region.name}</div>}
+                            {result.country && <div>{result.country.name}</div>}
                         </div>
                     </TechnicalInfoItem>
                 )}
@@ -568,8 +568,8 @@ export function ValidateFormDetailPage({
                     <TechnicalInfoItem label="Auteur de la fiche">
                         <div className="flex flex-wrap gap-1">
                             {result.authors.map((author) => (
-                                <Badge key={author} variant="secondary" className="text-xs">
-                                    {author}
+                                <Badge key={author.name} variant="secondary" className="text-xs">
+                                    {author.name}
                                 </Badge>
                             ))}
                         </div>
@@ -601,7 +601,7 @@ export function ValidateFormDetailPage({
                 {/* Types d'éléments */}
                 {monument.natures && monument.natures.length > 0 && (
                     <TechnicalInfoItem label="Types d'éléments">
-                        <TechnicalBadgeList items={monument.natures}/>
+                        <TechnicalBadgeList items={monument.natures.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
@@ -609,10 +609,10 @@ export function ValidateFormDetailPage({
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
                         <div className="space-y-1 text-sm">
-                            {result.city && <div>{result.city}</div>}
-                            {result.department && <div>{result.department}</div>}
-                            {result.region && <div>{result.region}</div>}
-                            {result.country && <div>{result.country}</div>}
+                            {result.city && <div>{result.city.name}</div>}
+                            {result.department && <div>{result.department.name}</div>}
+                            {result.region && <div>{result.region.name}</div>}
+                            {result.country && <div>{result.country.name}</div>}
                         </div>
                     </TechnicalInfoItem>
                 )}
@@ -653,8 +653,8 @@ export function ValidateFormDetailPage({
                     <TechnicalInfoItem label="Auteur de la fiche">
                         <div className="flex flex-wrap gap-1">
                             {result.authors.map((author) => (
-                                <Badge key={author} variant="secondary" className="text-xs">
-                                    {author}
+                                <Badge key={author.name} variant="secondary" className="text-xs">
+                                    {author.name}
                                 </Badge>
                             ))}
                         </div>
@@ -691,14 +691,14 @@ export function ValidateFormDetailPage({
                 {/* Professions */}
                 {personne.professions && personne.professions.length > 0 && (
                     <TechnicalInfoItem label="Professions">
-                        <TechnicalBadgeList items={personne.professions}/>
+                        <TechnicalBadgeList items={personne.professions.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
                 {/* Modes de transport */}
-                {personne.transport_modes && personne.transport_modes.length > 0 && (
+                {personne.travels && personne.travels.length > 0 && (
                     <TechnicalInfoItem label="Modes de transport">
-                        <TechnicalBadgeList items={personne.transport_modes}/>
+                        <TechnicalBadgeList items={personne.travels.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
@@ -706,10 +706,10 @@ export function ValidateFormDetailPage({
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
                         <div className="space-y-1 text-sm">
-                            {result.city && <div>{result.city}</div>}
-                            {result.department && <div>{result.department}</div>}
-                            {result.region && <div>{result.region}</div>}
-                            {result.country && <div>{result.country}</div>}
+                            {result.city && <div>{result.city.name}</div>}
+                            {result.department && <div>{result.department.name}</div>}
+                            {result.region && <div>{result.region.name}</div>}
+                            {result.country && <div>{result.country.name}</div>}
                         </div>
                     </TechnicalInfoItem>
                 )}
@@ -717,7 +717,7 @@ export function ValidateFormDetailPage({
                 {/* Siècles */}
                 {result.centuries && result.centuries.length > 0 && (
                     <TechnicalInfoItem label="Siècles">
-                        <TechnicalBadgeList items={result.centuries}/>
+                        <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
                     </TechnicalInfoItem>
                 )}
 
@@ -736,8 +736,8 @@ export function ValidateFormDetailPage({
                     <TechnicalInfoItem label="Auteur de la fiche">
                         <div className="flex flex-wrap gap-1">
                             {result.authors.map((author) => (
-                                <Badge key={author} variant="secondary" className="text-xs">
-                                    {author}
+                                <Badge key={author.name} variant="secondary" className="text-xs">
+                                    {author.name}
                                 </Badge>
                             ))}
                         </div>
@@ -827,7 +827,7 @@ export function ValidateFormDetailPage({
                     {/* Siècles */}
                     {result.centuries && result.centuries.length > 0 && (
                         <TechnicalInfoItem label="Siècles">
-                            <TechnicalBadgeList items={result.centuries}/>
+                            <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
@@ -866,28 +866,28 @@ export function ValidateFormDetailPage({
                     {/* Matériaux */}
                     {mobilier.materials && mobilier.materials.length > 0 && (
                         <TechnicalInfoItem label="Matériaux">
-                            <TechnicalBadgeList items={mobilier.materials}/>
+                            <TechnicalBadgeList items={mobilier.materials.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {/* État de conservation */}
                     {mobilier.conservation && mobilier.conservation.length > 0 && (
                         <TechnicalInfoItem label="État de conservation">
-                            <TechnicalBadgeList items={mobilier.conservation}/>
+                            <TechnicalBadgeList items={mobilier.conservation.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {/* Techniques */}
                     {mobilier.techniques && mobilier.techniques.length > 0 && (
                         <TechnicalInfoItem label="Techniques">
-                            <TechnicalBadgeList items={mobilier.techniques}/>
+                            <TechnicalBadgeList items={mobilier.techniques.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {/* Thèmes */}
                     {result.themes && result.themes.length > 0 && (
                         <TechnicalInfoItem label="Thèmes">
-                            <TechnicalBadgeList items={result.themes}/>
+                            <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
@@ -942,14 +942,14 @@ export function ValidateFormDetailPage({
                     {/* Siècles */}
                     {result.centuries && result.centuries.length > 0 && (
                         <TechnicalInfoItem label="Siècles">
-                            <TechnicalBadgeList items={result.centuries}/>
+                            <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {/* Types d'organisation */}
                     {personne.natures && personne.natures.length > 0 && (
                         <TechnicalInfoItem label="Types d'organisation">
-                            <TechnicalBadgeList items={personne.natures}/>
+                            <TechnicalBadgeList items={personne.natures.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
@@ -1028,7 +1028,7 @@ export function ValidateFormDetailPage({
                     {/* Thèmes */}
                     {result.themes && result.themes.length > 0 && (
                         <TechnicalInfoItem label="Thèmes">
-                            <TechnicalBadgeList items={result.themes}/>
+                            <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>
@@ -1098,14 +1098,14 @@ export function ValidateFormDetailPage({
                     {/* Siècles */}
                     {result.centuries && result.centuries.length > 0 && (
                         <TechnicalInfoItem label="Siècles">
-                            <TechnicalBadgeList items={result.centuries}/>
+                            <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {/* Types d'éléments */}
                     {monument.natures && monument.natures.length > 0 && (
                         <TechnicalInfoItem label="Types d'éléments">
-                            <TechnicalBadgeList items={monument.natures}/>
+                            <TechnicalBadgeList items={monument.natures.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
@@ -1137,21 +1137,21 @@ export function ValidateFormDetailPage({
                     {/* Matériaux */}
                     {monument.materials && monument.materials.length > 0 && (
                         <TechnicalInfoItem label="Matériaux">
-                            <TechnicalBadgeList items={monument.materials}/>
+                            <TechnicalBadgeList items={monument.materials.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {/* État de conservation */}
                     {monument.conservation && monument.conservation.length > 0 && (
                         <TechnicalInfoItem label="État de conservation">
-                            <TechnicalBadgeList items={monument.conservation}/>
+                            <TechnicalBadgeList items={monument.conservation.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
 
                     {/* Thèmes */}
                     {result.themes && result.themes.length > 0 && (
                         <TechnicalInfoItem label="Thèmes">
-                            <TechnicalBadgeList items={result.themes}/>
+                            <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>
@@ -1270,7 +1270,7 @@ export function ValidateFormDetailPage({
                     {/* Thèmes */}
                     {result.themes && result.themes.length > 0 && (
                         <TechnicalInfoItem label="Thèmes">
-                            <TechnicalBadgeList items={result.themes}/>
+                            <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>

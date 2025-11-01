@@ -11,7 +11,8 @@ import {
     Search,
     AlertTriangle,
     ImageIcon,
-    Trash2
+    Trash2,
+    FileText
 } from "lucide-react";
 import {Button} from "./ui/button";
 import {Input} from "./ui/input";
@@ -108,7 +109,7 @@ interface FormData {
     deathDate?: string;
 }
 
-export function ContributePage({user, onBack}: ContributePageProps) {
+export function ContributePage({ user, onBack }: ContributePageProps) {
     const [formData, setFormData] = useState<FormData>({
         category: '',
         name: '',
@@ -190,6 +191,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
     const [showImageErrorModal, setShowImageErrorModal] = useState(false);
     const [imageErrorType, setImageErrorType] = useState<'400' | '500' | null>(null);
     const [isSubmittingForm, setIsSubmittingForm] = useState(false);
+    const [isSavingDraft, setIsSavingDraft] = useState(false);
+    const [wasSubmittedAsDraft, setWasSubmittedAsDraft] = useState(false);
 
     // Ref pour le debounce de recherche de communes et de fiches
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -346,7 +349,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
 
         setIsSearchingFiches(true);
         try {
-            let searchReqBody: SearchRequestBody = {}
+            let searchReqBody : SearchRequestBody = {}
             switch (formData.category) {
                 case 'monuments_lieux':
                     searchReqBody = {
@@ -412,7 +415,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
             [field]: value
         }));
         if (errors[field]) {
-            setErrors(prev => ({...prev, [field]: ''}));
+            setErrors(prev => ({ ...prev, [field]: '' }));
         }
     };
 
@@ -451,7 +454,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         }));
         // Effacer l'erreur de localisation si elle existe
         if (errors.location) {
-            setErrors(prev => ({...prev, location: ''}));
+            setErrors(prev => ({ ...prev, location: '' }));
         }
     };
 
@@ -512,7 +515,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
 
         // Effacer l'erreur de localisation si elle existe
         if (errors.location) {
-            setErrors(prev => ({...prev, location: ''}));
+            setErrors(prev => ({ ...prev, location: '' }));
         }
     };
 
@@ -557,7 +560,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
             if (oversizedFiles.length > 0) {
                 toast.error(
                     `${oversizedFiles.length} image(s) dépassent 5MB et seront refusées par le serveur : ${oversizedFiles.join(', ')}`,
-                    {duration: 6000}
+                    { duration: 6000 }
                 );
             }
 
@@ -606,7 +609,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         setFormData(prev => ({
             ...prev,
             images: prev.images.map((img, i) =>
-                i === index ? {...img, caption} : img
+                i === index ? { ...img, caption } : img
             )
         }));
     };
@@ -677,11 +680,17 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         setFicheSearchResults([]);
     };
 
-    const validateForm = () => {
+    const validateForm = (isDraft: boolean) => {
         const newErrors: Record<string, string> = {};
 
         if (!formData.category) newErrors.category = 'La catégorie est requise';
         if (!formData.name.trim()) newErrors.name = 'Le nom/titre est requis';
+
+        if (isDraft) {
+            setErrors(newErrors);
+            return Object.keys(newErrors).length === 0;
+        }
+
         if ((formData.category === 'monuments_lieux' || formData.category === 'mobiliers_images') && !formData.description?.trim()) newErrors.description = 'La description est requise';
 
         // Validation de la localisation : au moins pays OU commune requis
@@ -693,10 +702,10 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent, isDraft: boolean = false) => {
         e.preventDefault();
 
-        if (!validateForm()) return;
+        if (!validateForm(isDraft)) return;
 
         setIsSubmittingForm(true);
 
@@ -742,7 +751,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
             }
 
             // Étape 2: Soumission de la fiche avec tous les IDs d'images
-            await submitFormData(mediaIds);
+            await submitFormData(mediaIds, isDraft);
 
         } catch (error) {
             console.error('Erreur lors de la soumission:', error);
@@ -755,7 +764,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         }
     };
 
-    const submitFormData = async (mediaIds: string[] = []) => {
+    const submitFormData = async (mediaIds: string[] = [], isDraft: boolean = false) => {
         // Préparer les données selon le type de fiche
         let submissionData: any;
 
@@ -792,7 +801,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined,
+                    contributors: formData.contributors || undefined ,
                     source: sourceInfo,
                     description: formData.description || '',
                     history: formData.history || undefined,
@@ -810,7 +819,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                         : undefined,
                     linkedMobiliersImages,
                     linkedPersMorales,
-                    linkedPersPhysiques
+                    linkedPersPhysiques,
+                    draft: isDraft
                 };
 
                 await apiService.submitMonumentLieu(submissionData);
@@ -826,7 +836,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined,
+                    contributors: formData.contributors || undefined ,
                     source: sourceInfo,
                     description: formData.description || '',
                     inscription: formData.inscription || undefined,
@@ -842,7 +852,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     presentPlace: formData.currentLocation,
                     linkedMonumentsLieux,
                     linkedPersMorales,
-                    linkedPersPhysiques
+                    linkedPersPhysiques,
+                    draft: isDraft
                 };
 
                 await apiService.submitMobilierImage(submissionData);
@@ -858,7 +869,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined,
+                    contributors: formData.contributors || undefined ,
                     source: sourceInfo,
                     simple_mention: formData.simpleMention,
                     foundation_deed: formData.foundationAct,
@@ -872,7 +883,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     comment: formData.comment || undefined,
                     linkedMonumentsLieux,
                     linkedMobiliersImages,
-                    linkedPersPhysiques
+                    linkedPersPhysiques,
+                    draft: isDraft
                 };
 
                 await apiService.submitPersonneMorale(submissionData);
@@ -888,7 +900,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined,
+                    contributors: formData.contributors || undefined ,
                     source: sourceInfo,
                     birthday: formData.birthDate || undefined,
                     death: formData.deathDate || undefined,
@@ -904,7 +916,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     comment: formData.comment || undefined,
                     linkedMonumentsLieux,
                     linkedMobiliersImages,
-                    linkedPersMorales
+                    linkedPersMorales,
+                    draft: isDraft
                 };
 
                 await apiService.submitPersonnePhysique(submissionData);
@@ -912,9 +925,17 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                 break;
         }
 
+        setWasSubmittedAsDraft(isDraft);
         setIsSubmitted(true);
         setIsSubmittingForm(false);
-        toast.success('Fiche soumise avec succès !');
+        toast.success(isDraft ? 'Brouillon enregistré avec succès !' : 'Fiche soumise avec succès !');
+    };
+
+    // Fonction pour sauvegarder en tant que brouillon
+    const handleSaveDraft = async (e: React.FormEvent) => {
+        setIsSavingDraft(true);
+        await handleSubmit(e, true);
+        setIsSavingDraft(false);
     };
 
     // Fonction pour continuer sans images (après erreur 400)
@@ -923,7 +944,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         setImageErrorType(null);
 
         try {
-            await submitFormData([]);
+            await submitFormData([], isSavingDraft);
         } catch (error) {
             console.error('Erreur lors de la soumission sans image:', error);
             if (error instanceof ApiError) {
@@ -992,6 +1013,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         setShowImageErrorModal(false);
         setImageErrorType(null);
         setIsSubmittingForm(false);
+        setIsSavingDraft(false);
+        setWasSubmittedAsDraft(false);
     };
 
     if (isLoading) {
@@ -1016,16 +1039,30 @@ export function ContributePage({user, onBack}: ContributePageProps) {
             <div className="min-h-screen bg-secondary py-8">
                 <div className="container mx-auto px-4">
                     <div className="max-w-2xl mx-auto">
-                        <Card className="border-green-200 bg-green-50">
+                        <Card className={wasSubmittedAsDraft ? "border-blue-200 bg-blue-50" : "border-green-200 bg-green-50"}>
                             <CardContent className="text-center py-12">
-                                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6"/>
-                                <h2 className="text-2xl font-bold text-green-800 mb-4">
-                                    Fiche soumise avec succès !
-                                </h2>
-                                <p className="text-green-700 mb-6 leading-relaxed">
-                                    Votre contribution a été reçue et sera examinée par notre équipe d'administrateurs.
-                                    Vous recevrez une notification par email une fois la fiche validée et publiée.
-                                </p>
+                                {wasSubmittedAsDraft ? (
+                                    <>
+                                        <FileText className="w-16 h-16 text-blue-500 mx-auto mb-6" />
+                                        <h2 className="text-2xl mb-4 text-blue-800">
+                                            Brouillon enregistré avec succès !
+                                        </h2>
+                                        <p className="text-blue-700 mb-6 leading-relaxed">
+                                            Votre brouillon a été sauvegardé. Vous pourrez le retrouver dans votre espace personnel
+                                            et le compléter ou le soumettre plus tard.
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
+                                        <h2 className="text-2xl font-bold text-green-800 mb-4">
+                                            Fiche soumise avec succès !
+                                        </h2>
+                                        <p className="text-green-700 mb-6 leading-relaxed">
+                                            Votre contribution a été reçue et sera examinée par notre équipe d'administrateurs.
+                                        </p>
+                                    </>
+                                )}
                                 <div className="flex gap-4 justify-center">
                                     <Button onClick={resetForm} variant="outline">
                                         Créer une nouvelle fiche
@@ -1053,7 +1090,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                             onClick={onBack}
                             className="mb-4"
                         >
-                            <ArrowLeft className="w-4 h-4 mr-2"/>
+                            <ArrowLeft className="w-4 h-4 mr-2" />
                             Retour
                         </Button>
                         <h1 className="text-3xl font-bold text-foreground">
@@ -1064,7 +1101,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                         </p>
                         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 text-blue-600"/>
+                                <Users className="w-4 h-4 text-blue-600" />
                                 <span className="text-sm font-medium text-blue-800">Auteur de la fiche</span>
                             </div>
                             <p className="text-sm text-blue-700 mt-1">
@@ -1117,8 +1154,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 className={errors.name ? 'border-destructive' : ''}
                                                 placeholder="Nom ou titre de l'élément"
                                             />
-                                            {errors.name &&
-                                                <p className="text-destructive text-sm mt-1">{errors.name}</p>}
+                                            {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
                                         </div>
 
                                         {/* Siècles */}
@@ -1129,15 +1165,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                             </p>
                                             {Array.isArray(centuries) && centuries.length > 0 ? (
                                                 <SearchableMultiSelect
-                                                    options={centuries.filter(c => c && c.id && c.name).map(c => ({
-                                                        id: c.id,
-                                                        name: c.name
-                                                    }))}
+                                                    options={centuries.filter(c => c && c.id && c.name).map(c => ({ id: c.id, name: c.name }))}
                                                     selectedValues={formData.centuries || []}
-                                                    onChange={(selected) => setFormData(prev => ({
-                                                        ...prev,
-                                                        centuries: selected
-                                                    }))}
+                                                    onChange={(selected) => setFormData(prev => ({ ...prev, centuries: selected }))}
                                                     placeholder="Sélectionner des siècles"
                                                     searchPlaceholder="Rechercher un siècle..."
                                                     emptyMessage="Aucun siècle trouvé"
@@ -1147,14 +1177,13 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     Chargement des siècles...
                                                 </div>
                                             )}
-                                            {errors.centuries &&
-                                                <p className="text-destructive text-sm mt-2">{errors.centuries}</p>}
+                                            {errors.centuries && <p className="text-destructive text-sm mt-2">{errors.centuries}</p>}
                                         </div>
 
                                         {/* Localisation */}
                                         <div>
                                             <div className="flex items-center gap-2 mb-2">
-                                                <MapPin className="w-4 h-4 text-muted-foreground"/>
+                                                <MapPin className="w-4 h-4 text-muted-foreground" />
                                                 <Label>Localisation *</Label>
                                             </div>
                                             <p className="text-sm text-muted-foreground mb-4">
@@ -1167,10 +1196,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label className="text-sm">Pays</Label>
                                                     <div className="mt-1">
                                                         <SearchableSelect
-                                                            options={countries.filter(c => c && c.id && c.name).map(c => ({
-                                                                id: c.id,
-                                                                name: c.name
-                                                            }))}
+                                                            options={countries.filter(c => c && c.id && c.name).map(c => ({ id: c.id, name: c.name }))}
                                                             selectedValue={selectedCountry?.id || ''}
                                                             onChange={(countryId) => {
                                                                 const country = countries.find(c => c.id === countryId);
@@ -1233,8 +1259,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 <div className="relative">
                                                     <Label className="text-sm">Commune</Label>
                                                     <div className="relative mt-1">
-                                                        <Search
-                                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
+                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                                         <Input
                                                             placeholder={selectedCommune ? selectedCommune.name : "Rechercher une commune..."}
                                                             value={selectedCommune ? selectedCommune.name : communeQuery}
@@ -1265,17 +1290,14 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     </div>
 
                                                     {showCommuneResults && !selectedCommune && (
-                                                        <div
-                                                            className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
+                                                        <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
                                                             {isSearchingCommunes && (
-                                                                <div
-                                                                    className="p-4 text-center text-sm text-muted-foreground">
+                                                                <div className="p-4 text-center text-sm text-muted-foreground">
                                                                     Recherche en cours...
                                                                 </div>
                                                             )}
                                                             {!isSearchingCommunes && communes.length === 0 && communeQuery.length >= 2 && (
-                                                                <div
-                                                                    className="p-4 text-center text-sm text-muted-foreground">
+                                                                <div className="p-4 text-center text-sm text-muted-foreground">
                                                                     Aucune commune trouvée
                                                                 </div>
                                                             )}
@@ -1294,8 +1316,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         </div>
                                                     )}
 
-                                                    {errors.commune &&
-                                                        <p className="text-destructive text-sm mt-1">{errors.commune}</p>}
+                                                    {errors.commune && <p className="text-destructive text-sm mt-1">{errors.commune}</p>}
                                                 </div>
 
                                                 {/* Affichage de la localisation sélectionnée */}
@@ -1303,8 +1324,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <div className="p-3 bg-accent rounded-lg">
                                                         <div className="flex items-center justify-between">
                                                             <div>
-                                                                <div
-                                                                    className="text-sm font-medium text-accent-foreground">
+                                                                <div className="text-sm font-medium text-accent-foreground">
                                                                     Localisation sélectionnée :
                                                                 </div>
                                                                 <div className="text-xs text-muted-foreground mt-1">
@@ -1333,7 +1353,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                                 }}
                                                                 className="ml-2"
                                                             >
-                                                                <X className="w-4 h-4"/>
+                                                                <X className="w-4 h-4" />
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -1352,9 +1372,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
 
                                             {/* Message d'erreur pour la localisation */}
                                             {errors.location && (
-                                                <div
-                                                    className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg mt-4">
-                                                    <AlertTriangle className="w-4 h-4 text-destructive"/>
+                                                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg mt-4">
+                                                    <AlertTriangle className="w-4 h-4 text-destructive" />
                                                     <p className="text-sm text-destructive">{errors.location}</p>
                                                 </div>
                                             )}
@@ -1364,7 +1383,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                         <div>
                                             <div className="flex items-center justify-between mb-4">
                                                 <div className="flex items-center gap-2">
-                                                    <ImageIcon className="w-4 h-4 text-muted-foreground"/>
+                                                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
                                                     <Label>Images</Label>
                                                 </div>
                                                 <Badge variant="secondary">
@@ -1375,9 +1394,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                             {/* Bouton d'ajout d'images */}
                                             <div className="mb-4">
                                                 <label htmlFor="imageInput" className="cursor-pointer">
-                                                    <div
-                                                        className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-muted-foreground/25 rounded-lg hover:border-primary/50 hover:bg-accent/50 transition-colors">
-                                                        <Plus className="w-5 h-5"/>
+                                                    <div className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-muted-foreground/25 rounded-lg hover:border-primary/50 hover:bg-accent/50 transition-colors">
+                                                        <Plus className="w-5 h-5" />
                                                         <span className="text-sm">Ajouter des images</span>
                                                     </div>
                                                     <input
@@ -1389,13 +1407,10 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         className="hidden"
                                                     />
                                                 </label>
-                                                <div
-                                                    className="flex items-start gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
-                                                    <AlertTriangle
-                                                        className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0"/>
+                                                <div className="flex items-start gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                                                    <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                                                     <p className="text-xs text-amber-800">
-                                                        Les images de plus de 5 MB seront refusées par le serveur.
-                                                        Assurez-vous que vos images ne dépassent pas cette taille.
+                                                        Les images de plus de 5 MB seront refusées par le serveur. Assurez-vous que vos images ne dépassent pas cette taille.
                                                     </p>
                                                 </div>
                                             </div>
@@ -1417,8 +1432,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
 
                                                                 {/* Informations et légende */}
                                                                 <div className="flex-1 space-y-2">
-                                                                    <div
-                                                                        className="flex items-start justify-between gap-2">
+                                                                    <div className="flex items-start justify-between gap-2">
                                                                         <div>
                                                                             <p className="text-sm font-medium truncate">
                                                                                 {image.file.name}
@@ -1443,13 +1457,12 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                                             onClick={() => removeImage(index)}
                                                                             className="text-destructive hover:text-destructive"
                                                                         >
-                                                                            <Trash2 className="w-4 h-4"/>
+                                                                            <Trash2 className="w-4 h-4" />
                                                                         </Button>
                                                                     </div>
 
                                                                     <div>
-                                                                        <Label htmlFor={`caption-${index}`}
-                                                                               className="text-xs">
+                                                                        <Label htmlFor={`caption-${index}`} className="text-xs">
                                                                             Légende
                                                                         </Label>
                                                                         <Textarea
@@ -1474,15 +1487,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                             <Label>Thèmes</Label>
                                             {Array.isArray(themes) && themes.length > 0 ? (
                                                 <SearchableMultiSelect
-                                                    options={themes.filter(t => t && t.id && t.name).map(t => ({
-                                                        id: t.id,
-                                                        name: t.name
-                                                    }))}
+                                                    options={themes.filter(t => t && t.id && t.name).map(t => ({ id: t.id, name: t.name }))}
                                                     selectedValues={formData.themes || []}
-                                                    onChange={(selected) => setFormData(prev => ({
-                                                        ...prev,
-                                                        themes: selected
-                                                    }))}
+                                                    onChange={(selected) => setFormData(prev => ({ ...prev, themes: selected }))}
                                                     placeholder="Sélectionner des thèmes"
                                                     searchPlaceholder="Rechercher un thème..."
                                                     emptyMessage="Aucun thème trouvé"
@@ -1509,14 +1516,13 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addContributor())}
                                                     />
                                                     <Button type="button" onClick={addContributor} size="sm">
-                                                        <Plus className="w-4 h-4"/>
+                                                        <Plus className="w-4 h-4" />
                                                     </Button>
                                                 </div>
                                                 {formData.contributors.length > 0 && (
                                                     <div className="flex flex-wrap gap-2">
                                                         {formData.contributors.map((contributor, index) => (
-                                                            <Badge key={index} variant="secondary"
-                                                                   className="flex items-center gap-2">
+                                                            <Badge key={index} variant="secondary" className="flex items-center gap-2">
                                                                 {contributor}
                                                                 <X
                                                                     className="w-3 h-3 cursor-pointer"
@@ -1534,13 +1540,10 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                             <Label>Source de l'information</Label>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                                                 <div>
-                                                    <Label htmlFor="sourceType" className="text-sm">Type de
-                                                        source</Label>
-                                                    <Select
-                                                        onValueChange={(value) => handleSourceChange('type', value)}>
-                                                        <SelectTrigger
-                                                            className={errors.sourceType ? 'border-destructive' : ''}>
-                                                            <SelectValue placeholder="Sélectionner"/>
+                                                    <Label htmlFor="sourceType" className="text-sm">Type de source</Label>
+                                                    <Select onValueChange={(value) => handleSourceChange('type', value)}>
+                                                        <SelectTrigger className={errors.sourceType ? 'border-destructive' : ''}>
+                                                            <SelectValue placeholder="Sélectionner" />
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             {Array.isArray(sourceTypes) && sourceTypes.filter(type => type).map((type) => (
@@ -1548,8 +1551,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                             ))}
                                                         </SelectContent>
                                                     </Select>
-                                                    {errors.sourceType &&
-                                                        <p className="text-destructive text-sm mt-1">{errors.sourceType}</p>}
+                                                    {errors.sourceType && <p className="text-destructive text-sm mt-1">{errors.sourceType}</p>}
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="sourceAuthor" className="text-sm">Auteur</Label>
@@ -1560,8 +1562,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         className={errors.sourceAuthor ? 'border-destructive' : ''}
                                                         placeholder="Nom de l'auteur"
                                                     />
-                                                    {errors.sourceAuthor &&
-                                                        <p className="text-destructive text-sm mt-1">{errors.sourceAuthor}</p>}
+                                                    {errors.sourceAuthor && <p className="text-destructive text-sm mt-1">{errors.sourceAuthor}</p>}
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="sourceTitle" className="text-sm">Titre</Label>
@@ -1609,15 +1610,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Types d'éléments</Label>
                                                     {Array.isArray(buildingNatures) && buildingNatures.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={buildingNatures.filter(n => n && n.id && n.name).map(n => ({
-                                                                id: n.id,
-                                                                name: n.name
-                                                            }))}
+                                                            options={buildingNatures.filter(n => n && n.id && n.name).map(n => ({ id: n.id, name: n.name }))}
                                                             selectedValues={formData.natures || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                natures: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, natures: selected }))}
                                                             placeholder="Sélectionner des types"
                                                             searchPlaceholder="Rechercher un type..."
                                                             emptyMessage="Aucun type trouvé"
@@ -1639,8 +1634,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         placeholder="Description détaillée du monument ou lieu"
                                                         rows={4}
                                                     />
-                                                    {errors.description &&
-                                                        <p className="text-destructive text-sm mt-1">{errors.description}</p>}
+                                                    {errors.description && <p className="text-destructive text-sm mt-1">{errors.description}</p>}
                                                 </div>
 
                                                 <div>
@@ -1669,8 +1663,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Coordonnées GPS</Label>
                                                     <div className="grid grid-cols-2 gap-4 mt-3">
                                                         <div>
-                                                            <Label htmlFor="latitude"
-                                                                   className="text-sm">Latitude</Label>
+                                                            <Label htmlFor="latitude" className="text-sm">Latitude</Label>
                                                             <Input
                                                                 id="latitude"
                                                                 value={formData.coordinates?.latitude || ''}
@@ -1679,8 +1672,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Label htmlFor="longitude"
-                                                                   className="text-sm">Longitude</Label>
+                                                            <Label htmlFor="longitude" className="text-sm">Longitude</Label>
                                                             <Input
                                                                 id="longitude"
                                                                 value={formData.coordinates?.longitude || ''}
@@ -1695,15 +1687,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>États de conservation</Label>
                                                     {Array.isArray(conservationStates) && conservationStates.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({
-                                                                id: c.id,
-                                                                name: c.name
-                                                            }))}
+                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({ id: c.id, name: c.name }))}
                                                             selectedValues={formData.conservationStates || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                conservationStates: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, conservationStates: selected }))}
                                                             placeholder="Sélectionner des états"
                                                             searchPlaceholder="Rechercher un état..."
                                                             emptyMessage="Aucun état trouvé"
@@ -1719,15 +1705,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Matériaux</Label>
                                                     {Array.isArray(materials) && materials.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({
-                                                                id: m.id,
-                                                                name: m.name
-                                                            }))}
+                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({ id: m.id, name: m.name }))}
                                                             selectedValues={formData.materials || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                materials: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, materials: selected }))}
                                                             placeholder="Sélectionner des matériaux"
                                                             searchPlaceholder="Rechercher un matériau..."
                                                             emptyMessage="Aucun matériau trouvé"
@@ -1748,13 +1728,11 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                                 checked={formData.protected || false}
                                                                 onCheckedChange={(checked) => handleInputChange('protected', checked)}
                                                             />
-                                                            <Label htmlFor="protected" className="text-sm">Monument
-                                                                protégé</Label>
+                                                            <Label htmlFor="protected" className="text-sm">Monument protégé</Label>
                                                         </div>
 
                                                         <div>
-                                                            <Label htmlFor="protectionComment" className="text-sm">Commentaire
-                                                                de protection</Label>
+                                                            <Label htmlFor="protectionComment" className="text-sm">Commentaire de protection</Label>
                                                             <Textarea
                                                                 id="protectionComment"
                                                                 value={formData.protectionComment || ''}
@@ -1775,15 +1753,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Types d'éléments</Label>
                                                     {Array.isArray(furnituresNatures) && furnituresNatures.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={furnituresNatures.filter(n => n && n.id && n.name).map(n => ({
-                                                                id: n.id,
-                                                                name: n.name
-                                                            }))}
+                                                            options={furnituresNatures.filter(n => n && n.id && n.name).map(n => ({ id: n.id, name: n.name }))}
                                                             selectedValues={formData.natures || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                natures: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, natures: selected }))}
                                                             placeholder="Sélectionner des types"
                                                             searchPlaceholder="Rechercher un type..."
                                                             emptyMessage="Aucun type trouvé"
@@ -1853,15 +1825,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>États de conservation</Label>
                                                     {Array.isArray(conservationStates) && conservationStates.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({
-                                                                id: c.id,
-                                                                name: c.name
-                                                            }))}
+                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({ id: c.id, name: c.name }))}
                                                             selectedValues={formData.conservationStates || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                conservationStates: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, conservationStates: selected }))}
                                                             placeholder="Sélectionner des états"
                                                             searchPlaceholder="Rechercher un état..."
                                                             emptyMessage="Aucun état trouvé"
@@ -1877,15 +1843,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Matériaux</Label>
                                                     {Array.isArray(materials) && materials.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({
-                                                                id: m.id,
-                                                                name: m.name
-                                                            }))}
+                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({ id: m.id, name: m.name }))}
                                                             selectedValues={formData.materials || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                materials: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, materials: selected }))}
                                                             placeholder="Sélectionner des matériaux"
                                                             searchPlaceholder="Rechercher un matériau..."
                                                             emptyMessage="Aucun matériau trouvé"
@@ -1901,15 +1861,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Techniques</Label>
                                                     {Array.isArray(furnituresTechniques) && furnituresTechniques.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({
-                                                                id: t.id,
-                                                                name: t.name
-                                                            }))}
+                                                            options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({ id: t.id, name: t.name }))}
                                                             selectedValues={formData.techniques || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                techniques: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, techniques: selected }))}
                                                             placeholder="Sélectionner des techniques"
                                                             searchPlaceholder="Rechercher une technique..."
                                                             emptyMessage="Aucune technique trouvée"
@@ -1930,13 +1884,11 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                                 checked={formData.protected || false}
                                                                 onCheckedChange={(checked) => handleInputChange('protected', checked)}
                                                             />
-                                                            <Label htmlFor="protected" className="text-sm">Objet
-                                                                protégé</Label>
+                                                            <Label htmlFor="protected" className="text-sm">Objet protégé</Label>
                                                         </div>
 
                                                         <div>
-                                                            <Label htmlFor="protectionComment" className="text-sm">Commentaire
-                                                                de protection</Label>
+                                                            <Label htmlFor="protectionComment" className="text-sm">Commentaire de protection</Label>
                                                             <Textarea
                                                                 id="protectionComment"
                                                                 value={formData.protectionComment || ''}
@@ -1968,15 +1920,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Types d'organisation</Label>
                                                     {Array.isArray(legalEntityNatures) && legalEntityNatures.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={legalEntityNatures.filter(n => n && n.id && n.name).map(n => ({
-                                                                id: n.id,
-                                                                name: n.name
-                                                            }))}
+                                                            options={legalEntityNatures.filter(n => n && n.id && n.name).map(n => ({ id: n.id, name: n.name }))}
                                                             selectedValues={formData.natures || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                natures: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, natures: selected }))}
                                                             placeholder="Sélectionner des types"
                                                             searchPlaceholder="Rechercher un type..."
                                                             emptyMessage="Aucun type trouvé"
@@ -2022,8 +1968,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="socialParticipation">Participation à la vie
-                                                        sociale</Label>
+                                                    <Label htmlFor="socialParticipation">Participation à la vie sociale</Label>
                                                     <Textarea
                                                         id="socialParticipation"
                                                         value={formData.socialParticipation || ''}
@@ -2050,8 +1995,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         checked={formData.simpleMention}
                                                         onCheckedChange={(checked) => handleInputChange('simpleMention', checked)}
                                                     />
-                                                    <Label htmlFor="simpleMention" className="text-sm">Simple
-                                                        mention</Label>
+                                                    <Label htmlFor="simpleMention" className="text-sm">Simple mention</Label>
                                                 </div>
 
                                                 <div className="flex items-center space-x-2">
@@ -2060,8 +2004,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         checked={formData.foundationAct}
                                                         onCheckedChange={(checked) => handleInputChange('foundationAct', checked)}
                                                     />
-                                                    <Label htmlFor="foundationAct" className="text-sm">Acte de
-                                                        fondation</Label>
+                                                    <Label htmlFor="foundationAct" className="text-sm">Acte de fondation</Label>
                                                 </div>
 
                                                 <div className="flex items-center space-x-2">
@@ -2070,8 +2013,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         checked={formData.statutesText}
                                                         onCheckedChange={(checked) => handleInputChange('statutesText', checked)}
                                                     />
-                                                    <Label htmlFor="statutesText" className="text-sm">Texte des
-                                                        statuts</Label>
+                                                    <Label htmlFor="statutesText" className="text-sm">Texte des statuts</Label>
                                                 </div>
 
                                                 <div>
@@ -2170,15 +2112,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Périodes historiques</Label>
                                                     {Array.isArray(historicalPeriods) && historicalPeriods.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={historicalPeriods.filter(h => h && h.id && h.name).map(h => ({
-                                                                id: h.id,
-                                                                name: h.name
-                                                            }))}
+                                                            options={historicalPeriods.filter(h => h && h.id && h.name).map(h => ({ id: h.id, name: h.name }))}
                                                             selectedValues={formData.historicalPeriods || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                historicalPeriods: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, historicalPeriods: selected }))}
                                                             placeholder="Sélectionner des périodes"
                                                             searchPlaceholder="Rechercher une période..."
                                                             emptyMessage="Aucune période trouvée"
@@ -2194,15 +2130,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Professions</Label>
                                                     {Array.isArray(professions) && professions.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={professions.filter(p => p && p.id && p.name).map(p => ({
-                                                                id: p.id,
-                                                                name: p.name
-                                                            }))}
+                                                            options={professions.filter(p => p && p.id && p.name).map(p => ({ id: p.id, name: p.name }))}
                                                             selectedValues={formData.professions || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                professions: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, professions: selected }))}
                                                             placeholder="Sélectionner des professions"
                                                             searchPlaceholder="Rechercher une profession..."
                                                             emptyMessage="Aucune profession trouvée"
@@ -2218,15 +2148,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     <Label>Modes de transport</Label>
                                                     {Array.isArray(travels) && travels.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={travels.filter(t => t && t.id && t.name).map(t => ({
-                                                                id: t.id,
-                                                                name: t.name
-                                                            }))}
+                                                            options={travels.filter(t => t && t.id && t.name).map(t => ({ id: t.id, name: t.name }))}
                                                             selectedValues={formData.transportModes || []}
-                                                            onChange={(selected) => setFormData(prev => ({
-                                                                ...prev,
-                                                                transportModes: selected
-                                                            }))}
+                                                            onChange={(selected) => setFormData(prev => ({ ...prev, transportModes: selected }))}
                                                             placeholder="Sélectionner des modes"
                                                             searchPlaceholder="Rechercher un mode..."
                                                             emptyMessage="Aucun mode trouvé"
@@ -2273,15 +2197,13 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                         <div>
                                             <Label>Rechercher des fiches à lier</Label>
                                             <p className="text-sm text-muted-foreground mb-3">
-                                                Recherchez et sélectionnez des fiches existantes à associer à cette
-                                                nouvelle fiche
+                                                Recherchez et sélectionnez des fiches existantes à associer à cette nouvelle fiche
                                             </p>
 
                                             {/* Barre de recherche avec autocomplétion */}
                                             <div className="relative">
                                                 <div className="relative">
-                                                    <Search
-                                                        className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"/>
+                                                    <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                                                     <Input
                                                         value={ficheSearchQuery}
                                                         onChange={(e) => {
@@ -2297,18 +2219,15 @@ export function ContributePage({user, onBack}: ContributePageProps) {
 
                                                 {/* Résultats de recherche */}
                                                 {showFicheResults && (
-                                                    <div
-                                                        className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
+                                                    <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
                                                         {isSearchingFiches && (
-                                                            <div
-                                                                className="p-4 text-center text-sm text-muted-foreground">
-                                                                <Search className="w-4 h-4 mx-auto mb-2 animate-spin"/>
+                                                            <div className="p-4 text-center text-sm text-muted-foreground">
+                                                                <Search className="w-4 h-4 mx-auto mb-2 animate-spin" />
                                                                 Recherche en cours...
                                                             </div>
                                                         )}
                                                         {!isSearchingFiches && ficheSearchResults.length === 0 && ficheSearchQuery.length >= 2 && (
-                                                            <div
-                                                                className="p-4 text-center text-sm text-muted-foreground">
+                                                            <div className="p-4 text-center text-sm text-muted-foreground">
                                                                 Aucune fiche trouvée
                                                             </div>
                                                         )}
@@ -2320,10 +2239,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                                         onClick={() => handleSelectFiche(fiche)}
                                                                         className="p-3 hover:bg-accent rounded cursor-pointer border-b border-border last:border-b-0"
                                                                     >
-                                                                        <div
-                                                                            className="font-medium">{fiche.title || 'Titre non disponible'}</div>
-                                                                        <div
-                                                                            className="text-xs text-muted-foreground mt-1">
+                                                                        <div className="font-medium">{fiche.title || 'Titre non disponible'}</div>
+                                                                        <div className="text-xs text-muted-foreground mt-1">
                                                                             {getCategoryDisplayName(fiche.source)}
                                                                         </div>
                                                                     </div>
@@ -2346,7 +2263,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                             className="flex items-center justify-between p-3 bg-accent rounded-lg"
                                                         >
                                                             <div className="flex items-center gap-3">
-                                                                <Link className="w-4 h-4 text-muted-foreground"/>
+                                                                <Link className="w-4 h-4 text-muted-foreground" />
                                                                 <div>
                                                                     <div className="font-medium">{form.title}</div>
                                                                     <div className="text-xs text-muted-foreground">
@@ -2361,7 +2278,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                                 onClick={() => removeRelatedForm(index)}
                                                                 className="text-muted-foreground hover:text-destructive"
                                                             >
-                                                                <X className="w-4 h-4"/>
+                                                                <X className="w-4 h-4" />
                                                             </Button>
                                                         </div>
                                                     ))}
@@ -2371,22 +2288,39 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                     </CardContent>
                                 </Card>
 
-                                {/* Bouton de soumission */}
-                                <div className="flex justify-end">
+                                {/* Boutons de soumission */}
+                                <div className="flex justify-end gap-3">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleSaveDraft}
+                                        disabled={isSubmittingForm}
+                                    >
+                                        {isSubmittingForm && isSavingDraft ? (
+                                            <>
+                                                <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                                                Enregistrement...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FileText className="w-4 h-4 mr-2" />
+                                                Enregistrer comme brouillon
+                                            </>
+                                        )}
+                                    </Button>
                                     <Button
                                         type="submit"
                                         disabled={isSubmittingForm}
                                         className="bg-primary hover:bg-primary/90"
                                     >
-                                        {isSubmittingForm ? (
+                                        {isSubmittingForm && !isSavingDraft ? (
                                             <>
-                                                <div
-                                                    className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"/>
+                                                <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
                                                 Soumission en cours...
                                             </>
                                         ) : (
                                             <>
-                                                <Save className="w-4 h-4 mr-2"/>
+                                                <Save className="w-4 h-4 mr-2" />
                                                 Soumettre la fiche
                                             </>
                                         )}
@@ -2398,7 +2332,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                     <DialogContent className="sm:max-w-md">
                                         <DialogHeader>
                                             <DialogTitle className="flex items-center gap-2">
-                                                <AlertTriangle className="w-5 h-5 text-destructive"/>
+                                                <AlertTriangle className="w-5 h-5 text-destructive" />
                                                 {imageErrorType === '400' ? 'Erreur de chargement de l\'image' : 'Erreur interne'}
                                             </DialogTitle>
                                             <DialogDescription>

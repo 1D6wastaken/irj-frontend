@@ -12,6 +12,7 @@ import {ValidateFormsPage} from "./components/ValidateFormsPage";
 import {ValidateContributorsPage} from "./components/ValidateContributorsPage";
 import {DetailPage} from "./components/DetailPage";
 import {ValidateFormDetailPage} from "./components/ValidateFormDetailPage";
+import {EditPage} from "./components/EditPage";
 import {EmailValidationPage} from "./components/EmailValidationPage";
 import {LegalMentionsPage} from "./components/LegalMentionsPage";
 import {PrivacyPolicyPage} from "./components/PrivacyPolicyPage";
@@ -58,10 +59,12 @@ export interface User {
 }
 
 export default function App() {
-    const [currentPage, setCurrentPage] = useState<'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'detail' | 'validate-form-detail' | 'email-validation' | 'legal-mentions' | 'privacy-policy' | 'terms-of-use'>('home');
+    const [currentPage, setCurrentPage] = useState<'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'detail' | 'validate-form-detail' | 'edit' | 'email-validation' | 'legal-mentions' | 'privacy-policy' | 'terms-of-use'>('home');
     const [currentDetailId, setCurrentDetailId] = useState<string>('');
     const [currentValidateFormId, setCurrentValidateFormId] = useState<string>('');
     const [currentValidateFormSource, setCurrentValidateFormSource] = useState<'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques'>('monuments_lieux');
+    const [currentEditId, setCurrentEditId] = useState<string>('');
+    const [currentEditSource, setCurrentEditSource] = useState<'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques'>('monuments_lieux');
     const [emailValidationToken, setEmailValidationToken] = useState<string>('');
     const [passwordResetToken, setPasswordResetToken] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -260,10 +263,10 @@ export default function App() {
             loadPendingForms();
 
             // Configurer le polling toutes les minutes
-            pollingIntervalRef.current = setInterval(loadPendingUsers, 60000);
+            pollingIntervalRef.current = setInterval(loadPendingUsers, 30000);
 
             // Configurer le polling pour les fiches toutes les minutes
-            formsPollingIntervalRef.current = setInterval(loadPendingForms, 60000);
+            formsPollingIntervalRef.current = setInterval(loadPendingForms, 30000);
         } else {
             // Arrêter tous les pollings si l'utilisateur n'est plus admin
             if (pollingIntervalRef.current) {
@@ -359,6 +362,12 @@ export default function App() {
         setCurrentPage('validate-form-detail');
     };
 
+    const handleEditRecord = (recordId: string, source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => {
+        setCurrentEditId(recordId);
+        setCurrentEditSource(source);
+        setCurrentPage('edit');
+    };
+
     const handleBackToValidateForms = () => {
         setCurrentPage('validate-forms');
         // Rafraîchir les données après retour depuis les détails
@@ -367,6 +376,10 @@ export default function App() {
 
     const handleBackToSearch = () => {
         setCurrentPage('search');
+    };
+
+    const handleBackToDetail = () => {
+        setCurrentPage('detail');
     };
 
     const handleLogin = async (email: string) => {
@@ -399,7 +412,6 @@ export default function App() {
         }
 
         setShowLoginModal(false);
-        setCurrentPage('home');
     };
 
     const handleLogout = () => {
@@ -776,6 +788,8 @@ export default function App() {
                     resultId={currentDetailId}
                     onBack={handleBackToSearch}
                     onViewDetail={handleViewDetail}
+                    onEdit={handleEditRecord}
+                    isAuthenticated={!!user}
                 />
                 <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
@@ -811,6 +825,42 @@ export default function App() {
 
                 <CookieBanner />
             </div>
+                </LanguageProvider>
+            </CrashBoundary>
+        );
+    }
+
+    // Page d'édition
+    if (currentPage === 'edit' && user) {
+        return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <EditPage
+                            recordId={currentEditId}
+                            source={currentEditSource}
+                            onBack={handleBackToDetail}
+                            onSessionExpired={() => {
+                                handleLogout();
+                                toast.error("Votre session a expiré. Veuillez vous reconnecter.");
+                            }}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+
+                        {/* Toast notifications */}
+                        <Toaster/>
+
+                        <CookieBanner />
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
