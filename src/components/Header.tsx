@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { LogIn, UserPlus, User, Settings, FileText, LogOut, CheckSquare, UserCheck, Menu} from "lucide-react";
+import { LogIn, UserPlus, User, Settings, FileText, LogOut, CheckSquare, UserCheck, Menu, ChevronDown, ShieldCheck} from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { User as UserType } from "../App";
 
 interface HeaderProps {
@@ -10,7 +11,7 @@ interface HeaderProps {
     onSignup: () => void;
     onLogin: () => void;
     onLogout: () => void;
-    onNavigate: (page: 'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors') => void;
+    onNavigate: (page: 'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'my-drafts') => void;
     pendingFormsCount?: number;
     pendingContributorsCount?: number;
 }
@@ -30,7 +31,7 @@ export function Header({
         setIsMobileMenuOpen(false);
     };
 
-    const handleNavigation = (page: 'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors') => {
+    const handleNavigation = (page: 'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'my-drafts') => {
         onNavigate(page);
         closeMobileMenu();
     };
@@ -75,57 +76,76 @@ export function Header({
                                     Contribuer
                                 </Button>
 
-                                {/* Boutons admin */}
+                                {/* Boutons admin - Dropdown Espace administration */}
                                 {user.role === 'admin' && (
-                                    <>
-                                        <div className="relative">
-                                            <Button
-                                                onClick={() => onNavigate('validate-forms')}
-                                                variant="outline"
-                                                className="border-white text-white hover:bg-white hover:text-primary bg-transparent transition-all duration-200"
-                                            >
-                                                <CheckSquare className="w-4 h-4 mr-2" />
-                                                Valider fiches
-                                            </Button>
-                                            {pendingFormsCount > 0 && (
-                                                <Badge
-                                                    variant="destructive"
-                                                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs"
+                                    <div className="relative">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className="border-white text-white hover:bg-white hover:text-primary bg-transparent transition-all duration-200"
                                                 >
-                                                    {pendingFormsCount}
-                                                </Badge>
-                                            )}
-                                        </div>
-
-                                        <div className="relative">
-                                            <Button
-                                                onClick={() => onNavigate('validate-contributors')}
-                                                variant="outline"
-                                                className="border-white text-white hover:bg-white hover:text-primary bg-transparent transition-all duration-200"
+                                                    <ShieldCheck className="w-4 h-4 mr-2" />
+                                                    Espace administration
+                                                    <ChevronDown className="w-4 h-4 ml-2" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-56">
+                                                <DropdownMenuItem onClick={() => onNavigate('validate-forms')} className="cursor-pointer">
+                                                    <CheckSquare className="w-4 h-4 mr-2" />
+                                                    Valider fiches
+                                                    {pendingFormsCount > 0 && (
+                                                        <Badge variant="destructive" className="ml-auto">
+                                                            {pendingFormsCount}
+                                                        </Badge>
+                                                    )}
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onNavigate('validate-contributors')} className="cursor-pointer">
+                                                    <UserCheck className="w-4 h-4 mr-2" />
+                                                    Valider contributeurs
+                                                    {pendingContributorsCount > 0 && (
+                                                        <Badge variant="destructive" className="ml-auto">
+                                                            {pendingContributorsCount}
+                                                        </Badge>
+                                                    )}
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                        {/* Badge de notification global pour l'espace administration */}
+                                        {(pendingFormsCount > 0 || pendingContributorsCount > 0) && (
+                                            <Badge
+                                                variant="destructive"
+                                                className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs"
                                             >
-                                                <UserCheck className="w-4 h-4 mr-2" />
-                                                Valider contributeurs
-                                            </Button>
-                                            {pendingContributorsCount > 0 && (
-                                                <Badge
-                                                    variant="destructive"
-                                                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs"
-                                                >
-                                                    {pendingContributorsCount}
-                                                </Badge>
-                                            )}
-                                        </div>
-                                    </>
+                                                {pendingFormsCount + pendingContributorsCount}
+                                            </Badge>
+                                        )}
+                                    </div>
                                 )}
 
-                                <Button
-                                    onClick={() => onNavigate('account')}
-                                    variant="outline"
-                                    className="border-white text-white hover:bg-white hover:text-primary bg-transparent transition-all duration-200"
-                                >
-                                    <Settings className="w-4 h-4 mr-2" />
-                                    Mon compte
-                                </Button>
+                                {/* Dropdown Espace personnel */}
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className="border-white text-white hover:bg-white hover:text-primary bg-transparent transition-all duration-200"
+                                        >
+                                            <User className="w-4 h-4 mr-2" />
+                                            Espace personnel
+                                            <ChevronDown className="w-4 h-4 ml-2" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-56">
+                                        <DropdownMenuItem onClick={() => onNavigate('account')} className="cursor-pointer">
+                                            <Settings className="w-4 h-4 mr-2" />
+                                            Mon compte
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => onNavigate('my-drafts')} className="cursor-pointer">
+                                            <FileText className="w-4 h-4 mr-2" />
+                                            Mes brouillons
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
 
                                 <Button
                                     onClick={onLogout}
@@ -176,7 +196,7 @@ export function Header({
                                             {user.role === 'admin' && (
                                                 <>
                                                     <div className="space-y-2">
-                                                        <p className="text-sm font-medium text-muted-foreground px-3">Administration</p>
+                                                        <p className="text-sm font-medium text-muted-foreground px-3">Espace administration</p>
                                                         <Button
                                                             onClick={() => handleNavigation('validate-forms')}
                                                             variant="outline"
@@ -208,6 +228,7 @@ export function Header({
                                             )}
 
                                             <div className="border-t pt-4 space-y-2">
+                                                <p className="text-sm font-medium text-muted-foreground px-3">Espace personnel</p>
                                                 <Button
                                                     onClick={() => handleNavigation('account')}
                                                     variant="ghost"
@@ -215,6 +236,14 @@ export function Header({
                                                 >
                                                     <Settings className="w-4 h-4 mr-3" />
                                                     Mon compte
+                                                </Button>
+                                                <Button
+                                                    onClick={() => handleNavigation('my-drafts')}
+                                                    variant="ghost"
+                                                    className="w-full justify-start"
+                                                >
+                                                    <FileText className="w-4 h-4 mr-3" />
+                                                    Mes brouillons
                                                 </Button>
                                                 <Button
                                                     onClick={() => {

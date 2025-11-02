@@ -262,7 +262,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                     <p className="text-muted-foreground mb-6">
                         {error || `Aucune fiche trouvée pour l'ID: ${resultId}`}
                     </p>
-                    <Button onClick={onBack}>Retour aux résultats</Button>
+                    <Button onClick={onBack}>Retour</Button>
                 </div>
             </div>
         );
@@ -1343,7 +1343,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                             className="mb-4 flex items-center gap-2"
                         >
                             <ArrowLeft className="w-4 h-4"/>
-                            Retour aux résultats
+                            Retour
                         </Button>
 
                         <div className="flex items-start justify-between">

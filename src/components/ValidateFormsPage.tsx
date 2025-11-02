@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Eye, Check, X, MapPin, Calendar, User, FileText, Clock, RefreshCw } from "lucide-react";
+import { ArrowLeft, Eye, Check, X, MapPin, Calendar, User, FileText, Clock, RefreshCw, Edit, FilePlus } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -148,6 +148,18 @@ export function ValidateFormsPage({ onBack, pendingForms, onRefresh, onSessionEx
     return `${authors.slice(0, -1).join(', ')} et ${authors[authors.length - 1]}`;
   };
 
+    const getDocumentTypeLabel = (form: PendingForm) => {
+        return form.parent_id ? 'Modification' : 'Nouvelle fiche';
+    };
+
+    const getDocumentTypeColor = (form: PendingForm) => {
+        return form.parent_id ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+    };
+
+    const getDocumentTypeIcon = (form: PendingForm) => {
+        return form.parent_id ? Edit : FilePlus;
+    };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -197,17 +209,28 @@ export function ValidateFormsPage({ onBack, pendingForms, onRefresh, onSessionEx
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {allForms.map((form) => (
                 <Card key={`${form.source}-${form.id}`} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => viewFormDetails(form)}>
-                  <CardContent className="p-6">
-                    {/* Badge de catégorie et date */}
-                    <div className="flex items-center justify-between mb-4">
-                      <Badge className={getCategoryColor(form.source)} variant="secondary">
-                        {getCategoryLabel(form.source)}
-                      </Badge>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        {formatCreationDate(form.creation_date)}
-                      </div>
-                    </div>
+                    <CardContent className="p-6">
+                        {/* Badge de catégorie, type de document et date */}
+                        <div className="flex items-start justify-between mb-4 gap-2">
+                            <div className="flex flex-col gap-2">
+                                <Badge className={getCategoryColor(form.source)} variant="secondary">
+                                    {getCategoryLabel(form.source)}
+                                </Badge>
+                                {(() => {
+                                    const Icon = getDocumentTypeIcon(form);
+                                    return (
+                                        <Badge className={getDocumentTypeColor(form)} variant="secondary">
+                                            <Icon className="w-3 h-3 mr-1" />
+                                            {getDocumentTypeLabel(form)}
+                                        </Badge>
+                                    );
+                                })()}
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Clock className="w-3 h-3" />
+                                {formatCreationDate(form.creation_date)}
+                            </div>
+                        </div>
 
                     {/* Image si disponible */}
                     {form.medias && form.medias.length > 0 && (
@@ -347,45 +370,66 @@ export function ValidateFormsPage({ onBack, pendingForms, onRefresh, onSessionEx
               {validationType === 'activate' ? 'Approuver la fiche' : 'Rejeter la fiche'}
             </DialogTitle>
           </DialogHeader>
-          
-          {selectedForm && (
-            <div className="space-y-4">
-              {/* Informations de la fiche */}
-              <div className="bg-muted/30 p-4 rounded-md">
-                <Badge className={`mb-2 ${getCategoryColor(selectedForm.source)}`} variant="secondary">
-                  {getCategoryLabel(selectedForm.source)}
-                </Badge>
-                <h4 className="font-medium mb-1">{selectedForm.title}</h4>
-                <p className="text-sm text-muted-foreground">
-                  Par {formatAuthors(selectedForm.authors)}
-                </p>
-              </div>
 
-              <div className="flex gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowValidationModal(false)}
-                  className="flex-1"
-                >
-                  Annuler
-                </Button>
-                <Button
-                  variant={validationType === 'activate' ? 'default' : 'destructive'}
-                  onClick={confirmValidation}
-                  className={validationType === 'activate' ? 'flex-1 bg-green-600 hover:bg-green-700' : 'flex-1'}
-                >
-                  {isValidating ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      {validationType === 'activate' ? 'Approbation...' : 'Rejet...'}
+            {selectedForm && (
+                <div className="space-y-4">
+                    {/* Informations de la fiche */}
+                    <div className="bg-muted/30 p-4 rounded-md">
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            <Badge className={getCategoryColor(selectedForm.source)} variant="secondary">
+                                {getCategoryLabel(selectedForm.source)}
+                            </Badge>
+                            {(() => {
+                                const Icon = getDocumentTypeIcon(selectedForm);
+                                return (
+                                    <Badge className={getDocumentTypeColor(selectedForm)} variant="secondary">
+                                        <Icon className="w-3 h-3 mr-1" />
+                                        {getDocumentTypeLabel(selectedForm)}
+                                    </Badge>
+                                );
+                            })()}
+                        </div>
+                        <h4 className="font-medium mb-1">{selectedForm.title}</h4>
+                        <p className="text-sm text-muted-foreground">
+                            Par {formatAuthors(selectedForm.authors)}
+                        </p>
                     </div>
-                  ) : (
-                    validationType === 'activate' ? 'Approuver' : 'Rejeter'
-                  )}
-                </Button>
-              </div>
-            </div>
-          )}
+
+                    {/* Message d'information sur le type de document */}
+                    {selectedForm.parent_id && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
+                            <p className="text-sm text-amber-800">
+                                <strong>Note :</strong> Cette fiche est une modification soumise à relecture.
+                                Elle remplacera la fiche existante après validation.
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="flex gap-2 pt-4">
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowValidationModal(false)}
+                            className="flex-1"
+                        >
+                            Annuler
+                        </Button>
+                        <Button
+                            variant={validationType === 'activate' ? 'default' : 'destructive'}
+                            onClick={confirmValidation}
+                            className={validationType === 'activate' ? 'flex-1 bg-green-600 hover:bg-green-700' : 'flex-1'}
+                        >
+                            {isValidating ? (
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    {validationType === 'activate' ? 'Approbation...' : 'Rejet...'}
+                                </div>
+                            ) : (
+                                validationType === 'activate' ? 'Approuver' : 'Rejeter'
+                            )}
+                        </Button>
+                    </div>
+                </div>
+            )}
         </DialogContent>
       </Dialog>
     </div>

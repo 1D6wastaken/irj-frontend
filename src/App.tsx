@@ -10,6 +10,7 @@ import {ContributePage} from "./components/ContributePage";
 import {AccountPage} from "./components/AccountPage";
 import {ValidateFormsPage} from "./components/ValidateFormsPage";
 import {ValidateContributorsPage} from "./components/ValidateContributorsPage";
+import {MyDraftsPage} from "./components/MyDraftsPage";
 import {DetailPage} from "./components/DetailPage";
 import {ValidateFormDetailPage} from "./components/ValidateFormDetailPage";
 import {EditPage} from "./components/EditPage";
@@ -59,7 +60,8 @@ export interface User {
 }
 
 export default function App() {
-    const [currentPage, setCurrentPage] = useState<'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'detail' | 'validate-form-detail' | 'edit' | 'email-validation' | 'legal-mentions' | 'privacy-policy' | 'terms-of-use'>('home');
+    const [currentPage, setCurrentPage] = useState<'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'my-drafts' | 'detail' | 'validate-form-detail' | 'edit' | 'email-validation' | 'legal-mentions' | 'privacy-policy' | 'terms-of-use'>('home');
+    const [previousPage, setPreviousPage] = useState<'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'my-drafts' | 'detail' | 'validate-form-detail' | 'edit' | 'email-validation' | 'legal-mentions' | 'privacy-policy' | 'terms-of-use' | null>(null);
     const [currentDetailId, setCurrentDetailId] = useState<string>('');
     const [currentValidateFormId, setCurrentValidateFormId] = useState<string>('');
     const [currentValidateFormSource, setCurrentValidateFormSource] = useState<'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques'>('monuments_lieux');
@@ -85,6 +87,18 @@ export default function App() {
     const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
     const [pendingFormsCount, setPendingFormsCount] = useState(0);
     const [pendingForms, setPendingForms] = useState<{
+        monuments_lieux: PendingForm[];
+        mobiliers_images: PendingForm[];
+        personnes_morales: PendingForm[];
+        personnes_physiques: PendingForm[];
+    }>({
+        monuments_lieux: [],
+        mobiliers_images: [],
+        personnes_morales: [],
+        personnes_physiques: []
+    });
+    // Brouillons de l'utilisateur
+    const [draftForms, setDraftForms] = useState<{
         monuments_lieux: PendingForm[];
         mobiliers_images: PendingForm[];
         personnes_morales: PendingForm[];
@@ -177,6 +191,42 @@ export default function App() {
         }
     };
 
+    // Fonction pour charger les brouillons de l'utilisateur connecté
+    const loadDraftForms = async () => {
+        if (!user) return;
+
+        try {
+            const [
+                monumentsLieux,
+                mobiliersImages,
+                personnesMorales,
+                personnesPhysiques
+            ] = await Promise.all([
+                apiService.getDraftMonumentsLieux(),
+                apiService.getDraftMobiliersImages(),
+                apiService.getDraftPersonnesMorales(),
+                apiService.getDraftPersonnesPhysiques()
+            ]);
+
+            const newDraftForms = {
+                monuments_lieux: Array.isArray(monumentsLieux) ? monumentsLieux : [],
+                mobiliers_images: Array.isArray(mobiliersImages) ? mobiliersImages : [],
+                personnes_morales: Array.isArray(personnesMorales) ? personnesMorales : [],
+                personnes_physiques: Array.isArray(personnesPhysiques) ? personnesPhysiques : []
+            };
+
+            setDraftForms(newDraftForms);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                if (error.status === 401) {
+                    handleSessionExpired("Votre session a expiré. Veuillez vous reconnecter.");
+                    return;
+                }
+            }
+            // Erreur réseau ou endpoint non disponible - ignorer silencieusement
+        }
+    };
+
     // Fonction pour gérer la déconnexion forcée (session expirée)
     const handleSessionExpired = (message: string = "Votre session a expiré. Veuillez vous reconnecter.") => {
         // Arrêter tous les pollings
@@ -195,6 +245,12 @@ export default function App() {
         setPendingUsers([]);
         setPendingFormsCount(0);
         setPendingForms({
+            monuments_lieux: [],
+            mobiliers_images: [],
+            personnes_morales: [],
+            personnes_physiques: []
+        });
+        setDraftForms({
             monuments_lieux: [],
             mobiliers_images: [],
             personnes_morales: [],
@@ -301,6 +357,29 @@ export default function App() {
         };
     }, [user?.role]);
 
+    // Charger les brouillons pour l'utilisateur connecté (tous les utilisateurs)
+    useEffect(() => {
+        if (user) {
+            // Charger immédiatement les brouillons
+            loadDraftForms();
+        } else {
+            // Réinitialiser les brouillons si l'utilisateur se déconnecte
+            setDraftForms({
+                monuments_lieux: [],
+                mobiliers_images: [],
+                personnes_morales: [],
+                personnes_physiques: []
+            });
+        }
+    }, [user]);
+
+    // Actualiser les brouillons lors de la navigation vers la page "Mes brouillons"
+    useEffect(() => {
+        if (currentPage === 'my-drafts' && user) {
+            loadDraftForms();
+        }
+    }, [currentPage]);
+
     // Cleanup global au démontage du composant
     useEffect(() => {
         return () => {
@@ -316,7 +395,9 @@ export default function App() {
     // Force scroll to top on page change
     useEffect(() => {
         if (currentPage === 'search' || currentPage === 'detail' || currentPage === 'validate-form-detail' || currentPage === 'contribute') {
-            setTimeout(() => {window.scrollTo({top: 0, behavior: 'smooth'});}, 50);
+            setTimeout(() => {
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }, 50);
         }
     }, [currentPage]);
 
@@ -353,6 +434,8 @@ export default function App() {
             setCurrentDetailId(resultId);
         }
 
+        // Sauvegarder la page actuelle pour pouvoir y retourner
+        setPreviousPage(currentPage);
         setCurrentPage('detail');
     };
 
@@ -374,14 +457,19 @@ export default function App() {
         loadPendingForms();
     };
 
-    const handleBackToSearch = () => {
-        setCurrentPage('search');
-    };
-
     const handleBackToDetail = () => {
         setCurrentPage('detail');
     };
 
+    const handleBackFromDetail = () => {
+        // Retourner à la page précédente si elle existe, sinon aller à la recherche
+        if (previousPage && previousPage !== 'detail') {
+            setCurrentPage(previousPage);
+            setPreviousPage(null);
+        } else {
+            setCurrentPage('search');
+        }
+    };
     const handleLogin = async (email: string) => {
         // Cette fonction sera appelée après le succès de l'API login
         // Récupérer les données utilisateur stockées par l'API
@@ -432,6 +520,12 @@ export default function App() {
         setPendingUsers([]);
         setPendingFormsCount(0);
         setPendingForms({
+            monuments_lieux: [],
+            mobiliers_images: [],
+            personnes_morales: [],
+            personnes_physiques: []
+        });
+        setDraftForms({
             monuments_lieux: [],
             mobiliers_images: [],
             personnes_morales: [],
@@ -597,7 +691,7 @@ export default function App() {
                         {/* Toast notifications */}
                         <Toaster/>
 
-                        <CookieBanner />
+                        <CookieBanner/>
                     </div>
                 </LanguageProvider>
             </CrashBoundary>
@@ -610,50 +704,50 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <LegalMentionsPage onBack={handleBackToHome}/>
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <LegalMentionsPage onBack={handleBackToHome}/>
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Modals */}
-                <SignupModal
-                    isOpen={showSignupModal}
-                    onClose={() => setShowSignupModal(false)}
-                    onSubmit={handleSignup}
-                />
-                <LoginModal
-                    isOpen={showLoginModal}
-                    onClose={() => setShowLoginModal(false)}
-                    onSubmit={handleLogin}
-                    onForgotPassword={openResetPasswordModal}
-                    onPendingApproval={handlePendingApproval}
-                    onEmailConfirmation={handleEmailConfirmation}
-                />
-                <ResetPasswordModal
-                    isOpen={showResetPasswordModal}
-                    onClose={() => setShowResetPasswordModal(false)}
-                />
-                <PendingApprovalModal
-                    isOpen={showPendingApprovalModal}
-                    onClose={() => setShowPendingApprovalModal(false)}
-                />
-                <EmailConfirmationModal
-                    isOpen={showEmailConfirmationModal}
-                    onClose={() => setShowEmailConfirmationModal(false)}
-                />
+                        {/* Modals */}
+                        <SignupModal
+                            isOpen={showSignupModal}
+                            onClose={() => setShowSignupModal(false)}
+                            onSubmit={handleSignup}
+                        />
+                        <LoginModal
+                            isOpen={showLoginModal}
+                            onClose={() => setShowLoginModal(false)}
+                            onSubmit={handleLogin}
+                            onForgotPassword={openResetPasswordModal}
+                            onPendingApproval={handlePendingApproval}
+                            onEmailConfirmation={handleEmailConfirmation}
+                        />
+                        <ResetPasswordModal
+                            isOpen={showResetPasswordModal}
+                            onClose={() => setShowResetPasswordModal(false)}
+                        />
+                        <PendingApprovalModal
+                            isOpen={showPendingApprovalModal}
+                            onClose={() => setShowPendingApprovalModal(false)}
+                        />
+                        <EmailConfirmationModal
+                            isOpen={showEmailConfirmationModal}
+                            onClose={() => setShowEmailConfirmationModal(false)}
+                        />
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -665,50 +759,50 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <PrivacyPolicyPage onBack={handleBackToHome}/>
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <PrivacyPolicyPage onBack={handleBackToHome}/>
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Modals */}
-                <SignupModal
-                    isOpen={showSignupModal}
-                    onClose={() => setShowSignupModal(false)}
-                    onSubmit={handleSignup}
-                />
-                <LoginModal
-                    isOpen={showLoginModal}
-                    onClose={() => setShowLoginModal(false)}
-                    onSubmit={handleLogin}
-                    onForgotPassword={openResetPasswordModal}
-                    onPendingApproval={handlePendingApproval}
-                    onEmailConfirmation={handleEmailConfirmation}
-                />
-                <ResetPasswordModal
-                    isOpen={showResetPasswordModal}
-                    onClose={() => setShowResetPasswordModal(false)}
-                />
-                <PendingApprovalModal
-                    isOpen={showPendingApprovalModal}
-                    onClose={() => setShowPendingApprovalModal(false)}
-                />
-                <EmailConfirmationModal
-                    isOpen={showEmailConfirmationModal}
-                    onClose={() => setShowEmailConfirmationModal(false)}
-                />
+                        {/* Modals */}
+                        <SignupModal
+                            isOpen={showSignupModal}
+                            onClose={() => setShowSignupModal(false)}
+                            onSubmit={handleSignup}
+                        />
+                        <LoginModal
+                            isOpen={showLoginModal}
+                            onClose={() => setShowLoginModal(false)}
+                            onSubmit={handleLogin}
+                            onForgotPassword={openResetPasswordModal}
+                            onPendingApproval={handlePendingApproval}
+                            onEmailConfirmation={handleEmailConfirmation}
+                        />
+                        <ResetPasswordModal
+                            isOpen={showResetPasswordModal}
+                            onClose={() => setShowResetPasswordModal(false)}
+                        />
+                        <PendingApprovalModal
+                            isOpen={showPendingApprovalModal}
+                            onClose={() => setShowPendingApprovalModal(false)}
+                        />
+                        <EmailConfirmationModal
+                            isOpen={showEmailConfirmationModal}
+                            onClose={() => setShowEmailConfirmationModal(false)}
+                        />
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -720,50 +814,50 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <TermsOfUsePage onBack={handleBackToHome}/>
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <TermsOfUsePage onBack={handleBackToHome}/>
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Modals */}
-                <SignupModal
-                    isOpen={showSignupModal}
-                    onClose={() => setShowSignupModal(false)}
-                    onSubmit={handleSignup}
-                />
-                <LoginModal
-                    isOpen={showLoginModal}
-                    onClose={() => setShowLoginModal(false)}
-                    onSubmit={handleLogin}
-                    onForgotPassword={openResetPasswordModal}
-                    onPendingApproval={handlePendingApproval}
-                    onEmailConfirmation={handleEmailConfirmation}
-                />
-                <ResetPasswordModal
-                    isOpen={showResetPasswordModal}
-                    onClose={() => setShowResetPasswordModal(false)}
-                />
-                <PendingApprovalModal
-                    isOpen={showPendingApprovalModal}
-                    onClose={() => setShowPendingApprovalModal(false)}
-                />
-                <EmailConfirmationModal
-                    isOpen={showEmailConfirmationModal}
-                    onClose={() => setShowEmailConfirmationModal(false)}
-                />
+                        {/* Modals */}
+                        <SignupModal
+                            isOpen={showSignupModal}
+                            onClose={() => setShowSignupModal(false)}
+                            onSubmit={handleSignup}
+                        />
+                        <LoginModal
+                            isOpen={showLoginModal}
+                            onClose={() => setShowLoginModal(false)}
+                            onSubmit={handleLogin}
+                            onForgotPassword={openResetPasswordModal}
+                            onPendingApproval={handlePendingApproval}
+                            onEmailConfirmation={handleEmailConfirmation}
+                        />
+                        <ResetPasswordModal
+                            isOpen={showResetPasswordModal}
+                            onClose={() => setShowResetPasswordModal(false)}
+                        />
+                        <PendingApprovalModal
+                            isOpen={showPendingApprovalModal}
+                            onClose={() => setShowPendingApprovalModal(false)}
+                        />
+                        <EmailConfirmationModal
+                            isOpen={showEmailConfirmationModal}
+                            onClose={() => setShowEmailConfirmationModal(false)}
+                        />
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -775,56 +869,56 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <DetailPage
-                    resultId={currentDetailId}
-                    onBack={handleBackToSearch}
-                    onViewDetail={handleViewDetail}
-                    onEdit={handleEditRecord}
-                    isAuthenticated={!!user}
-                />
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <DetailPage
+                            resultId={currentDetailId}
+                            onBack={handleBackFromDetail}
+                            onViewDetail={handleViewDetail}
+                            onEdit={handleEditRecord}
+                            isAuthenticated={!!user}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Modals */}
-                <SignupModal
-                    isOpen={showSignupModal}
-                    onClose={() => setShowSignupModal(false)}
-                    onSubmit={handleSignup}
-                />
-                <LoginModal
-                    isOpen={showLoginModal}
-                    onClose={() => setShowLoginModal(false)}
-                    onSubmit={handleLogin}
-                    onForgotPassword={openResetPasswordModal}
-                    onPendingApproval={handlePendingApproval}
-                    onEmailConfirmation={handleEmailConfirmation}
-                />
-                <ResetPasswordModal
-                    isOpen={showResetPasswordModal}
-                    onClose={() => setShowResetPasswordModal(false)}
-                />
-                <PendingApprovalModal
-                    isOpen={showPendingApprovalModal}
-                    onClose={() => setShowPendingApprovalModal(false)}
-                />
-                <EmailConfirmationModal
-                    isOpen={showEmailConfirmationModal}
-                    onClose={() => setShowEmailConfirmationModal(false)}
-                />
+                        {/* Modals */}
+                        <SignupModal
+                            isOpen={showSignupModal}
+                            onClose={() => setShowSignupModal(false)}
+                            onSubmit={handleSignup}
+                        />
+                        <LoginModal
+                            isOpen={showLoginModal}
+                            onClose={() => setShowLoginModal(false)}
+                            onSubmit={handleLogin}
+                            onForgotPassword={openResetPasswordModal}
+                            onPendingApproval={handlePendingApproval}
+                            onEmailConfirmation={handleEmailConfirmation}
+                        />
+                        <ResetPasswordModal
+                            isOpen={showResetPasswordModal}
+                            onClose={() => setShowResetPasswordModal(false)}
+                        />
+                        <PendingApprovalModal
+                            isOpen={showPendingApprovalModal}
+                            onClose={() => setShowPendingApprovalModal(false)}
+                        />
+                        <EmailConfirmationModal
+                            isOpen={showEmailConfirmationModal}
+                            onClose={() => setShowEmailConfirmationModal(false)}
+                        />
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -859,7 +953,7 @@ export default function App() {
                         {/* Toast notifications */}
                         <Toaster/>
 
-                        <CookieBanner />
+                        <CookieBanner/>
                     </div>
                 </LanguageProvider>
             </CrashBoundary>
@@ -872,23 +966,23 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <ContributePage user={user} onBack={handleBackToHome}/>
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <ContributePage user={user} onBack={handleBackToHome}/>
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -899,28 +993,61 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <AccountPage
-                    user={user}
-                    onUpdateUser={setUser}
-                    onBack={handleBackToHome}
-                    onSessionExpired={handleSessionExpired}
-                />
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <AccountPage
+                            user={user}
+                            onUpdateUser={setUser}
+                            onBack={handleBackToHome}
+                            onSessionExpired={handleSessionExpired}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
+                </LanguageProvider>
+            </CrashBoundary>
+        );
+    }
+
+    // Page Mes brouillons (pour tous les utilisateurs connectés)
+    if (currentPage === 'my-drafts' && user) {
+        return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <MyDraftsPage
+                            onBack={handleBackToHome}
+                            draftForms={draftForms}
+                            onRefresh={loadDraftForms}
+                            onViewFormDetail={handleViewFormDetail}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+
+                        {/* Toast notifications */}
+                        <Toaster/>
+
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -932,29 +1059,29 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <ValidateFormsPage
-                    onBack={handleBackToHome}
-                    pendingForms={pendingForms}
-                    onRefresh={loadPendingForms}
-                    onSessionExpired={handleSessionExpired}
-                    onViewFormDetail={handleViewFormDetail}
-                />
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <ValidateFormsPage
+                            onBack={handleBackToHome}
+                            pendingForms={pendingForms}
+                            onRefresh={loadPendingForms}
+                            onSessionExpired={handleSessionExpired}
+                            onViewFormDetail={handleViewFormDetail}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -965,30 +1092,30 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <ValidateFormDetailPage
-                    formId={currentValidateFormId}
-                    formSource={currentValidateFormSource}
-                    onBack={handleBackToValidateForms}
-                    onValidated={handleBackToValidateForms}
-                    onSessionExpired={handleSessionExpired}
-                    onViewDetail={handleViewDetail}
-                />
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <ValidateFormDetailPage
+                            formId={currentValidateFormId}
+                            formSource={currentValidateFormSource}
+                            onBack={handleBackToValidateForms}
+                            onValidated={handleBackToValidateForms}
+                            onSessionExpired={handleSessionExpired}
+                            onViewDetail={handleViewDetail}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -999,28 +1126,28 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <ValidateContributorsPage
-                    onBack={handleBackToHome}
-                    pendingUsers={pendingUsers}
-                    onRefresh={loadPendingUsers}
-                    onSessionExpired={handleSessionExpired}
-                />
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <ValidateContributorsPage
+                            onBack={handleBackToHome}
+                            pendingUsers={pendingUsers}
+                            onRefresh={loadPendingUsers}
+                            onSessionExpired={handleSessionExpired}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -1031,57 +1158,57 @@ export default function App() {
             <CrashBoundary onResetToHome={handleBackToHome}>
                 <LanguageProvider>
                     <div className="min-h-screen bg-white">
-                <Header
-                    user={user}
-                    onSignup={openSignupModal}
-                    onLogin={() => setShowLoginModal(true)}
-                    onLogout={handleLogout}
-                    onNavigate={setCurrentPage}
-                    pendingFormsCount={pendingFormsCount}
-                    pendingContributorsCount={pendingContributorsCount}
-                />
-                <SearchResults
-                    searchQuery={searchQuery}
-                    selectedCategories={selectedCategories}
-                    advancedFilters={advancedFilters}
-                    onSearch={handleSearch}
-                    onBackToHome={handleBackToHome}
-                    onViewDetail={handleViewDetail}
-                />
-                <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <SearchResults
+                            searchQuery={searchQuery}
+                            selectedCategories={selectedCategories}
+                            advancedFilters={advancedFilters}
+                            onSearch={handleSearch}
+                            onBackToHome={handleBackToHome}
+                            onViewDetail={handleViewDetail}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-                {/* Modals */}
-                <SignupModal
-                    isOpen={showSignupModal}
-                    onClose={() => setShowSignupModal(false)}
-                    onSubmit={handleSignup}
-                />
-                <LoginModal
-                    isOpen={showLoginModal}
-                    onClose={() => setShowLoginModal(false)}
-                    onSubmit={handleLogin}
-                    onForgotPassword={openResetPasswordModal}
-                    onPendingApproval={handlePendingApproval}
-                    onEmailConfirmation={handleEmailConfirmation}
-                />
-                <ResetPasswordModal
-                    isOpen={showResetPasswordModal}
-                    onClose={() => setShowResetPasswordModal(false)}
-                />
-                <PendingApprovalModal
-                    isOpen={showPendingApprovalModal}
-                    onClose={() => setShowPendingApprovalModal(false)}
-                />
-                <EmailConfirmationModal
-                    isOpen={showEmailConfirmationModal}
-                    onClose={() => setShowEmailConfirmationModal(false)}
-                />
+                        {/* Modals */}
+                        <SignupModal
+                            isOpen={showSignupModal}
+                            onClose={() => setShowSignupModal(false)}
+                            onSubmit={handleSignup}
+                        />
+                        <LoginModal
+                            isOpen={showLoginModal}
+                            onClose={() => setShowLoginModal(false)}
+                            onSubmit={handleLogin}
+                            onForgotPassword={openResetPasswordModal}
+                            onPendingApproval={handlePendingApproval}
+                            onEmailConfirmation={handleEmailConfirmation}
+                        />
+                        <ResetPasswordModal
+                            isOpen={showResetPasswordModal}
+                            onClose={() => setShowResetPasswordModal(false)}
+                        />
+                        <PendingApprovalModal
+                            isOpen={showPendingApprovalModal}
+                            onClose={() => setShowPendingApprovalModal(false)}
+                        />
+                        <EmailConfirmationModal
+                            isOpen={showEmailConfirmationModal}
+                            onClose={() => setShowEmailConfirmationModal(false)}
+                        />
 
-                {/* Toast notifications */}
-                <Toaster/>
+                        {/* Toast notifications */}
+                        <Toaster/>
 
-                <CookieBanner />
-            </div>
+                        <CookieBanner/>
+                    </div>
                 </LanguageProvider>
             </CrashBoundary>
         );
@@ -1091,77 +1218,78 @@ export default function App() {
         <CrashBoundary onResetToHome={handleBackToHome}>
             <LanguageProvider>
                 <div className="min-h-screen bg-white">
-            <Header
-                user={user}
-                onSignup={openSignupModal}
-                onLogin={() => setShowLoginModal(true)}
-                onLogout={handleLogout}
-                onNavigate={setCurrentPage}
-                pendingFormsCount={pendingFormsCount}
-                pendingContributorsCount={pendingContributorsCount}
-            />
-            <HeroSection
-                onLearnMore={() => scrollToSection('mission-section')}
-                onExploreNow={() => scrollToSection('categories-section')}
-            />
-            <div id="categories-section">
-                <CategoriesSection onCategoryClick={handleCategorySearch}/>
-            </div>
-            <SearchSection
-                onSearch={handleSearch}
-                onViewDetail={handleViewDetail}
-                initialQuery={searchQuery}
-                initialCategories={selectedCategories}
-                initialFilters={advancedFilters}
-            />
-            <div id="mission-section">
-                <WhySection user={user} onBecomeContributor={openSignupModal} onContribute={() => setCurrentPage('contribute')}/>
-            </div>
-            <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+                    <Header
+                        user={user}
+                        onSignup={openSignupModal}
+                        onLogin={() => setShowLoginModal(true)}
+                        onLogout={handleLogout}
+                        onNavigate={setCurrentPage}
+                        pendingFormsCount={pendingFormsCount}
+                        pendingContributorsCount={pendingContributorsCount}
+                    />
+                    <HeroSection
+                        onLearnMore={() => scrollToSection('mission-section')}
+                        onExploreNow={() => scrollToSection('categories-section')}
+                    />
+                    <div id="categories-section">
+                        <CategoriesSection onCategoryClick={handleCategorySearch}/>
+                    </div>
+                    <SearchSection
+                        onSearch={handleSearch}
+                        onViewDetail={handleViewDetail}
+                        initialQuery={searchQuery}
+                        initialCategories={selectedCategories}
+                        initialFilters={advancedFilters}
+                    />
+                    <div id="mission-section">
+                        <WhySection user={user} onBecomeContributor={openSignupModal}
+                                    onContribute={() => setCurrentPage('contribute')}/>
+                    </div>
+                    <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
-            {/* Modals */}
-            <SignupModal
-                isOpen={showSignupModal}
-                onClose={() => setShowSignupModal(false)}
-                onSubmit={handleSignup}
-            />
-            <LoginModal
-                isOpen={showLoginModal}
-                onClose={() => setShowLoginModal(false)}
-                onSubmit={handleLogin}
-                onForgotPassword={openResetPasswordModal}
-                onPendingApproval={handlePendingApproval}
-                onEmailConfirmation={handleEmailConfirmation}
-            />
-            <ResetPasswordModal
-                isOpen={showResetPasswordModal}
-                onClose={() => setShowResetPasswordModal(false)}
-            />
-            <PendingApprovalModal
-                isOpen={showPendingApprovalModal}
-                onClose={() => setShowPendingApprovalModal(false)}
-            />
-            <EmailConfirmationModal
-                isOpen={showEmailConfirmationModal}
-                onClose={() => setShowEmailConfirmationModal(false)}
-            />
+                    {/* Modals */}
+                    <SignupModal
+                        isOpen={showSignupModal}
+                        onClose={() => setShowSignupModal(false)}
+                        onSubmit={handleSignup}
+                    />
+                    <LoginModal
+                        isOpen={showLoginModal}
+                        onClose={() => setShowLoginModal(false)}
+                        onSubmit={handleLogin}
+                        onForgotPassword={openResetPasswordModal}
+                        onPendingApproval={handlePendingApproval}
+                        onEmailConfirmation={handleEmailConfirmation}
+                    />
+                    <ResetPasswordModal
+                        isOpen={showResetPasswordModal}
+                        onClose={() => setShowResetPasswordModal(false)}
+                    />
+                    <PendingApprovalModal
+                        isOpen={showPendingApprovalModal}
+                        onClose={() => setShowPendingApprovalModal(false)}
+                    />
+                    <EmailConfirmationModal
+                        isOpen={showEmailConfirmationModal}
+                        onClose={() => setShowEmailConfirmationModal(false)}
+                    />
 
-            {/* Modal pour nouveau mot de passe (réinitialisation par token) */}
-            <NewPasswordModal
-                isOpen={showNewPasswordModal}
-                onClose={() => {
-                    setShowNewPasswordModal(false);
-                    setPasswordResetToken('');
-                }}
-                token={passwordResetToken}
-                onSuccess={handlePasswordResetSuccess}
-            />
+                    {/* Modal pour nouveau mot de passe (réinitialisation par token) */}
+                    <NewPasswordModal
+                        isOpen={showNewPasswordModal}
+                        onClose={() => {
+                            setShowNewPasswordModal(false);
+                            setPasswordResetToken('');
+                        }}
+                        token={passwordResetToken}
+                        onSuccess={handlePasswordResetSuccess}
+                    />
 
-            {/* Toast notifications */}
-            <Toaster/>
+                    {/* Toast notifications */}
+                    <Toaster/>
 
-            <CookieBanner />
-        </div>
+                    <CookieBanner/>
+                </div>
             </LanguageProvider>
         </CrashBoundary>
     );

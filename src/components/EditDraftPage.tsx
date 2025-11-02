@@ -1,22 +1,48 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, Save, MapPin, Plus, X, Search, ImageIcon, Trash2, Link, FileText, AlertCircle } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Checkbox } from "./ui/checkbox";
-import { Badge } from "./ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { toast } from "sonner";
-import { sourceTypes } from "../constants/formConstants";
-import { apiService, FilterOption, Country, Region, Department, Commune, ApiError, MobilierImageDetail, MonumentLieuDetail, PersonneMoraleDetail, PersonnePhysiqueDetail, SearchItem, SearchRequestBody } from "../config/api";
-import { SearchableMultiSelect } from "./SearchableMultiSelect";
-import { SearchableSelect } from "./SearchableSelect";
-import { getMediaImageUrl } from "../utils/searchUtils";
-import { ImageWithFallback } from "./ImageWithFallback";
+import {useState, useEffect} from "react";
+import {
+    ArrowLeft,
+    Save,
+    MapPin,
+    Plus,
+    X,
+    Search,
+    ImageIcon,
+    Trash2,
+    Link,
+    FileText,
+    AlertCircle
+} from "lucide-react";
+import {Button} from "./ui/button";
+import {Input} from "./ui/input";
+import {Label} from "./ui/label";
+import {Textarea} from "./ui/textarea";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "./ui/select";
+import {Checkbox} from "./ui/checkbox";
+import {Badge} from "./ui/badge";
+import {Card, CardContent, CardHeader, CardTitle} from "./ui/card";
+import {toast} from "sonner";
+import {sourceTypes} from "../constants/formConstants";
+import {
+    apiService,
+    FilterOption,
+    Country,
+    Region,
+    Department,
+    Commune,
+    ApiError,
+    MobilierImageDetail,
+    MonumentLieuDetail,
+    PersonneMoraleDetail,
+    PersonnePhysiqueDetail,
+    SearchItem,
+    SearchRequestBody
+} from "../config/api";
+import {SearchableMultiSelect} from "./SearchableMultiSelect";
+import {SearchableSelect} from "./SearchableSelect";
+import {getMediaImageUrl} from "../utils/searchUtils";
+import {ImageWithFallback} from "./ImageWithFallback";
 
-interface EditPageProps {
+interface EditDraftPageProps {
     recordId: string;
     source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques';
     onBack: () => void;
@@ -93,7 +119,7 @@ interface FormData {
     commutationVow?: string;
 }
 
-export function EditPage({recordId, source, onBack, onSessionExpired }: EditPageProps) {
+export function EditDraftPage({recordId, source, onBack, onSessionExpired}: EditDraftPageProps) {
     const [result, setResult] = useState<MobilierImageDetail | MonumentLieuDetail | PersonneMoraleDetail | PersonnePhysiqueDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -178,7 +204,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
     const [historicalPeriods, setHistoricalPeriods] = useState<FilterOption[]>([]);
 
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({top: 0, behavior: 'smooth'});
         loadInitialData();
     }, [recordId, source]);
 
@@ -620,7 +646,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                 country: selectedCountryObj?.id ? String(selectedCountryObj.id) : extractId(data.country)
             },
             images: [],
-            existingImages: data.medias?.map(m => ({ id: m.id, title: m.title })) || [],
+            existingImages: data.medias?.map(m => ({id: m.id, title: m.title})) || [],
             imagesToDelete: [],
             themes: extractIds(data.themes),
             contributors: contributorsList,
@@ -665,10 +691,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                         longitude: coords.longitude || ''
                     };
                 } catch {
-                    formDataToSet.coordinates = { latitude: '', longitude: '' };
+                    formDataToSet.coordinates = {latitude: '', longitude: ''};
                 }
             } else {
-                formDataToSet.coordinates = { latitude: '', longitude: '' };
+                formDataToSet.coordinates = {latitude: '', longitude: ''};
             }
         }
 
@@ -944,25 +970,25 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
     const updateImageCaption = (index: number, caption: string) => {
         setFormData(prev => ({
             ...prev,
-            images: prev.images.map((img, i) => i === index ? { ...img, caption } : img)
+            images: prev.images.map((img, i) => i === index ? {...img, caption} : img)
         }));
     };
 
     // Gestion des champs
     const handleInputChange = (field: string, value: any) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData(prev => ({...prev, [field]: value}));
         if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
+            setErrors(prev => ({...prev, [field]: ''}));
         }
     };
 
     const handleSourceChange = (field: string, value: string) => {
         setFormData(prev => ({
             ...prev,
-            source: { ...prev.source, [field]: value }
+            source: {...prev.source, [field]: value}
         }));
         if (errors[`source${field.charAt(0).toUpperCase()}${field.slice(1)}`]) {
-            setErrors(prev => ({ ...prev, [`source${field.charAt(0).toUpperCase()}${field.slice(1)}`]: '' }));
+            setErrors(prev => ({...prev, [`source${field.charAt(0).toUpperCase()}${field.slice(1)}`]: ''}));
         }
     };
 
@@ -1058,6 +1084,11 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
     // Validation et soumission
     const validateForm = (): boolean => {
         const newErrors: { [key: string]: string } = {};
+
+        // Validation du titre (obligatoire pour les brouillons aussi)
+        if (!formData.name || formData.name.trim() === '') {
+            newErrors.name = 'Le titre est requis';
+        }
 
         // Validation de la localisation (obligatoire)
         if (!formData.location.country && !formData.location.commune) {
@@ -1232,9 +1263,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
             console.error('Erreur lors de la modification:', error);
             if (error instanceof ApiError) {
                 switch (error.status) {
-                    case 401: onSessionExpired(); break;
-                    case 413: toast.error(`Erreur: La taille des fichiers téléchargés dépasse la limite autorisée.`); break;
-                    default: toast.error(`Erreur: ${error.message}`); break;
+                    case 401:
+                        onSessionExpired();
+                        break;
+                    case 413:
+                        toast.error(`Erreur: La taille des fichiers téléchargés dépasse la limite autorisée.`);
+                        break;
+                    default:
+                        toast.error(`Erreur: ${error.message}`);
+                        break;
                 }
             } else {
                 toast.error('Une erreur est survenue lors de la modification.');
@@ -1255,7 +1292,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                 <div className="text-center">
                     <div className="text-6xl mb-4">⏳</div>
                     <h3 className="text-xl text-muted-foreground">
-                        Chargement de la fiche...
+                        Chargement du brouillon...
                     </h3>
                 </div>
             </div>
@@ -1268,10 +1305,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                 <div className="text-center">
                     <div className="text-6xl mb-4">⚠️</div>
                     <h3 className="text-xl text-destructive mb-2">
-                        {error || 'Fiche non trouvée'}
+                        {error || 'Brouillon non trouvé'}
                     </h3>
                     <p className="text-muted-foreground mb-6">
-                        {error || `Aucune fiche trouvée pour l'ID: ${recordId}`}
+                        {error || `Aucun brouillon trouvé pour l'ID: ${recordId}`}
                     </p>
                     <Button onClick={onBack}>Retour</Button>
                 </div>
@@ -1284,32 +1321,37 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
             <div className="min-h-screen bg-background flex items-center justify-center py-8">
                 <div className="container mx-auto px-4">
                     <div className="max-w-2xl mx-auto">
-                        <Card className={wasSubmittedAsDraft ? "border-blue-200 bg-blue-50" : "border-green-200 bg-green-50"}>
+                        <Card
+                            className={wasSubmittedAsDraft ? "border-blue-200 bg-blue-50" : "border-green-200 bg-green-50"}>
                             <CardContent className="text-center py-12">
                                 {wasSubmittedAsDraft ? (
                                     <>
-                                        <FileText className="w-16 h-16 text-blue-500 mx-auto mb-6" />
+                                        <FileText className="w-16 h-16 text-blue-500 mx-auto mb-6"/>
                                         <h2 className="text-2xl mb-4 text-blue-800">
                                             Brouillon enregistré avec succès !
                                         </h2>
                                         <p className="text-blue-700 mb-6 leading-relaxed">
-                                            Votre brouillon a été sauvegardé. Vous pourrez le retrouver dans votre espace personnel
+                                            Votre brouillon a été sauvegardé. Vous pourrez le retrouver dans "Mes
+                                            brouillons"
                                             et le compléter ou le soumettre plus tard.
                                         </p>
                                     </>
                                 ) : (
                                     <>
-                                        <Save className="w-16 h-16 text-green-500 mx-auto mb-6" />
+                                        <Save className="w-16 h-16 text-green-500 mx-auto mb-6"/>
                                         <h2 className="text-2xl mb-4 text-green-800">
                                             Modification soumise avec succès !
                                         </h2>
                                         <p className="text-green-700 mb-6 leading-relaxed">
-                                            Votre modification a été enregistrée et sera examinée par notre équipe d'administrateurs.
+                                            Votre modification a été enregistrée et sera examinée par notre équipe
+                                            d'administrateurs.
+                                            Vous recevrez une notification par email une fois la modification validée.
                                         </p>
                                     </>
                                 )}
-                                <Button onClick={onBack} className={wasSubmittedAsDraft ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"}>
-                                    Retour à la fiche
+                                <Button onClick={onBack}
+                                        className={wasSubmittedAsDraft ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"}>
+                                    Retour à mes brouillons
                                 </Button>
                             </CardContent>
                         </Card>
@@ -1328,18 +1370,42 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                         onClick={onBack}
                         className="mb-6 flex items-center gap-2"
                     >
-                        <ArrowLeft className="w-4 h-4" />
+                        <ArrowLeft className="w-4 h-4"/>
                         Retour
                     </Button>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* En-tête */}
                         <div className="mb-6">
-                            <h1 className="text-3xl mb-2">{"title" in result ? result.title : result.firstname}</h1>
+                            <h1 className="text-3xl mb-2">Modifier le brouillon</h1>
                             <p className="text-muted-foreground">
-                                Modifier la fiche
+                                Vous pouvez modifier tous les champs, y compris le titre
                             </p>
                         </div>
+
+                        {/* Titre éditable */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Titre de la fiche</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div>
+                                    <Label htmlFor="title">
+                                        {source === 'personnes_physiques' ? 'Prénom *' : 'Titre *'}
+                                    </Label>
+                                    <Input
+                                        id="title"
+                                        value={formData.name}
+                                        onChange={(e) => handleInputChange('name', e.target.value)}
+                                        placeholder={source === 'personnes_physiques' ? "Prénom de la personne" : "Titre de la fiche"}
+                                        className={errors.name ? 'border-destructive' : ''}
+                                    />
+                                    {errors.name && (
+                                        <p className="text-sm text-destructive mt-1">{errors.name}</p>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
 
                         {/* Informations générales */}
                         <Card>
@@ -1355,9 +1421,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                     </p>
                                     {Array.isArray(centuries) && centuries.length > 0 ? (
                                         <SearchableMultiSelect
-                                            options={centuries.filter(c => c && c.id && c.name).map(c => ({ id: String(c.id), name: c.name }))}
+                                            options={centuries.filter(c => c && c.id && c.name).map(c => ({
+                                                id: String(c.id),
+                                                name: c.name
+                                            }))}
                                             selectedValues={formData.centuries || []}
-                                            onChange={(selected) => setFormData(prev => ({ ...prev, centuries: selected }))}
+                                            onChange={(selected) => setFormData(prev => ({
+                                                ...prev,
+                                                centuries: selected
+                                            }))}
                                             placeholder="Sélectionner des siècles"
                                             searchPlaceholder="Rechercher un siècle..."
                                             emptyMessage="Aucun siècle trouvé"
@@ -1372,7 +1444,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 {/* Localisation */}
                                 <div>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <MapPin className="w-4 h-4 text-muted-foreground" />
+                                        <MapPin className="w-4 h-4 text-muted-foreground"/>
                                         <Label>Localisation *</Label>
                                     </div>
                                     <p className="text-sm text-muted-foreground mb-4">
@@ -1385,7 +1457,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             <Label className="text-sm">Pays</Label>
                                             <div className="mt-1">
                                                 <SearchableSelect
-                                                    options={countries.filter(c => c && c.id && c.name).map(c => ({ id: String(c.id), name: c.name }))}
+                                                    options={countries.filter(c => c && c.id && c.name).map(c => ({
+                                                        id: String(c.id),
+                                                        name: c.name
+                                                    }))}
                                                     selectedValue={selectedCountry?.id ? String(selectedCountry.id) : ''}
                                                     onChange={(countryId) => {
                                                         const country = countries.find(c => String(c.id) === countryId);
@@ -1448,7 +1523,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                         <div className="relative">
                                             <Label className="text-sm">Commune</Label>
                                             <div className="relative mt-1">
-                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                                <Search
+                                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
                                                 <Input
                                                     placeholder={selectedCommune ? selectedCommune.name : "Rechercher une commune..."}
                                                     value={selectedCommune ? selectedCommune.name : communeQuery}
@@ -1478,7 +1554,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             </div>
 
                                             {showCommuneResults && !selectedCommune && (
-                                                <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
+                                                <div
+                                                    className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
                                                     {isSearchingCommunes && (
                                                         <div className="p-4 text-center text-sm text-muted-foreground">
                                                             Recherche en cours...
@@ -1504,7 +1581,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                 </div>
                                             )}
 
-                                            {errors.commune && <p className="text-destructive text-sm mt-1">{errors.commune}</p>}
+                                            {errors.commune &&
+                                                <p className="text-destructive text-sm mt-1">{errors.commune}</p>}
                                         </div>
 
                                         {/* Affichage de la localisation sélectionnée */}
@@ -1546,7 +1624,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                         }}
                                                         className="ml-2"
                                                     >
-                                                        <X className="w-4 h-4" />
+                                                        <X className="w-4 h-4"/>
                                                     </Button>
                                                 </div>
                                             </div>
@@ -1557,7 +1635,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 {/* Images */}
                                 <div>
                                     <div className="flex items-center gap-2 mb-3">
-                                        <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                                        <ImageIcon className="w-4 h-4 text-muted-foreground"/>
                                         <Label>Images</Label>
                                     </div>
 
@@ -1571,17 +1649,20 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                 </p>
                                                 <div className="space-y-3">
                                                     {formData.existingImages.map((image) => (
-                                                        <div key={image.id} className="border rounded-lg p-4 bg-muted/30">
+                                                        <div key={image.id}
+                                                             className="border rounded-lg p-4 bg-muted/30">
                                                             <div className="flex gap-4">
                                                                 <ImageWithFallback
                                                                     src={getMediaImageUrl(image.id)}
                                                                     alt={image.title || 'Image'}
                                                                     className="w-32 h-32 object-cover rounded"
                                                                 />
-                                                                <div className="flex-1 flex items-center justify-between">
+                                                                <div
+                                                                    className="flex-1 flex items-center justify-between">
                                                                     <div>
                                                                         <div className="text-sm">Légende :</div>
-                                                                        <div className="text-sm text-muted-foreground mt-1">
+                                                                        <div
+                                                                            className="text-sm text-muted-foreground mt-1">
                                                                             {image.title || 'Sans légende'}
                                                                         </div>
                                                                     </div>
@@ -1592,7 +1673,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                                         onClick={() => removeExistingImage(image.id)}
                                                                         className="text-destructive hover:text-destructive"
                                                                     >
-                                                                        <Trash2 className="w-4 h-4" />
+                                                                        <Trash2 className="w-4 h-4"/>
                                                                     </Button>
                                                                 </div>
                                                             </div>
@@ -1628,7 +1709,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                                 />
                                                                 <div className="flex-1 space-y-3">
                                                                     <div className="flex justify-between items-start">
-                                                                        <span className="text-sm">{image.file.name}</span>
+                                                                        <span
+                                                                            className="text-sm">{image.file.name}</span>
                                                                         <Button
                                                                             type="button"
                                                                             variant="ghost"
@@ -1636,12 +1718,13 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                                             onClick={() => removeImage(index)}
                                                                             className="text-destructive hover:text-destructive"
                                                                         >
-                                                                            <Trash2 className="w-4 h-4" />
+                                                                            <Trash2 className="w-4 h-4"/>
                                                                         </Button>
                                                                     </div>
 
                                                                     <div>
-                                                                        <Label htmlFor={`caption-${index}`} className="text-xs">
+                                                                        <Label htmlFor={`caption-${index}`}
+                                                                               className="text-xs">
                                                                             Légende
                                                                         </Label>
                                                                         <Textarea
@@ -1668,9 +1751,12 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                     <Label>Thèmes</Label>
                                     {Array.isArray(themes) && themes.length > 0 ? (
                                         <SearchableMultiSelect
-                                            options={themes.filter(t => t && t.id && t.name).map(t => ({ id: String(t.id), name: t.name }))}
+                                            options={themes.filter(t => t && t.id && t.name).map(t => ({
+                                                id: String(t.id),
+                                                name: t.name
+                                            }))}
                                             selectedValues={formData.themes || []}
-                                            onChange={(selected) => setFormData(prev => ({ ...prev, themes: selected }))}
+                                            onChange={(selected) => setFormData(prev => ({...prev, themes: selected}))}
                                             placeholder="Sélectionner des thèmes"
                                             searchPlaceholder="Rechercher un thème..."
                                             emptyMessage="Aucun thème trouvé"
@@ -1697,13 +1783,14 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addContributor())}
                                             />
                                             <Button type="button" onClick={addContributor} size="sm">
-                                                <Plus className="w-4 h-4" />
+                                                <Plus className="w-4 h-4"/>
                                             </Button>
                                         </div>
                                         {formData.contributors.length > 0 && (
                                             <div className="flex flex-wrap gap-2">
                                                 {formData.contributors.map((contributor, index) => (
-                                                    <Badge key={index} variant="secondary" className="flex items-center gap-2">
+                                                    <Badge key={index} variant="secondary"
+                                                           className="flex items-center gap-2">
                                                         {contributor}
                                                         <X
                                                             className="w-3 h-3 cursor-pointer"
@@ -1730,7 +1817,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                 onValueChange={(value) => handleSourceChange('type', value)}
                                             >
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Sélectionner" />
+                                                    <SelectValue placeholder="Sélectionner"/>
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {Array.isArray(sourceTypes) && sourceTypes.filter(type => type).map((type) => (
@@ -1797,27 +1884,45 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                         </Label>
                                         {source === 'mobiliers_images' && Array.isArray(furnituresNatures) && furnituresNatures.length > 0 ? (
                                             <SearchableMultiSelect
-                                                options={furnituresNatures.filter(n => n && n.id && n.name).map(n => ({ id: String(n.id), name: n.name }))}
+                                                options={furnituresNatures.filter(n => n && n.id && n.name).map(n => ({
+                                                    id: String(n.id),
+                                                    name: n.name
+                                                }))}
                                                 selectedValues={formData.natures || []}
-                                                onChange={(selected) => setFormData(prev => ({ ...prev, natures: selected }))}
+                                                onChange={(selected) => setFormData(prev => ({
+                                                    ...prev,
+                                                    natures: selected
+                                                }))}
                                                 placeholder="Sélectionner des types"
                                                 searchPlaceholder="Rechercher un type..."
                                                 emptyMessage="Aucun type trouvé"
                                             />
                                         ) : source === 'monuments_lieux' && Array.isArray(buildingNatures) && buildingNatures.length > 0 ? (
                                             <SearchableMultiSelect
-                                                options={buildingNatures.filter(n => n && n.id && n.name).map(n => ({ id: String(n.id), name: n.name }))}
+                                                options={buildingNatures.filter(n => n && n.id && n.name).map(n => ({
+                                                    id: String(n.id),
+                                                    name: n.name
+                                                }))}
                                                 selectedValues={formData.natures || []}
-                                                onChange={(selected) => setFormData(prev => ({ ...prev, natures: selected }))}
+                                                onChange={(selected) => setFormData(prev => ({
+                                                    ...prev,
+                                                    natures: selected
+                                                }))}
                                                 placeholder="Sélectionner des types"
                                                 searchPlaceholder="Rechercher un type..."
                                                 emptyMessage="Aucun type trouvé"
                                             />
                                         ) : source === 'personnes_morales' && Array.isArray(legalEntityNatures) && legalEntityNatures.length > 0 ? (
                                             <SearchableMultiSelect
-                                                options={legalEntityNatures.filter(n => n && n.id && n.name).map(n => ({ id: String(n.id), name: n.name }))}
+                                                options={legalEntityNatures.filter(n => n && n.id && n.name).map(n => ({
+                                                    id: String(n.id),
+                                                    name: n.name
+                                                }))}
                                                 selectedValues={formData.natures || []}
-                                                onChange={(selected) => setFormData(prev => ({ ...prev, natures: selected }))}
+                                                onChange={(selected) => setFormData(prev => ({
+                                                    ...prev,
+                                                    natures: selected
+                                                }))}
                                                 placeholder="Sélectionner des types"
                                                 searchPlaceholder="Rechercher un type..."
                                                 emptyMessage="Aucun type trouvé"
@@ -1842,7 +1947,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             rows={4}
                                             className={errors.description ? 'border-destructive' : ''}
                                         />
-                                        {errors.description && <p className="text-destructive text-sm mt-1">{errors.description}</p>}
+                                        {errors.description &&
+                                            <p className="text-destructive text-sm mt-1">{errors.description}</p>}
                                     </div>
                                 )}
 
@@ -1952,7 +2058,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                     checked={formData.simpleMention || false}
                                                     onCheckedChange={(checked) => handleInputChange('simpleMention', checked)}
                                                 />
-                                                <Label htmlFor="simpleMention" className="text-sm">Simple mention</Label>
+                                                <Label htmlFor="simpleMention" className="text-sm">Simple
+                                                    mention</Label>
                                             </div>
 
                                             <div className="flex items-center space-x-2">
@@ -1961,7 +2068,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                     checked={formData.foundationAct || false}
                                                     onCheckedChange={(checked) => handleInputChange('foundationAct', checked)}
                                                 />
-                                                <Label htmlFor="foundationAct" className="text-sm">Acte de fondation</Label>
+                                                <Label htmlFor="foundationAct" className="text-sm">Acte de
+                                                    fondation</Label>
                                             </div>
                                         </div>
 
@@ -1979,7 +2087,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Description du fonctionnement */}
                                         <div>
-                                            <Label htmlFor="functioningDescription">Description du fonctionnement</Label>
+                                            <Label htmlFor="functioningDescription">Description du
+                                                fonctionnement</Label>
                                             <Textarea
                                                 id="functioningDescription"
                                                 value={formData.functioningDescription || ''}
@@ -2069,9 +2178,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             <Label>Périodes historiques</Label>
                                             {Array.isArray(historicalPeriods) && historicalPeriods.length > 0 ? (
                                                 <SearchableMultiSelect
-                                                    options={historicalPeriods.filter(h => h && h.id && h.name).map(h => ({ id: String(h.id), name: h.name }))}
+                                                    options={historicalPeriods.filter(h => h && h.id && h.name).map(h => ({
+                                                        id: String(h.id),
+                                                        name: h.name
+                                                    }))}
                                                     selectedValues={formData.historicalPeriods || []}
-                                                    onChange={(selected) => setFormData(prev => ({ ...prev, historicalPeriods: selected }))}
+                                                    onChange={(selected) => setFormData(prev => ({
+                                                        ...prev,
+                                                        historicalPeriods: selected
+                                                    }))}
                                                     placeholder="Sélectionner des périodes"
                                                     searchPlaceholder="Rechercher une période..."
                                                     emptyMessage="Aucune période trouvée"
@@ -2088,9 +2203,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             <Label>Professions</Label>
                                             {Array.isArray(professions) && professions.length > 0 ? (
                                                 <SearchableMultiSelect
-                                                    options={professions.filter(p => p && p.id && p.name).map(p => ({ id: String(p.id), name: p.name }))}
+                                                    options={professions.filter(p => p && p.id && p.name).map(p => ({
+                                                        id: String(p.id),
+                                                        name: p.name
+                                                    }))}
                                                     selectedValues={formData.professions || []}
-                                                    onChange={(selected) => setFormData(prev => ({ ...prev, professions: selected }))}
+                                                    onChange={(selected) => setFormData(prev => ({
+                                                        ...prev,
+                                                        professions: selected
+                                                    }))}
                                                     placeholder="Sélectionner des professions"
                                                     searchPlaceholder="Rechercher une profession..."
                                                     emptyMessage="Aucune profession trouvée"
@@ -2131,9 +2252,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             <Label>Modes de transport</Label>
                                             {Array.isArray(travels) && travels.length > 0 ? (
                                                 <SearchableMultiSelect
-                                                    options={travels.filter(t => t && t.id && t.name).map(t => ({ id: String(t.id), name: t.name }))}
+                                                    options={travels.filter(t => t && t.id && t.name).map(t => ({
+                                                        id: String(t.id),
+                                                        name: t.name
+                                                    }))}
                                                     selectedValues={formData.transportModes || []}
-                                                    onChange={(selected) => setFormData(prev => ({ ...prev, transportModes: selected }))}
+                                                    onChange={(selected) => setFormData(prev => ({
+                                                        ...prev,
+                                                        transportModes: selected
+                                                    }))}
                                                     placeholder="Sélectionner des modes de transport"
                                                     searchPlaceholder="Rechercher un mode..."
                                                     emptyMessage="Aucun mode trouvé"
@@ -2188,9 +2315,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                         <Label>États de conservation</Label>
                                         {Array.isArray(conservationStates) && conservationStates.length > 0 ? (
                                             <SearchableMultiSelect
-                                                options={conservationStates.filter(c => c && c.id && c.name).map(c => ({ id: String(c.id), name: c.name }))}
+                                                options={conservationStates.filter(c => c && c.id && c.name).map(c => ({
+                                                    id: String(c.id),
+                                                    name: c.name
+                                                }))}
                                                 selectedValues={formData.conservationStates || []}
-                                                onChange={(selected) => setFormData(prev => ({ ...prev, conservationStates: selected }))}
+                                                onChange={(selected) => setFormData(prev => ({
+                                                    ...prev,
+                                                    conservationStates: selected
+                                                }))}
                                                 placeholder="Sélectionner des états"
                                                 searchPlaceholder="Rechercher un état..."
                                                 emptyMessage="Aucun état trouvé"
@@ -2209,9 +2342,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                         <Label>Matériaux</Label>
                                         {Array.isArray(materials) && materials.length > 0 ? (
                                             <SearchableMultiSelect
-                                                options={materials.filter(m => m && m.id && m.name).map(m => ({ id: String(m.id), name: m.name }))}
+                                                options={materials.filter(m => m && m.id && m.name).map(m => ({
+                                                    id: String(m.id),
+                                                    name: m.name
+                                                }))}
                                                 selectedValues={formData.materials || []}
-                                                onChange={(selected) => setFormData(prev => ({ ...prev, materials: selected }))}
+                                                onChange={(selected) => setFormData(prev => ({
+                                                    ...prev,
+                                                    materials: selected
+                                                }))}
                                                 placeholder="Sélectionner des matériaux"
                                                 searchPlaceholder="Rechercher un matériau..."
                                                 emptyMessage="Aucun matériau trouvé"
@@ -2230,9 +2369,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                         <Label>Techniques</Label>
                                         {Array.isArray(furnituresTechniques) && furnituresTechniques.length > 0 ? (
                                             <SearchableMultiSelect
-                                                options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({ id: t.id, name: t.name }))}
+                                                options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({
+                                                    id: t.id,
+                                                    name: t.name
+                                                }))}
                                                 selectedValues={formData.techniques || []}
-                                                onChange={(selected) => setFormData(prev => ({ ...prev, techniques: selected }))}
+                                                onChange={(selected) => setFormData(prev => ({
+                                                    ...prev,
+                                                    techniques: selected
+                                                }))}
                                                 placeholder="Sélectionner des techniques"
                                                 searchPlaceholder="Rechercher une technique..."
                                                 emptyMessage="Aucune technique trouvée"
@@ -2260,7 +2405,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             </div>
 
                                             <div>
-                                                <Label htmlFor="protectionComment" className="text-sm">Commentaire de protection</Label>
+                                                <Label htmlFor="protectionComment" className="text-sm">Commentaire de
+                                                    protection</Label>
                                                 <Textarea
                                                     id="protectionComment"
                                                     value={formData.protectionComment || ''}
@@ -2302,7 +2448,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                     {/* Barre de recherche avec autocomplétion */}
                                     <div className="relative">
                                         <div className="relative">
-                                            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                                            <Search
+                                                className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"/>
                                             <Input
                                                 value={ficheSearchQuery}
                                                 onChange={(e) => {
@@ -2318,10 +2465,11 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Résultats de recherche */}
                                         {showFicheResults && (
-                                            <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
+                                            <div
+                                                className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
                                                 {isSearchingFiches && (
                                                     <div className="p-4 text-center text-sm text-muted-foreground">
-                                                        <Search className="w-4 h-4 mx-auto mb-2 animate-spin" />
+                                                        <Search className="w-4 h-4 mx-auto mb-2 animate-spin"/>
                                                         Recherche en cours...
                                                     </div>
                                                 )}
@@ -2338,7 +2486,8 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                                 onClick={() => handleSelectFiche(fiche)}
                                                                 className="p-3 hover:bg-accent rounded cursor-pointer border-b border-border last:border-b-0"
                                                             >
-                                                                <div className="font-medium">{fiche.title || 'Titre non disponible'}</div>
+                                                                <div
+                                                                    className="font-medium">{fiche.title || 'Titre non disponible'}</div>
                                                                 <div className="text-xs text-muted-foreground mt-1">
                                                                     {getCategoryDisplayName(fiche.source)}
                                                                 </div>
@@ -2362,7 +2511,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                     className="flex items-center justify-between p-3 bg-accent rounded-lg"
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <Link className="w-4 h-4 text-muted-foreground" />
+                                                        <Link className="w-4 h-4 text-muted-foreground"/>
                                                         <div>
                                                             <div className="font-medium">{form.title}</div>
                                                             <div className="text-xs text-muted-foreground">
@@ -2377,7 +2526,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                         onClick={() => removeRelatedForm(index)}
                                                         className="text-muted-foreground hover:text-destructive"
                                                     >
-                                                        <X className="w-4 h-4" />
+                                                        <X className="w-4 h-4"/>
                                                     </Button>
                                                 </div>
                                             ))}
@@ -2390,10 +2539,12 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                         {/* Boutons d'action */}
                         <div className="space-y-3">
                             {!hasFormChanged() && (
-                                <div className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3 flex items-start gap-2">
-                                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                <div
+                                    className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3 flex items-start gap-2">
+                                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5"/>
                                     <p>
-                                        Aucune modification n'a été détectée. Veuillez modifier au moins un champ pour soumettre vos changements.
+                                        Aucune modification n'a été détectée. Veuillez modifier au moins un champ pour
+                                        soumettre vos changements.
                                     </p>
                                 </div>
                             )}
@@ -2415,12 +2566,13 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 >
                                     {isSavingDraft ? (
                                         <>
-                                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                            <div
+                                                className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"/>
                                             Enregistrement...
                                         </>
                                     ) : (
                                         <>
-                                            <FileText className="w-4 h-4" />
+                                            <FileText className="w-4 h-4"/>
                                             Enregistrer comme brouillon
                                         </>
                                     )}
@@ -2432,13 +2584,14 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 >
                                     {isSubmitting ? (
                                         <>
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                            <div
+                                                className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
                                             Enregistrement...
                                         </>
                                     ) : (
                                         <>
-                                            <Save className="w-4 h-4" />
-                                            Enregistrer les modifications
+                                            <Save className="w-4 h-4"/>
+                                            Soumettre pour validation
                                         </>
                                     )}
                                 </Button>

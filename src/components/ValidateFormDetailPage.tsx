@@ -12,7 +12,10 @@ import {
     CheckCircle,
     XCircle,
     Check,
-    X
+    X,
+    Edit,
+    FilePlus,
+    AlertCircle
 } from "lucide-react";
 import {Button} from "./ui/button";
 import {Badge} from "./ui/badge";
@@ -80,6 +83,9 @@ export function ValidateFormDetailPage({
     const [relatedRecords, setRelatedRecords] = useState<{ [key: string]: any }>({});
     const [loadingRelated, setLoadingRelated] = useState(false);
 
+    // États pour la fiche originale (parent) en cas de modification
+    const [parentRecord, setParentRecord] = useState<DetailResult | null>(null);
+    const [loadingParent, setLoadingParent] = useState(false);
 
     const [showImageModal, setShowImageModal] = useState(false);
     const [modalImageIndex, setModalImageIndex] = useState(0);
@@ -100,6 +106,11 @@ export function ValidateFormDetailPage({
 
                 // Charger les fiches liées
                 await loadRelatedRecords(detailResult);
+
+                // Charger la fiche originale si c'est une modification
+                if ('parent_id' in detailResult && detailResult.parent_id) {
+                    await loadParentRecord(detailResult.parent_id as number);
+                }
             } catch (error) {
                 console.error('Erreur lors du chargement de la fiche:', error);
                 if (error instanceof ApiError) {
@@ -155,6 +166,20 @@ export function ValidateFormDetailPage({
             console.error('Erreur lors du chargement des fiches liées:', error);
         } finally {
             setLoadingRelated(false);
+        }
+    };
+
+    // Fonction pour charger la fiche originale (parent) en cas de modification
+    const loadParentRecord = async (parentId: number) => {
+        setLoadingParent(true);
+        try {
+            const parentData = await apiService.getRecordDetail(formSource, parentId.toString());
+            setParentRecord(parentData);
+        } catch (error) {
+            console.warn('Impossible de charger la fiche originale:', error);
+            // Ne pas bloquer l'affichage si on ne peut pas charger le parent
+        } finally {
+            setLoadingParent(false);
         }
     };
 
@@ -304,13 +329,18 @@ export function ValidateFormDetailPage({
     };
 
     // Fonction pour obtenir le titre selon le type de fiche
-    const getTitle = () => {
-        if (!result) return '';
+    const getTitle = (record: DetailResult | null = result) => {
+        if (!record) return '';
 
         if (formSource === 'personnes_physiques') {
-            return (result as PersonnePhysiqueDetail).firstname;
+            return (record as PersonnePhysiqueDetail).firstname;
         }
-        return "title" in result ? result.title : '';
+        return "title" in record ? record.title : '';
+    };
+
+    // Fonction pour déterminer si c'est une modification ou une création
+    const isModification = () => {
+        return result && 'parent_id' in result && result.parent_id !== undefined && result.parent_id !== null;
     };
 
     // Fonction pour obtenir la description selon le type de fiche
@@ -1421,6 +1451,19 @@ export function ValidateFormDetailPage({
                                 {typeBadge.label}
                             </Badge>
 
+                            {/* Badge de type de document */}
+                            {isModification() ? (
+                                <Badge className="bg-amber-100 text-amber-800 hidden sm:flex" variant="secondary">
+                                    <Edit className="w-3 h-3 mr-1" />
+                                    Modification
+                                </Badge>
+                            ) : (
+                                <Badge className="bg-emerald-100 text-emerald-800 hidden sm:flex" variant="secondary">
+                                    <FilePlus className="w-3 h-3 mr-1" />
+                                    Nouvelle fiche
+                                </Badge>
+                            )}
+
                             {/* Boutons de validation avec responsive */}
                             <div className="flex items-center gap-1.5 sm:gap-2">
                                 <Button
@@ -1451,6 +1494,100 @@ export function ValidateFormDetailPage({
 
             {/* Contenu principal */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Alerte de modification avec aperçu de l'original */}
+                {isModification() && (
+                    <Card className="mb-8 border-amber-200 bg-amber-50">
+                        <CardContent className="p-6">
+                            <div className="flex items-start gap-4">
+                                <div className="flex-shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                        <Edit className="w-5 h-5 text-amber-700" />
+                                    </div>
+                                </div>
+                                <div className="flex-1 space-y-3">
+                                    <div>
+                                        <h3 className="font-semibold text-amber-900 mb-1">
+                                            Modification soumise à relecture
+                                        </h3>
+                                        <p className="text-sm text-amber-800">
+                                            Cette fiche est une modification d'une fiche existante.
+                                            Elle remplacera la version originale après validation.
+                                        </p>
+                                    </div>
+
+                                    {loadingParent ? (
+                                        <div className="text-sm text-amber-700 flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-amber-700 border-t-transparent rounded-full animate-spin" />
+                                            Chargement de la fiche originale...
+                                        </div>
+                                    ) : parentRecord ? (
+                                        <div className="bg-white rounded-md border border-amber-200 p-4">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <h4 className="text-sm font-medium text-amber-900">
+                                                    Fiche originale :
+                                                </h4>
+                                                <Button
+                                                    variant="link"
+                                                    size="sm"
+                                                    onClick={() => onViewDetail(parentRecord.id, formSource)}
+                                                    className="text-xs h-auto p-0 text-amber-700 hover:text-amber-900"
+                                                >
+                                                    Voir les détails complets
+                                                    <ExternalLink className="w-3 h-3 ml-1" />
+                                                </Button>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <div className="flex items-start gap-3">
+                                                    {parentRecord.medias && parentRecord.medias.length > 0 && (
+                                                        <div className="flex-shrink-0">
+                                                            <AspectRatio ratio={16 / 9} className="w-24 bg-muted rounded overflow-hidden">
+                                                                <ImageWithFallback
+                                                                    src={getMediaImageUrl(parentRecord.medias[0].id)}
+                                                                    alt={parentRecord.medias[0].title || getTitle(parentRecord)}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            </AspectRatio>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium text-foreground truncate">
+                                                            {getTitle(parentRecord)}
+                                                        </p>
+                                                        {"natures" in parentRecord && parentRecord.natures && parentRecord.natures.length > 0 && (
+                                                            <div className="flex flex-wrap gap-1 mt-1">
+                                                                {parentRecord.natures.slice(0, 2).map((nature) => (
+                                                                    <Badge key={nature.id} variant="secondary" className="text-xs">
+                                                                        {nature.name}
+                                                                    </Badge>
+                                                                ))}
+                                                                {parentRecord.natures.length > 2 && (
+                                                                    <Badge variant="secondary" className="text-xs text-muted-foreground">
+                                                                        +{parentRecord.natures.length - 2}
+                                                                    </Badge>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {parentRecord.centuries && parentRecord.centuries.length > 0 && (
+                                                            <p className="text-xs text-muted-foreground mt-1">
+                                                                {parentRecord.centuries.map(c => c.name).join(', ')}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-sm text-amber-700">
+                                            <AlertCircle className="w-4 h-4 inline mr-1" />
+                                            La fiche originale n'a pas pu être chargée.
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Colonne principale */}
                     <div className="lg:col-span-2 space-y-8">
@@ -1610,7 +1747,6 @@ export function ValidateFormDetailPage({
                 initialIndex={modalImageIndex}
             />
         </div>
-
 
     );
 }
