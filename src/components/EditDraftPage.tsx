@@ -10,7 +10,6 @@ import {
     Trash2,
     Link,
     FileText,
-    AlertCircle
 } from "lucide-react";
 import {Button} from "./ui/button";
 import {Input} from "./ui/input";
@@ -61,6 +60,7 @@ interface ExistingImage {
 }
 
 interface FormData {
+    parent_id?: number;
     name: string;
     centuries: string[];
     location: {
@@ -652,7 +652,8 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
             contributors: contributorsList,
             relatedForms: linkedForms,
             source: sourceData,
-            bibliography: data.bibliography || ''
+            bibliography: data.bibliography || '',
+            parent_id: data.parent_id || undefined
         };
 
         // Champs communs aux mobiliers, monuments et personnes morales
@@ -1195,6 +1196,7 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
                 };
 
                 await apiService.updateMobilierImage(recordId, submissionData);
+
             } else if (source === 'monuments_lieux') {
                 submissionData = {
                     ...submissionData,
@@ -1215,6 +1217,7 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
                 };
 
                 await apiService.updateMonumentLieu(recordId, submissionData);
+
             } else if (source === 'personnes_morales') {
                 submissionData = {
                     ...submissionData,
@@ -1232,6 +1235,7 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
                 };
 
                 await apiService.updatePersonneMorale(recordId, submissionData);
+
             } else if (source === 'personnes_physiques') {
                 submissionData = {
                     ...submissionData,
@@ -1252,6 +1256,7 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
                 };
 
                 await apiService.updatePersonnePhysique(recordId, submissionData);
+
             }
 
             console.log('Données de modification:', submissionData);
@@ -1284,6 +1289,24 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
 
     const handleSaveDraft = (e: React.FormEvent) => {
         handleSubmit(e, true);
+    };
+
+    const handleDeleteDraft = async () => {
+        if (!window.confirm('Êtes-vous sûr de vouloir supprimer définitivement ce brouillon ?')) {
+            return;
+        }
+
+        try {
+            await apiService.deleteDraft(source, recordId);
+            toast.success('Brouillon supprimé avec succès');
+            onBack();
+        } catch (error) {
+            if (error instanceof ApiError && error.status === 401) {
+                onSessionExpired();
+            } else {
+                toast.error('Erreur lors de la suppression du brouillon');
+            }
+        }
     };
 
     if (isLoading) {
@@ -2538,17 +2561,17 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
 
                         {/* Boutons d'action */}
                         <div className="space-y-3">
-                            {!hasFormChanged() && (
-                                <div
-                                    className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3 flex items-start gap-2">
-                                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5"/>
-                                    <p>
-                                        Aucune modification n'a été détectée. Veuillez modifier au moins un champ pour
-                                        soumettre vos changements.
-                                    </p>
-                                </div>
-                            )}
                             <div className="flex gap-4 justify-end">
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    onClick={handleDeleteDraft}
+                                    disabled={isSubmitting || isSavingDraft}
+                                    className="gap-2"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    Supprimer le brouillon
+                                </Button>
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -2579,7 +2602,7 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
                                 </Button>
                                 <Button
                                     type="submit"
-                                    disabled={isSubmitting || isSavingDraft || !hasFormChanged()}
+                                    disabled={isSubmitting || isSavingDraft}
                                     className="gap-2"
                                 >
                                     {isSubmitting ? (

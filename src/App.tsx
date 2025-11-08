@@ -10,10 +10,14 @@ import {ContributePage} from "./components/ContributePage";
 import {AccountPage} from "./components/AccountPage";
 import {ValidateFormsPage} from "./components/ValidateFormsPage";
 import {ValidateContributorsPage} from "./components/ValidateContributorsPage";
+import {ContributorsDashboardPage} from "./components/ContributorsDashboardPage";
+import {ContributionsPage} from "./components/ContributionsPage";
 import {MyDraftsPage} from "./components/MyDraftsPage";
+import {HistoryPage} from "./components/HistoryPage";
 import {DetailPage} from "./components/DetailPage";
 import {ValidateFormDetailPage} from "./components/ValidateFormDetailPage";
 import {EditPage} from "./components/EditPage";
+import {EditDraftPage} from "./components/EditDraftPage";
 import {EmailValidationPage} from "./components/EmailValidationPage";
 import {LegalMentionsPage} from "./components/LegalMentionsPage";
 import {PrivacyPolicyPage} from "./components/PrivacyPolicyPage";
@@ -60,13 +64,15 @@ export interface User {
 }
 
 export default function App() {
-    const [currentPage, setCurrentPage] = useState<'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'my-drafts' | 'detail' | 'validate-form-detail' | 'edit' | 'email-validation' | 'legal-mentions' | 'privacy-policy' | 'terms-of-use'>('home');
-    const [previousPage, setPreviousPage] = useState<'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'my-drafts' | 'detail' | 'validate-form-detail' | 'edit' | 'email-validation' | 'legal-mentions' | 'privacy-policy' | 'terms-of-use' | null>(null);
+    const [currentPage, setCurrentPage] = useState<'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'contributors-dashboard' | 'contributions' | 'my-drafts' | 'history' | 'detail' | 'validate-form-detail' | 'edit' | 'edit-draft' | 'email-validation' | 'legal-mentions' | 'privacy-policy' | 'terms-of-use'>('home');
+    const [previousPage, setPreviousPage] = useState<'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'contributors-dashboard' | 'contributions' | 'my-drafts' | 'history' | 'detail' | 'validate-form-detail' | 'edit' | 'edit-draft' | 'email-validation' | 'legal-mentions' | 'privacy-policy' | 'terms-of-use' | null>(null);
     const [currentDetailId, setCurrentDetailId] = useState<string>('');
     const [currentValidateFormId, setCurrentValidateFormId] = useState<string>('');
     const [currentValidateFormSource, setCurrentValidateFormSource] = useState<'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques'>('monuments_lieux');
     const [currentEditId, setCurrentEditId] = useState<string>('');
     const [currentEditSource, setCurrentEditSource] = useState<'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques'>('monuments_lieux');
+    const [currentEditDraftId, setCurrentEditDraftId] = useState<string>('');
+    const [currentEditDraftSource, setCurrentEditDraftSource] = useState<'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques'>('monuments_lieux');
     const [emailValidationToken, setEmailValidationToken] = useState<string>('');
     const [passwordResetToken, setPasswordResetToken] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -451,6 +457,19 @@ export default function App() {
         setCurrentPage('edit');
     };
 
+    const handleEditDraft = (draftId: string, source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => {
+        setCurrentEditDraftId(draftId);
+        setCurrentEditDraftSource(source);
+        setPreviousPage(currentPage);
+        setCurrentPage('edit-draft');
+    };
+
+    const handleBackToMyDrafts = () => {
+        setCurrentPage('my-drafts');
+        // Rafraîchir les brouillons après retour depuis l'édition
+        loadDraftForms();
+    };
+
     const handleBackToValidateForms = () => {
         setCurrentPage('validate-forms');
         // Rafraîchir les données après retour depuis les détails
@@ -470,6 +489,7 @@ export default function App() {
             setCurrentPage('search');
         }
     };
+
     const handleLogin = async (email: string) => {
         // Cette fonction sera appelée après le succès de l'API login
         // Récupérer les données utilisateur stockées par l'API
@@ -960,6 +980,42 @@ export default function App() {
         );
     }
 
+    // Page d'édition de brouillon
+    if (currentPage === 'edit-draft' && user) {
+        return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <EditDraftPage
+                            recordId={currentEditDraftId}
+                            source={currentEditDraftSource}
+                            onBack={handleBackToMyDrafts}
+                            onSessionExpired={() => {
+                                handleLogout();
+                                toast.error("Votre session a expiré. Veuillez vous reconnecter.");
+                            }}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+
+                        {/* Toast notifications */}
+                        <Toaster/>
+
+                        <CookieBanner />
+                    </div>
+                </LanguageProvider>
+            </CrashBoundary>
+        );
+    }
+
     // Pages spécifiques aux utilisateurs connectés
     if (currentPage === 'contribute' && user) {
         return (
@@ -1039,7 +1095,11 @@ export default function App() {
                             onBack={handleBackToHome}
                             draftForms={draftForms}
                             onRefresh={loadDraftForms}
-                            onViewFormDetail={handleViewFormDetail}
+                            onSessionExpired={() => {
+                                handleLogout();
+                                toast.error("Votre session a expiré. Veuillez vous reconnecter.");
+                            }}
+                            onViewFormDetail={handleEditDraft}
                         />
                         <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 
@@ -1047,6 +1107,39 @@ export default function App() {
                         <Toaster/>
 
                         <CookieBanner/>
+                    </div>
+                </LanguageProvider>
+            </CrashBoundary>
+        );
+    }
+
+    // Page Historique (pour tous les utilisateurs connectés)
+    if (currentPage === 'history' && user) {
+        return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <HistoryPage
+                            onBack={handleBackToHome}
+                            onSessionExpired={handleSessionExpired}
+                            userId={user.id}
+                            onViewFormDetail={handleViewDetail}
+                        />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+
+                        {/* Toast notifications */}
+                        <Toaster/>
+
+                        <CookieBanner />
                     </div>
                 </LanguageProvider>
             </CrashBoundary>
@@ -1147,6 +1240,60 @@ export default function App() {
                         <Toaster/>
 
                         <CookieBanner/>
+                    </div>
+                </LanguageProvider>
+            </CrashBoundary>
+        );
+    }
+
+    if (currentPage === 'contributors-dashboard' && user?.role === 'admin') {
+        return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <ContributorsDashboardPage />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+
+                        {/* Toast notifications */}
+                        <Toaster/>
+
+                        <CookieBanner />
+                    </div>
+                </LanguageProvider>
+            </CrashBoundary>
+        );
+    }
+
+    if (currentPage === 'contributions' && user?.role === 'admin') {
+        return (
+            <CrashBoundary onResetToHome={handleBackToHome}>
+                <LanguageProvider>
+                    <div className="min-h-screen bg-white">
+                        <Header
+                            user={user}
+                            onSignup={openSignupModal}
+                            onLogin={() => setShowLoginModal(true)}
+                            onLogout={handleLogout}
+                            onNavigate={setCurrentPage}
+                            pendingFormsCount={pendingFormsCount}
+                            pendingContributorsCount={pendingContributorsCount}
+                        />
+                        <ContributionsPage onViewDetail={handleViewDetail} />
+                        <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
+
+                        {/* Toast notifications */}
+                        <Toaster/>
+
+                        <CookieBanner />
                     </div>
                 </LanguageProvider>
             </CrashBoundary>

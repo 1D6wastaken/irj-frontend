@@ -17,7 +17,7 @@ class ApiError extends Error {
 
 // Configuration de l'API backend
 export const API_CONFIG = {
-    baseUrl: 'http://localhost:5000',
+    baseUrl: 'https://test.saintjacquesinfo.eu',
     endpoints: {
         users: '/api/v1/users',
         login: '/api/v1/login',
@@ -150,6 +150,45 @@ export interface PendingUser {
     creation_date?: string; // Format YYYY-MM-DD, peut être vide ou non renseigné
 }
 
+// Interface pour tous les utilisateurs (dashboard admin)
+export interface AdminUser {
+    id: string; // UUID
+    firstname: string;
+    lastname: string;
+    mail: string;
+    mail_confirm?: boolean; // false si absent
+    phone?: string;
+    organization?: string;
+    domain?: string;
+    last_login: string; // Format date
+    validated_by_firstname?: string;
+    validated_by_lastname?: string;
+    validated_by_mail?: string;
+    grade: 'PENDING' | 'ACTIVE' | 'ADMIN';
+    creation_date: string; // Format date
+}
+
+// Interface pour les contributions (historique admin)
+export interface ContributionEvent {
+    date: string; // Format date
+    event: 'document_submission' | 'document_update' | 'document_submission_validation' | 'document_submission_rejection' | 'document_update_validation' | 'document_update_rejection';
+    category: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques';
+    document_id: number;
+    user_id?: string;
+    user_firstname?: string;
+    user_lastname?: string;
+    user_mail?: string;
+    admin_id?: string;
+    admin_firstname?: string;
+    admin_lastname?: string;
+    admin_mail?: string;
+}
+
+export interface ContributionsResponse {
+    total: number;
+    events: ContributionEvent[];
+}
+
 // Interface pour les fiches en attente de validation
 export interface PendingFormMedia {
     id: string;
@@ -172,7 +211,18 @@ export interface PendingForm {
     parent_id?: number; // Si présent, c'est une modification soumise à relecture. Sinon, c'est une création
 }
 
-// Mapping des domaines pour l'affichage
+export interface HistoryEvent {
+    date: string;
+    event: 'document_submission' | 'document_update' | 'document_submission_validation' | 'document_submission_rejection' | 'document_update_validation' | 'document_update_rejection';
+    category: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques';
+    document_id: string;
+}
+
+export interface HistoryResponse {
+    events: HistoryEvent[];
+    total: number;
+}
+
 export const DOMAIN_MAPPING = {
     'ART': 'Histoire de l\'art',
     'ARCHITECTURE': 'Architecture religieuse',
@@ -262,6 +312,7 @@ export interface MonumentLieuDetail {
     linked_furniture_images?: number[];
     linked_individuals?: number[];
     linked_legal_entities?: number[];
+    parent_id?: number;
 }
 
 export interface MobilierImageDetail {
@@ -294,6 +345,7 @@ export interface MobilierImageDetail {
     linked_monuments_places?: number[];
     linked_individuals?: number[];
     linked_legal_entities?: number[];
+    parent_id?: number;
 }
 
 export interface PersonneMoraleDetail {
@@ -324,6 +376,7 @@ export interface PersonneMoraleDetail {
     linked_monuments_places?: number[];
     linked_individuals?: number[];
     linked_furniture_images?: number[];
+    parent_id?: number;
 }
 
 export interface PersonnePhysiqueDetail {
@@ -355,6 +408,7 @@ export interface PersonnePhysiqueDetail {
     linked_monuments_places?: number[];
     linked_furniture_images?: number[];
     linked_legal_entities?: number[];
+    parent_id?: number;
 }
 
 export type DetailResult = MonumentLieuDetail | MobilierImageDetail | PersonneMoraleDetail | PersonnePhysiqueDetail;
@@ -1533,6 +1587,73 @@ class ApiService {
         return this.request(endpoint, {method: 'GET'});
     }
 
+    async deleteDraft(
+        category: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques',
+        draftId: string
+    ): Promise<void> {
+        const endpoint = `/api/v1/draft/${category}/${draftId}`;
+        const url = `${this.baseUrl}${endpoint}`;
+
+        const defaultOptions: RequestInit = {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        };
+
+        // Ajouter le token d'authentification si disponible
+        const tokenData = TokenManager.getToken();
+        if (tokenData) {
+            defaultOptions.headers = {
+                ...defaultOptions.headers,
+                'Authorization': `${tokenData.tokenType} ${tokenData.token}`
+            };
+        }
+
+        try {
+            const response = await fetch(url, defaultOptions);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new ApiError(response.status, errorData.message || `HTTP error! status: ${response.status}`, errorData);
+            }
+
+            // Pour un statut 204, pas de contenu à retourner
+            return;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            // Erreur réseau - throw sans logger
+            throw new ApiError(0, 'Network error', { detail: 'Unable to connect to the server' });
+        }
+    }
+
+     async getUserHistory(userId: string, limit?: number, page?: number): Promise<HistoryResponse> {
+        const queryParams = new URLSearchParams();
+        if (limit) queryParams.append('limit', limit.toString());
+        if (page) queryParams.append('page', page.toString());
+
+        const endpoint = `/api/v1/history/${userId}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+
+        return this.request(endpoint, { method: 'GET' });
+    }
+
+    // Récupérer tous les utilisateurs (dashboard admin)
+    async getAllUsers(): Promise<AdminUser[]> {
+        const endpoint = '/api/v1/admin/users';
+        return this.request(endpoint, { method: 'GET' });
+    }
+
+    // Récupérer toutes les contributions (admin uniquement)
+    async getAllContributions(limit?: number, page?: number): Promise<ContributionsResponse> {
+        const queryParams = new URLSearchParams();
+        if (limit) queryParams.append('limit', limit.toString());
+        if (page) queryParams.append('page', page.toString());
+
+        const endpoint = `/api/v1/admin/contributions${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+        return this.request(endpoint, { method: 'GET' });
+    }
 }
 
 // Instance globale du service API

@@ -396,7 +396,7 @@ export function ValidateFormsPage({ onBack, pendingForms, onRefresh, onSessionEx
                     </div>
 
                     {/* Message d'information sur le type de document */}
-                    {selectedForm.parent_id && (
+                    {selectedForm.parent_id && validationType === 'activate' && (
                         <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
                             <p className="text-sm text-amber-800">
                                 <strong>Note :</strong> Cette fiche est une modification soumise à relecture.

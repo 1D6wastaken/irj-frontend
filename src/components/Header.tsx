@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogIn, UserPlus, User, Settings, FileText, LogOut, CheckSquare, UserCheck, Menu, ChevronDown, ShieldCheck} from "lucide-react";
+import { LogIn, UserPlus, User, Users, Settings, FileText, LogOut, CheckSquare, UserCheck, Menu, ChevronDown, ShieldCheck, Clock, History} from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -11,7 +11,7 @@ interface HeaderProps {
     onSignup: () => void;
     onLogin: () => void;
     onLogout: () => void;
-    onNavigate: (page: 'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'my-drafts') => void;
+    onNavigate: (page: 'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'contributors-dashboard' | 'contributions' | 'my-drafts' | 'history') => void;
     pendingFormsCount?: number;
     pendingContributorsCount?: number;
 }
@@ -31,7 +31,7 @@ export function Header({
         setIsMobileMenuOpen(false);
     };
 
-    const handleNavigation = (page: 'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'my-drafts') => {
+    const handleNavigation = (page: 'home' | 'search' | 'contribute' | 'account' | 'validate-forms' | 'validate-contributors' | 'contributors-dashboard' | 'contributions' | 'my-drafts' | 'history') => {
         onNavigate(page);
         closeMobileMenu();
     };
@@ -109,6 +109,14 @@ export function Header({
                                                         </Badge>
                                                     )}
                                                 </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onNavigate('contributors-dashboard')} className="cursor-pointer">
+                                                    <Users className="w-4 h-4 mr-2" />
+                                                    Liste des contributeurs
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onNavigate('contributions')} className="cursor-pointer">
+                                                    <History className="w-4 h-4 mr-2" />
+                                                    Historique contributions
+                                                </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                         {/* Badge de notification global pour l'espace administration */}
@@ -139,6 +147,10 @@ export function Header({
                                         <DropdownMenuItem onClick={() => onNavigate('account')} className="cursor-pointer">
                                             <Settings className="w-4 h-4 mr-2" />
                                             Mon compte
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => onNavigate('history')} className="cursor-pointer">
+                                            <Clock className="w-4 h-4 mr-2" />
+                                            Mon historique
                                         </DropdownMenuItem>
                                         <DropdownMenuItem onClick={() => onNavigate('my-drafts')} className="cursor-pointer">
                                             <FileText className="w-4 h-4 mr-2" />
@@ -223,6 +235,22 @@ export function Header({
                                                                 </Badge>
                                                             )}
                                                         </Button>
+                                                        <Button
+                                                            onClick={() => handleNavigation('contributors-dashboard')}
+                                                            variant="outline"
+                                                            className="w-full justify-start"
+                                                        >
+                                                            <Users className="w-4 h-4 mr-3" />
+                                                            Liste des contributeurs
+                                                        </Button>
+                                                        <Button
+                                                            onClick={() => handleNavigation('contributions')}
+                                                            variant="outline"
+                                                            className="w-full justify-start"
+                                                        >
+                                                            <History className="w-4 h-4 mr-3" />
+                                                            Historique contributions
+                                                        </Button>
                                                     </div>
                                                 </>
                                             )}
@@ -236,6 +264,14 @@ export function Header({
                                                 >
                                                     <Settings className="w-4 h-4 mr-3" />
                                                     Mon compte
+                                                </Button>
+                                                <Button
+                                                    onClick={() => handleNavigation('history')}
+                                                    variant="ghost"
+                                                    className="w-full justify-start"
+                                                >
+                                                    <Clock className="w-4 h-4 mr-3" />
+                                                    Mon historique
                                                 </Button>
                                                 <Button
                                                     onClick={() => handleNavigation('my-drafts')}

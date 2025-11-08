@@ -1,12 +1,12 @@
 import {useState} from "react";
-import {ArrowLeft, Eye, MapPin, Calendar, User, FileText, Clock, RefreshCw} from "lucide-react";
+import {ArrowLeft, Eye, MapPin, Calendar, User, FileText, Clock, RefreshCw, Trash2} from "lucide-react";
 import {Button} from "./ui/button";
 import {Card, CardContent} from "./ui/card";
 import {Badge} from "./ui/badge";
 import {AspectRatio} from "./ui/aspect-ratio";
 import {ImageWithFallback} from "./ImageWithFallback.tsx";
-import {PendingForm} from "../config/api";
-import {formatCreationDate} from "../config/api";
+import { PendingForm, apiService, ApiError } from "../config/api";
+import { formatCreationDate } from "../config/api";
 import {toast} from "sonner";
 import {getMediaImageUrl} from "../utils/searchUtils";
 
@@ -19,10 +19,11 @@ interface MyDraftsPageProps {
         personnes_physiques: PendingForm[];
     };
     onRefresh: () => void;
+    onSessionExpired: (message?: string) => void;
     onViewFormDetail: (formId: string, formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
 }
 
-export function MyDraftsPage({onBack, draftForms, onRefresh, onViewFormDetail}: MyDraftsPageProps) {
+export function MyDraftsPage({onBack, draftForms, onRefresh, onSessionExpired, onViewFormDetail}: MyDraftsPageProps) {
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Calculer le nombre total de brouillons
@@ -85,6 +86,20 @@ export function MyDraftsPage({onBack, draftForms, onRefresh, onViewFormDetail}: 
         if (authors.length === 1) return authors[0];
         if (authors.length === 2) return authors.join(' et ');
         return `${authors.slice(0, -1).join(', ')} et ${authors[authors.length - 1]}`;
+    };
+
+    const deleteDraft = async (formId: string, source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => {
+        try {
+            await apiService.deleteDraft(source, formId);
+            toast.success('Brouillon supprimé avec succès');
+            onRefresh();
+        } catch (error) {
+            if (error instanceof ApiError && error.status === 401) {
+                onSessionExpired('Votre session a expiré. Veuillez vous reconnecter.');
+            } else {
+                toast.error('Erreur lors de la suppression du brouillon');
+            }
+        }
     };
 
     return (
@@ -262,6 +277,18 @@ export function MyDraftsPage({onBack, draftForms, onRefresh, onViewFormDetail}: 
                                             >
                                                 <Eye className="w-4 h-4"/>
                                                 Voir le brouillon
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    deleteDraft(form.id, form.source as 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques');
+                                                }}
+                                                className="flex-1 flex items-center gap-2"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                                Supprimer
                                             </Button>
                                         </div>
                                     </CardContent>
