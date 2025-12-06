@@ -115,7 +115,11 @@ export function SearchableSelect({
                                         value={uniqueValue}
                                         keywords={[option.name, option.description || '']}
                                         onSelect={() => handleSelect(option.id)}
-                                        className="cursor-pointer"
+                                        className={`cursor-pointer ${
+                                            isSelected
+                                                ? 'bg-accent/50 border-l-2 border-l-primary font-medium'
+                                                : ''
+                                        }`}
                                     >
                                         <Check
                                             className={`mr-2 h-4 w-4 ${
@@ -123,7 +127,7 @@ export function SearchableSelect({
                                             }`}
                                         />
                                         <div className="flex-1">
-                                            <div>{option.name}</div>
+                                            <div className={isSelected ? 'font-medium' : ''}>{option.name}</div>
                                             {option.description && (
                                                 <div className="text-xs text-muted-foreground">{option.description}</div>
                                             )}

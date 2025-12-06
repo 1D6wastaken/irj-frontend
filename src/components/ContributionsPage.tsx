@@ -427,7 +427,7 @@ export function ContributionsPage({ onViewDetail }: { onViewDetail?: (documentId
                     <div className="flex items-center gap-2 mb-4">
                         <Search className="w-5 h-5 text-muted-foreground" />
                         <Input
-                            placeholder="Rechercher par document, utilisateur, admin, événement..."
+                            placeholder="Rechercher par document, contributeur, admin, événement..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="flex-1"
@@ -463,7 +463,7 @@ export function ContributionsPage({ onViewDetail }: { onViewDetail?: (documentId
                                         </Button>
                                     </TableHead>
                                     <TableHead>Document</TableHead>
-                                    <TableHead>Utilisateur</TableHead>
+                                    <TableHead>Contributeur</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

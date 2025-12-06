@@ -1133,6 +1133,7 @@ export default function App() {
                             onSessionExpired={handleSessionExpired}
                             userId={user.id}
                             onViewFormDetail={handleViewDetail}
+                            onEditForm={handleEditRecord}
                         />
                         <Footer user={user} onContribute={openSignupModal} onNavigateToLegal={handleNavigateToLegal}/>
 

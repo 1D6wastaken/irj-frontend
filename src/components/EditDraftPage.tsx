@@ -1091,9 +1091,28 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
             newErrors.name = 'Le titre est requis';
         }
 
-        // Validation de la localisation (obligatoire)
-        if (!formData.location.country && !formData.location.commune) {
-            newErrors.commune = 'La localisation est requise (au moins un pays ou une commune)';
+        // Validation de la localisation (tous les champs obligatoires)
+        let locationError :string[] = [];
+        if (!formData.location.country) {
+            locationError.push('le pays');
+        }
+        if (!formData.location.region) {
+            locationError.push('la région');
+        }
+        if (!formData.location.department) {
+            locationError.push('le département');
+        }
+        if (!formData.location.commune) {
+            locationError.push('la commune');
+        }
+
+        if (locationError.length > 0) {
+            if (locationError.length > 1) {
+                locationError[locationError.length -1] = 'et ' + locationError[locationError.length -1];
+                newErrors.commune = 'La localisation est incomplète : ' + locationError.join(', ') + ' sont requis.';
+            } else {
+                newErrors.commune = 'La localisation est incomplète : ' + locationError[0] + ' est requis.';
+            }
         }
 
         // Validation de la description (obligatoire pour mobiliers et monuments uniquement)

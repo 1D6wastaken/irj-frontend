@@ -12,9 +12,10 @@ interface HistoryPageProps {
     onSessionExpired: () => void;
     userId: string;
     onViewFormDetail: (formId: string, formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
+    onEditForm: (formId: string, formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
 }
 
-export function HistoryPage({onBack, onSessionExpired, userId, onViewFormDetail}: HistoryPageProps) {
+export function HistoryPage({onBack, onSessionExpired, userId, onViewFormDetail, onEditForm}: HistoryPageProps) {
     const [events, setEvents] = useState<HistoryEvent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -202,6 +203,7 @@ export function HistoryPage({onBack, onSessionExpired, userId, onViewFormDetail}
                                                 key={`${event.document_id}-${event.date}-${index}`}
                                                 event={event}
                                                 onViewFormDetail={onViewFormDetail}
+                                                onEditForm={onEditForm}
                                                 getCategoryLabel={getCategoryLabel}
                                                 getCategoryColor={getCategoryColor}
                                                 getEventLabel={getEventLabel}

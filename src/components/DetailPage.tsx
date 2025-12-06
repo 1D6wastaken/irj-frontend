@@ -19,6 +19,7 @@ import {Separator} from "./ui/separator";
 import {AspectRatio} from "./ui/aspect-ratio";
 import {ImageWithFallback} from "./ImageWithFallback.tsx";
 import {ImageModal} from "./modals/ImageModal";
+import {HtmlContent} from "./HtmlContent";
 import {
     apiService,
     ApiError,
@@ -869,9 +870,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
         if (getDescription()) {
             sections.push(
                 <TechnicalSection key="description" title="Description">
-                    <div className="text-sm leading-relaxed">
-                        {getDescription()}
-                    </div>
+                    <HtmlContent content={getDescription()} className="text-sm leading-relaxed"/>
                 </TechnicalSection>
             );
         }
@@ -880,9 +879,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
         if (getHistory()) {
             sections.push(
                 <TechnicalSection key="history" title="Histoire">
-                    <div className="text-sm leading-relaxed">
-                        {getHistory()}
-                    </div>
+                    <HtmlContent content={getHistory()} className="text-sm leading-relaxed"/>
                 </TechnicalSection>
             );
         }
@@ -966,17 +963,15 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
 
                     {mobilier.sources && (
                         <TechnicalInfoItem label="Sources">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {mobilier.sources}
-                            </div>
+                            <HtmlContent content={mobilier.sources}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
                     {mobilier.bibliography && (
                         <TechnicalInfoItem label="Bibliographie">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {mobilier.bibliography}
-                            </div>
+                            <HtmlContent content={mobilier.bibliography}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>
@@ -994,9 +989,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
         if (getHistory()) {
             sections.push(
                 <TechnicalSection key="history" title="Histoire">
-                    <div className="text-sm leading-relaxed">
-                        {getHistory()}
-                    </div>
+                    <HtmlContent content={getHistory()} className="text-sm leading-relaxed"/>
                 </TechnicalSection>
             );
         }
@@ -1044,49 +1037,43 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
 
                     {personne.process && (
                         <TechnicalInfoItem label="Fonctionnement">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.process}
-                            </div>
+                            <HtmlContent content={personne.process}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
                     {personne.social_involvement && (
                         <TechnicalInfoItem label="Participation à la vie sociale">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.social_involvement}
-                            </div>
+                            <HtmlContent content={personne.social_involvement}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
                     {personne.objects && (
                         <TechnicalInfoItem label="Objets liés">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.objects}
-                            </div>
+                            <HtmlContent content={personne.objects}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
                     {personne.comment && (
                         <TechnicalInfoItem label="Commentaire">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.comment}
-                            </div>
+                            <HtmlContent content={personne.comment}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
                     {personne.sources && (
                         <TechnicalInfoItem label="Sources">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.sources}
-                            </div>
+                            <HtmlContent content={personne.sources}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
                     {personne.bibliography && (
                         <TechnicalInfoItem label="Bibliographie">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.bibliography}
-                            </div>
+                            <HtmlContent content={personne.bibliography}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
@@ -1110,9 +1097,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
         if (getDescription()) {
             sections.push(
                 <TechnicalSection key="description" title="Description">
-                    <div className="text-sm leading-relaxed">
-                        {getDescription()}
-                    </div>
+                    <HtmlContent content={getDescription()} className="text-sm leading-relaxed"/>
                 </TechnicalSection>
             );
         }
@@ -1121,9 +1106,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
         if (getHistory()) {
             sections.push(
                 <TechnicalSection key="history" title="Histoire">
-                    <div className="text-sm leading-relaxed">
-                        {getHistory()}
-                    </div>
+                    <HtmlContent content={getHistory()} className="text-sm leading-relaxed"/>
                 </TechnicalSection>
             );
         }
@@ -1154,9 +1137,8 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                                     <span>{monument.protected ? 'Oui' : 'Non'}</span>
                                 </div>
                                 {monument.protection_comment && (
-                                    <div className="text-sm text-muted-foreground italic">
-                                        {monument.protection_comment}
-                                    </div>
+                                    <HtmlContent content={monument.protection_comment}
+                                                 className="text-sm text-muted-foreground italic"/>
                                 )}
                             </div>
                         </TechnicalInfoItem>
@@ -1182,17 +1164,15 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
 
                     {monument.sources && (
                         <TechnicalInfoItem label="Sources">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {monument.sources}
-                            </div>
+                            <HtmlContent content={monument.sources}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
                     {monument.bibliography && (
                         <TechnicalInfoItem label="Bibliographie">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {monument.bibliography}
-                            </div>
+                            <HtmlContent content={monument.bibliography}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>
@@ -1230,9 +1210,8 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
         if (personne.attestation) {
             sections.push(
                 <TechnicalSection key="attestation" title="Attestation">
-                    <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                        {personne.attestation}
-                    </div>
+                    <HtmlContent content={personne.attestation}
+                                 className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }
@@ -1246,9 +1225,8 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                 <TechnicalSection key="biographical" title="Éléments biographiques">
                     {personne.biographical_elements && (
                         <TechnicalInfoItem label="Éléments biographiques">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.biographical_elements}
-                            </div>
+                            <HtmlContent content={personne.biographical_elements}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
@@ -1271,9 +1249,8 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
         if (personne.pilgrimage_elements) {
             sections.push(
                 <TechnicalSection key="pilgrimage" title="Éléments du pèlerinage">
-                    <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                        {personne.pilgrimage_elements}
-                    </div>
+                    <HtmlContent content={personne.pilgrimage_elements}
+                                 className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }
@@ -1282,9 +1259,8 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
         if (personne.comment) {
             sections.push(
                 <TechnicalSection key="comment" title="Commentaire">
-                    <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                        {personne.comment}
-                    </div>
+                    <HtmlContent content={personne.comment}
+                                 className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }
@@ -1295,17 +1271,15 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                 <TechnicalSection key="sources" title="Sources et bibliographie">
                     {personne.sources && (
                         <TechnicalInfoItem label="Sources">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.sources}
-                            </div>
+                            <HtmlContent content={personne.sources}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
 
                     {personne.bibliography && (
                         <TechnicalInfoItem label="Bibliographie">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.bibliography}
-                            </div>
+                            <HtmlContent content={personne.bibliography}
+                                         className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>

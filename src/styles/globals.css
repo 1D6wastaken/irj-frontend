@@ -202,3 +202,153 @@ html {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+
+/* Styles pour le contenu HTML interprété */
+.html-content {
+    word-wrap: break-word;
+}
+
+.html-content p {
+    margin-bottom: 0.75em;
+}
+
+.html-content p:last-child {
+    margin-bottom: 0;
+}
+
+.html-content ul,
+.html-content ol {
+    margin-bottom: 0.75em;
+    padding-left: 1.5em;
+}
+
+.html-content ul {
+    list-style-type: disc;
+}
+
+.html-content ol {
+    list-style-type: decimal;
+}
+
+.html-content li {
+    margin-bottom: 0.25em;
+}
+
+.html-content strong,
+.html-content b {
+    font-weight: var(--font-weight-medium);
+}
+
+.html-content em,
+.html-content i {
+    font-style: italic;
+}
+
+.html-content a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.html-content a:hover {
+    opacity: 0.8;
+}
+
+.html-content h1,
+.html-content h2,
+.html-content h3,
+.html-content h4,
+.html-content h5,
+.html-content h6 {
+    font-weight: var(--font-weight-medium);
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+.html-content h1:first-child,
+.html-content h2:first-child,
+.html-content h3:first-child,
+.html-content h4:first-child,
+.html-content h5:first-child,
+.html-content h6:first-child {
+    margin-top: 0;
+}
+
+.html-content blockquote {
+    border-left: 3px solid var(--border);
+    padding-left: 1em;
+    margin: 1em 0;
+    font-style: italic;
+}
+
+.html-content code {
+    background-color: var(--muted);
+    padding: 0.125em 0.25em;
+    border-radius: 0.25rem;
+    font-family: monospace;
+}
+
+.html-content pre {
+    background-color: var(--muted);
+    padding: 1em;
+    border-radius: 0.375rem;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+.html-content pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.html-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.html-content th,
+.html-content td {
+    border: 1px solid var(--border);
+    padding: 0.5em;
+    text-align: left;
+}
+
+.html-content th {
+    background-color: var(--muted);
+    font-weight: var(--font-weight-medium);
+}
+
+.html-content hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5em 0;
+}
+
+/* Styles additionnels pour le Markdown (via react-markdown) */
+.html-content > *:first-child {
+    margin-top: 0;
+}
+
+.html-content > *:last-child {
+    margin-bottom: 0;
+}
+
+.html-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 1em 0;
+    border-radius: 0.375rem;
+}
+
+.html-content del {
+    text-decoration: line-through;
+}
+
+.html-content input[type="checkbox"] {
+    margin-right: 0.5em;
+}
+
+/* Support pour les listes de tâches Markdown */
+.html-content ul > li > input[type="checkbox"] {
+    margin-right: 0.5em;
+}

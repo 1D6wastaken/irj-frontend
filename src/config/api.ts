@@ -49,6 +49,7 @@ export const API_CONFIG = {
         mobiliersImages: '/api/v1/mobiliers_images',
         personnesMorales: '/api/v1/personnes_morales',
         personnesPhysiques: '/api/v1/personnes_physiques',
+        contact: '/api/v1/contact',
     }
 };
 
@@ -1653,6 +1654,44 @@ class ApiService {
 
         const endpoint = `/api/v1/admin/contributions${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
         return this.request(endpoint, { method: 'GET' });
+    }
+
+    async postContact(subject: string, message: string, email: string): Promise<void> {
+        const url = `${this.baseUrl}${API_CONFIG.endpoints.contact}`;
+
+        const defaultOptions: RequestInit = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({subject, message, email})
+        };
+
+        const tokenData = TokenManager.getToken();
+        if (tokenData) {
+            defaultOptions.headers = {
+                ...defaultOptions.headers,
+                'Authorization': `${tokenData.tokenType} ${tokenData.token}`
+            };
+        }
+
+        try {
+            const response = await fetch(url, defaultOptions);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new ApiError(response.status, errorData.message || `HTTP error! status: ${response.status}`, errorData);
+            }
+
+            // Pour un statut 204, pas de contenu à retourner
+            return;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            console.error('API request failed:', error);
+            throw new ApiError(0, 'Network error', {detail: 'Unable to connect to the server'});
+        }
     }
 }
 

@@ -23,6 +23,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "./ui/card";
 import {AspectRatio} from "./ui/aspect-ratio";
 import {ImageWithFallback} from "./ImageWithFallback.tsx";
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "./ui/dialog";
+import {HtmlContent} from "./HtmlContent";
 import {
     apiService,
     ApiError,
@@ -815,9 +816,7 @@ export function ValidateFormDetailPage({
         if (getDescription()) {
             sections.push(
                 <TechnicalSection key="description" title="Description">
-                    <div className="text-sm leading-relaxed">
-                        {getDescription()}
-                    </div>
+                    <HtmlContent content={getDescription()} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -826,9 +825,7 @@ export function ValidateFormDetailPage({
         if (getHistory()) {
             sections.push(
                 <TechnicalSection key="history" title="Histoire">
-                    <div className="text-sm leading-relaxed">
-                        {getHistory()}
-                    </div>
+                    <HtmlContent content={getHistory()} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -837,9 +834,7 @@ export function ValidateFormDetailPage({
         if (mobilier.inscriptions) {
             sections.push(
                 <TechnicalSection key="inscriptions" title="Inscriptions">
-                    <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                        {mobilier.inscriptions}
-                    </div>
+                    <HtmlContent content={mobilier.inscriptions} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                 </TechnicalSection>
             );
         }
@@ -887,9 +882,7 @@ export function ValidateFormDetailPage({
                     {/* Commentaire protection */}
                     {mobilier.protection_comment && (
                         <TechnicalInfoItem label="Commentaire protection">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {mobilier.protection_comment}
-                            </div>
+                            <HtmlContent content={mobilier.protection_comment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
 
@@ -924,18 +917,14 @@ export function ValidateFormDetailPage({
                     {/* Sources */}
                     {mobilier.sources && (
                         <TechnicalInfoItem label="Sources">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {mobilier.sources}
-                            </div>
+                            <HtmlContent content={mobilier.sources} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
 
                     {/* Bibliographie */}
                     {mobilier.bibliography && (
                         <TechnicalInfoItem label="Bibliographie">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {mobilier.bibliography}
-                            </div>
+                            <HtmlContent content={mobilier.bibliography} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>
@@ -953,9 +942,7 @@ export function ValidateFormDetailPage({
         if (getHistory()) {
             sections.push(
                 <TechnicalSection key="history" title="Histoire">
-                    <div className="text-sm leading-relaxed">
-                        {getHistory()}
-                    </div>
+                    <HtmlContent content={getHistory()} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -1004,54 +991,42 @@ export function ValidateFormDetailPage({
                     {/* Fonctionnement */}
                     {personne.process && (
                         <TechnicalInfoItem label="Fonctionnement">
-                            <div className="text-sm leading-relaxed">
-                                {personne.process}
-                            </div>
+                            <HtmlContent content={personne.process} className="text-sm leading-relaxed" />
                         </TechnicalInfoItem>
                     )}
 
                     {/* Participation à la vie sociale */}
                     {personne.social_involvement && (
                         <TechnicalInfoItem label="Participation à la vie sociale">
-                            <div className="text-sm leading-relaxed">
-                                {personne.social_involvement}
-                            </div>
+                            <HtmlContent content={personne.social_involvement} className="text-sm leading-relaxed" />
                         </TechnicalInfoItem>
                     )}
 
                     {/* Objets liés */}
                     {personne.objects && (
                         <TechnicalInfoItem label="Objets liés">
-                            <div className="text-sm leading-relaxed">
-                                {personne.objects}
-                            </div>
+                            <HtmlContent content={personne.objects} className="text-sm leading-relaxed" />
                         </TechnicalInfoItem>
                     )}
 
                     {/* Commentaire */}
                     {personne.comment && (
                         <TechnicalInfoItem label="Commentaire">
-                            <div className="text-sm leading-relaxed">
-                                {personne.comment}
-                            </div>
+                            <HtmlContent content={personne.comment} className="text-sm leading-relaxed" />
                         </TechnicalInfoItem>
                     )}
 
                     {/* Sources */}
                     {personne.sources && (
                         <TechnicalInfoItem label="Sources">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.sources}
-                            </div>
+                            <HtmlContent content={personne.sources} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
 
                     {/* Bibliographie */}
                     {personne.bibliography && (
                         <TechnicalInfoItem label="Bibliographie">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.bibliography}
-                            </div>
+                            <HtmlContent content={personne.bibliography} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
 
@@ -1076,9 +1051,7 @@ export function ValidateFormDetailPage({
         if (getDescription()) {
             sections.push(
                 <TechnicalSection key="description" title="Description">
-                    <div className="text-sm leading-relaxed">
-                        {getDescription()}
-                    </div>
+                    <HtmlContent content={getDescription()} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -1087,9 +1060,7 @@ export function ValidateFormDetailPage({
         if (getHistory()) {
             sections.push(
                 <TechnicalSection key="history" title="Histoire">
-                    <div className="text-sm leading-relaxed">
-                        {getHistory()}
-                    </div>
+                    <HtmlContent content={getHistory()} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -1100,16 +1071,12 @@ export function ValidateFormDetailPage({
                 <TechnicalSection key="bibliography" title="Bibliographie/Sources">
                     {monument.bibliography && (
                         <TechnicalInfoItem label="Bibliographie">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {monument.bibliography}
-                            </div>
+                            <HtmlContent content={monument.bibliography} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
                     {monument.sources && (
                         <TechnicalInfoItem label="Sources">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {monument.sources}
-                            </div>
+                            <HtmlContent content={monument.sources} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>
@@ -1158,9 +1125,7 @@ export function ValidateFormDetailPage({
                     {/* Commentaire protection */}
                     {monument.protection_comment && (
                         <TechnicalInfoItem label="Commentaire protection">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {monument.protection_comment}
-                            </div>
+                            <HtmlContent content={monument.protection_comment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
 
@@ -1224,9 +1189,7 @@ export function ValidateFormDetailPage({
         if (personne.attestation) {
             sections.push(
                 <TechnicalSection key="attestation" title="Attestation">
-                    <div className="text-sm leading-relaxed">
-                        {personne.attestation}
-                    </div>
+                    <HtmlContent content={personne.attestation} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -1235,9 +1198,7 @@ export function ValidateFormDetailPage({
         if (personne.biographical_elements) {
             sections.push(
                 <TechnicalSection key="biography" title="Éléments biographiques">
-                    <div className="text-sm leading-relaxed">
-                        {personne.biographical_elements}
-                    </div>
+                    <HtmlContent content={personne.biographical_elements} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -1246,9 +1207,7 @@ export function ValidateFormDetailPage({
         if (personne.pilgrimage_elements) {
             sections.push(
                 <TechnicalSection key="pilgrimage" title="Éléments du pèlerinage">
-                    <div className="text-sm leading-relaxed">
-                        {personne.pilgrimage_elements}
-                    </div>
+                    <HtmlContent content={personne.pilgrimage_elements} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -1257,9 +1216,7 @@ export function ValidateFormDetailPage({
         if (personne.event_nature) {
             sections.push(
                 <TechnicalSection key="event-nature" title="Nature de l'événement">
-                    <div className="text-sm leading-relaxed">
-                        {personne.event_nature}
-                    </div>
+                    <HtmlContent content={personne.event_nature} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -1268,9 +1225,7 @@ export function ValidateFormDetailPage({
         if (personne.comment) {
             sections.push(
                 <TechnicalSection key="comment" title="Commentaire">
-                    <div className="text-sm leading-relaxed">
-                        {personne.comment}
-                    </div>
+                    <HtmlContent content={personne.comment} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -1282,18 +1237,14 @@ export function ValidateFormDetailPage({
                     {/* Sources */}
                     {personne.sources && (
                         <TechnicalInfoItem label="Sources">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.sources}
-                            </div>
+                            <HtmlContent content={personne.sources} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
 
                     {/* Bibliographie */}
                     {personne.bibliography && (
                         <TechnicalInfoItem label="Bibliographie">
-                            <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                                {personne.bibliography}
-                            </div>
+                            <HtmlContent content={personne.bibliography} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
 
@@ -1454,12 +1405,12 @@ export function ValidateFormDetailPage({
                             {/* Badge de type de document */}
                             {isModification() ? (
                                 <Badge className="bg-amber-100 text-amber-800 hidden sm:flex" variant="secondary">
-                                    <Edit className="w-3 h-3 mr-1" />
+                                    <Edit className="w-3 h-3 mr-1"/>
                                     Modification
                                 </Badge>
                             ) : (
                                 <Badge className="bg-emerald-100 text-emerald-800 hidden sm:flex" variant="secondary">
-                                    <FilePlus className="w-3 h-3 mr-1" />
+                                    <FilePlus className="w-3 h-3 mr-1"/>
                                     Nouvelle fiche
                                 </Badge>
                             )}
@@ -1500,8 +1451,9 @@ export function ValidateFormDetailPage({
                         <CardContent className="p-6">
                             <div className="flex items-start gap-4">
                                 <div className="flex-shrink-0">
-                                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                                        <Edit className="w-5 h-5 text-amber-700" />
+                                    <div
+                                        className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                        <Edit className="w-5 h-5 text-amber-700"/>
                                     </div>
                                 </div>
                                 <div className="flex-1 space-y-3">
@@ -1517,7 +1469,8 @@ export function ValidateFormDetailPage({
 
                                     {loadingParent ? (
                                         <div className="text-sm text-amber-700 flex items-center gap-2">
-                                            <div className="w-4 h-4 border-2 border-amber-700 border-t-transparent rounded-full animate-spin" />
+                                            <div
+                                                className="w-4 h-4 border-2 border-amber-700 border-t-transparent rounded-full animate-spin"/>
                                             Chargement de la fiche originale...
                                         </div>
                                     ) : parentRecord ? (
@@ -1533,14 +1486,15 @@ export function ValidateFormDetailPage({
                                                     className="text-xs h-auto p-0 text-amber-700 hover:text-amber-900"
                                                 >
                                                     Voir les détails complets
-                                                    <ExternalLink className="w-3 h-3 ml-1" />
+                                                    <ExternalLink className="w-3 h-3 ml-1"/>
                                                 </Button>
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="flex items-start gap-3">
                                                     {parentRecord.medias && parentRecord.medias.length > 0 && (
                                                         <div className="flex-shrink-0">
-                                                            <AspectRatio ratio={16 / 9} className="w-24 bg-muted rounded overflow-hidden">
+                                                            <AspectRatio ratio={16 / 9}
+                                                                         className="w-24 bg-muted rounded overflow-hidden">
                                                                 <ImageWithFallback
                                                                     src={getMediaImageUrl(parentRecord.medias[0].id)}
                                                                     alt={parentRecord.medias[0].title || getTitle(parentRecord)}
@@ -1556,12 +1510,14 @@ export function ValidateFormDetailPage({
                                                         {"natures" in parentRecord && parentRecord.natures && parentRecord.natures.length > 0 && (
                                                             <div className="flex flex-wrap gap-1 mt-1">
                                                                 {parentRecord.natures.slice(0, 2).map((nature) => (
-                                                                    <Badge key={nature.id} variant="secondary" className="text-xs">
+                                                                    <Badge key={nature.id} variant="secondary"
+                                                                           className="text-xs">
                                                                         {nature.name}
                                                                     </Badge>
                                                                 ))}
                                                                 {parentRecord.natures.length > 2 && (
-                                                                    <Badge variant="secondary" className="text-xs text-muted-foreground">
+                                                                    <Badge variant="secondary"
+                                                                           className="text-xs text-muted-foreground">
                                                                         +{parentRecord.natures.length - 2}
                                                                     </Badge>
                                                                 )}
@@ -1578,7 +1534,7 @@ export function ValidateFormDetailPage({
                                         </div>
                                     ) : (
                                         <div className="text-sm text-amber-700">
-                                            <AlertCircle className="w-4 h-4 inline mr-1" />
+                                            <AlertCircle className="w-4 h-4 inline mr-1"/>
                                             La fiche originale n'a pas pu être chargée.
                                         </div>
                                     )}

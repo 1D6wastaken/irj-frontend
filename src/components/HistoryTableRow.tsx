@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, XCircle, ExternalLink } from "lucide-react";
+import { CheckCircle, XCircle, MoreVertical, Eye, Edit } from "lucide-react";
 import { TableRow, TableCell } from "./ui/table";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { apiService, HistoryEvent, FilterOption, MediaDetail } from "../config/api";
 import { formatCreationDate } from "../config/api";
 import { ImageWithFallback } from "./ImageWithFallback";
@@ -11,6 +17,7 @@ import { getMediaImageUrl } from "../utils/searchUtils";
 interface HistoryTableRowProps {
     event: HistoryEvent;
     onViewFormDetail: (formId: string, formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
+    onEditForm: (formId: string, formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
     getCategoryLabel: (category: string) => string;
     getCategoryColor: (category: string) => string;
     getEventLabel: (event: string) => string;
@@ -30,6 +37,7 @@ interface DocumentDetails {
 export function HistoryTableRow({
                                     event,
                                     onViewFormDetail,
+                                    onEditForm,
                                     getCategoryLabel,
                                     getCategoryColor,
                                     getEventLabel,
@@ -143,16 +151,35 @@ export function HistoryTableRow({
             </TableCell>
 
             {/* Actions */}
+            {/* Actions */}
             <TableCell>
                 {isClickable(event) && (
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onViewFormDetail(event.document_id, event.category as any)}
-                    >
-                        <ExternalLink className="w-4 h-4 mr-1" />
-                        Voir
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                name="Actions de la fiche"
+                            >
+                                <MoreVertical className="w-4 h-4 mr-1" />
+                                Actions
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                                onClick={() => onViewFormDetail(event.document_id, event.category as any)}
+                            >
+                                <Eye className="w-4 h-4 mr-2" />
+                                Voir
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => onEditForm(event.document_id, event.category as any)}
+                            >
+                                <Edit className="w-4 h-4 mr-2" />
+                                Modifier
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 )}
             </TableCell>
         </TableRow>

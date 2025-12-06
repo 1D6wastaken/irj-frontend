@@ -194,6 +194,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [wasSubmittedAsDraft, setWasSubmittedAsDraft] = useState(false);
 
+    // États pour la popup de contact admin
+    const [showContactAdminModal, setShowContactAdminModal] = useState(false);
+    const [contactSubject, setContactSubject] = useState('');
+    const [contactMessage, setContactMessage] = useState('');
+    const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+    const [contactSent, setContactSent] = useState(false);
+
     // Ref pour le debounce de recherche de communes et de fiches
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const ficheSearchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -339,6 +346,39 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         } finally {
             setIsSearchingCommunes(false);
         }
+    };
+
+    const popupContactAdmin = () => {
+        setShowContactAdminModal(true);
+        setContactSent(false);
+        setContactSubject('');
+        setContactMessage('');
+    };
+
+    const handleSendContactMessage = async () => {
+        if (!contactSubject.trim() || !contactMessage.trim()) {
+            toast.error('Veuillez remplir tous les champs');
+            return;
+        }
+
+        setIsSubmittingContact(true);
+
+        try {
+            await apiService.postContact(contactSubject, contactMessage, user.email);
+            setContactSent(true);
+        } catch (error) {
+            console.error('Erreur lors de l\'envoi du message:', error);
+            toast.error('Erreur lors de l\'envoi du message. Veuillez réessayer.');
+        } finally {
+            setIsSubmittingContact(false);
+        }
+    };
+
+    const handleCloseContactModal = () => {
+        setShowContactAdminModal(false);
+        setContactSent(false);
+        setContactSubject('');
+        setContactMessage('');
     };
 
     const searchFiches = async (query: string) => {
@@ -693,9 +733,28 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
         if ((formData.category === 'monuments_lieux' || formData.category === 'mobiliers_images') && !formData.description?.trim()) newErrors.description = 'La description est requise';
 
-        // Validation de la localisation : au moins pays OU commune requis
-        if (!selectedCountry && !selectedCommune) {
-            newErrors.location = 'Veuillez renseigner au moins un pays ou une commune';
+        // Validation de la localisation (tous les champs obligatoires)
+        let locationError :string[] = [];
+        if (!formData.location.country) {
+            locationError.push('le pays');
+        }
+        if (!formData.location.region) {
+            locationError.push('la région');
+        }
+        if (!formData.location.department) {
+            locationError.push('le département');
+        }
+        if (!formData.location.commune) {
+            locationError.push('la commune');
+        }
+
+        if (locationError.length > 0) {
+            if (locationError.length > 1) {
+                locationError[locationError.length -1] = 'et ' + locationError[locationError.length -1];
+                newErrors.location = 'La localisation est incomplète : ' + locationError.slice(0, locationError.length - 1).join(', ') + ' ' + locationError[locationError.length -1] + ' sont requis.';
+            } else {
+                newErrors.location = 'La localisation est incomplète : ' + locationError[0] + ' est requis.';
+            }
         }
 
         setErrors(newErrors);
@@ -796,7 +855,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                     title: formData.name,
                     centuries: formData.centuries,
                     medias: mediaIds,
-                    city: selectedCommune?.id || undefined, // Optionnel maintenant
+                    city: selectedCommune?.id || undefined,
                     department: selectedDepartment?.id || undefined,
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
@@ -831,7 +890,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                     title: formData.name,
                     centuries: formData.centuries,
                     medias: mediaIds,
-                    city: selectedCommune?.id || undefined, // Optionnel maintenant
+                    city: selectedCommune?.id || undefined,
                     department: selectedDepartment?.id || undefined,
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
@@ -864,7 +923,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                     title: formData.name,
                     centuries: formData.centuries,
                     medias: mediaIds,
-                    city: selectedCommune?.id || undefined, // Optionnel maintenant
+                    city: selectedCommune?.id || undefined,
                     department: selectedDepartment?.id || undefined,
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
@@ -895,7 +954,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                     title: formData.name,
                     centuries: formData.centuries,
                     medias: mediaIds,
-                    city: selectedCommune?.id || undefined, // Optionnel maintenant
+                    city: selectedCommune?.id || undefined,
                     department: selectedDepartment?.id || undefined,
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
@@ -1187,7 +1246,16 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <Label>Localisation *</Label>
                                             </div>
                                             <p className="text-sm text-muted-foreground mb-4">
-                                                Renseignez au moins un pays ou une commune
+                                                La localisation complète est requise. <Button
+                                                variant="link"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    popupContactAdmin();
+                                                }}
+                                                className="text-xs px-0 h-auto"
+                                            >Des informations sont manquantes? Faites le nous savoir !
+                                            </Button>
                                             </p>
 
                                             <div className="space-y-4">
@@ -2358,6 +2426,102 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     Fermer
                                                 </Button>
                                             </DialogFooter>
+                                        )}
+                                    </DialogContent>
+                                </Dialog>
+
+                                {/* Modal de contact admin */}
+                                <Dialog open={showContactAdminModal} onOpenChange={(open) => {
+                                    if (!open) handleCloseContactModal();
+                                }}>
+                                    <DialogContent className="sm:max-w-md">
+                                        {!contactSent ? (
+                                            <>
+                                                <DialogHeader>
+                                                    <DialogTitle>Contacter les administrateurs</DialogTitle>
+                                                    <DialogDescription>
+                                                        Informez-nous d'une donnée manquante dans la localisation
+                                                    </DialogDescription>
+                                                </DialogHeader>
+
+                                                <div className="space-y-4 py-4">
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="contact-email">Email</Label>
+                                                        <Input
+                                                            id="contact-email"
+                                                            value={user.email}
+                                                            disabled
+                                                            className="bg-muted"
+                                                        />
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="contact-subject">Objet *</Label>
+                                                        <Input
+                                                            id="contact-subject"
+                                                            value={contactSubject}
+                                                            onChange={(e) => setContactSubject(e.target.value)}
+                                                            placeholder="Ex: Ville manquante dans le département..."
+                                                            disabled={isSubmittingContact}
+                                                        />
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="contact-message">Message *</Label>
+                                                        <Textarea
+                                                            id="contact-message"
+                                                            value={contactMessage}
+                                                            onChange={(e) => setContactMessage(e.target.value)}
+                                                            placeholder="Décrivez la donnée manquante..."
+                                                            className="min-h-[100px]"
+                                                            disabled={isSubmittingContact}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <DialogFooter className="gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={handleCloseContactModal}
+                                                        disabled={isSubmittingContact}
+                                                    >
+                                                        Annuler
+                                                    </Button>
+                                                    <Button
+                                                        onClick={handleSendContactMessage}
+                                                        disabled={isSubmittingContact}
+                                                    >
+                                                        {isSubmittingContact ? 'Envoi...' : 'Envoyer'}
+                                                    </Button>
+                                                </DialogFooter>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <DialogHeader>
+                                                    <DialogTitle className="flex items-center gap-2">
+                                                        <CheckCircle className="w-5 h-5 text-green-600" />
+                                                        Message envoyé
+                                                    </DialogTitle>
+                                                </DialogHeader>
+
+                                                <div className="py-4">
+                                                    <p className="text-sm">
+                                                        Merci pour votre message !
+                                                    </p>
+                                                    <p className="text-sm mt-2">
+                                                        Notre équipe va prendre connaissance de votre requête et la traiter dans les plus brefs délais.
+                                                    </p>
+                                                    <p className="text-sm mt-2">
+                                                        En attendant, vous pouvez toujours enregistrer votre fiche pour y retourner plus tard.
+                                                    </p>
+                                                </div>
+
+                                                <DialogFooter>
+                                                    <Button onClick={handleCloseContactModal}>
+                                                        Fermer
+                                                    </Button>
+                                                </DialogFooter>
+                                            </>
                                         )}
                                     </DialogContent>
                                 </Dialog>
