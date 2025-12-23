@@ -11,6 +11,8 @@ import {categories} from "../constants/filters";
 import {apiService, SearchItem} from "../config/api";
 import {transformFiltersToApiFormat, debounce, SOURCE_LABELS} from "../utils/searchUtils";
 import {dynamicHomeText} from "../hooks/dynamicHomeText.tsx";
+import {InfoTooltip} from "./InfoTooltip.tsx";
+import {tooltipTexts} from "../constants/tooltipTexts.ts";
 
 interface SearchSectionProps {
     onSearch: (query: string, categories: string[], filters: AdvancedFilters) => void;
@@ -303,8 +305,9 @@ export function SearchSection({
 
                         {/* Filtres par catégorie */}
                         <div className="text-left mb-6">
-                            <p className="text-sm font-medium text-muted-foreground mb-3">
+                            <p className="flex items-center gap-1 text-sm font-medium text-muted-foreground mb-3">
                                 Filtrer par catégorie (optionnel) :
+                                <InfoTooltip content={tooltipTexts.search.category} />
                             </p>
                             <div className="flex flex-wrap gap-3">
                                 {categories.map((category) => {

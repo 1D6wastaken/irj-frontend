@@ -88,6 +88,8 @@ export function SearchableMultiSelect({
             : [...selectedValues, optionId];
 
         onChange(newSelected);
+        // Fermer le popover après la sélection
+        setOpen(false);
     };
 
     const handleRemove = (optionId: string, e?: React.MouseEvent) => {
@@ -110,7 +112,7 @@ export function SearchableMultiSelect({
         <>
             <Check
                 className={`mr-2 h-4 w-4 ${
-                    isSelected ? "opacity-100" : "opacity-0"
+                    isSelected ? "opacity-100 text-primary" : "opacity-0"
                 }`}
             />
             <div className="flex-1">

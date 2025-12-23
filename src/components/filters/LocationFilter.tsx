@@ -6,6 +6,8 @@ import {Badge} from "../ui/badge";
 import {Card, CardContent} from "../ui/card";
 import {apiService, Country, Region, Department, Commune} from "../../config/api";
 import {SearchableMultiSelect} from "../SearchableMultiSelect";
+import {InfoTooltip} from "../InfoTooltip.tsx";
+import {tooltipTexts} from "../../constants/tooltipTexts.ts";
 
 interface LocationFilters {
     countries?: string[];
@@ -478,6 +480,7 @@ export const LocationFilter = forwardRef<LocationFilterRef, LocationFilterProps>
                     <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-muted-foreground"/>
                         <span className="font-medium">Localisation</span>
+                        <InfoTooltip content={tooltipTexts.search.location} />
                         {getTotalSelections() > 0 && (
                             <Badge variant="secondary" className="text-xs">
                                 {getTotalSelections()}

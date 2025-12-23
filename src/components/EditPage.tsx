@@ -4,17 +4,17 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { toast } from "sonner";
-import { sourceTypes } from "../constants/formConstants";
 import { apiService, FilterOption, Country, Region, Department, Commune, ApiError, MobilierImageDetail, MonumentLieuDetail, PersonneMoraleDetail, PersonnePhysiqueDetail, SearchItem, SearchRequestBody } from "../config/api";
 import { SearchableMultiSelect } from "./SearchableMultiSelect";
 import { SearchableSelect } from "./SearchableSelect";
 import { getMediaImageUrl } from "../utils/searchUtils";
 import { ImageWithFallback } from "./ImageWithFallback";
+import { InfoTooltip } from "./InfoTooltip";
+import { tooltipTexts } from "../constants/tooltipTexts";
 
 interface EditPageProps {
     recordId: string;
@@ -50,7 +50,6 @@ interface FormData {
     contributors: string[];
     relatedForms: { id: string; title: string; source: string; }[];
     source: {
-        type: string;
         author: string;
         title: string;
         url: string;
@@ -119,7 +118,6 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
         contributors: [],
         relatedForms: [],
         source: {
-            type: '',
             author: '',
             title: '',
             url: '',
@@ -559,7 +557,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
             }
         }
 
-        if (data.city && typeof data.city === 'object' && 'id' in data.city && 'name' in data.city) {
+        if (data.city && typeof data.city === 'object' && 'id' in data.city && 'name' in data.city && data.city.id && data.city.name) {
             // Créer un objet Commune minimal à partir des données existantes et des objets trouvés
             const communeMinimal: Commune = {
                 id: String(data.city.id),
@@ -588,19 +586,33 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
         // Extraire source depuis la string
         let sourceData = {
-            type: '',
             author: '',
             title: '',
             url: '',
             details: ''
         };
         if (data.sources) {
-            // La source peut être une string JSON ou un texte simple
-            try {
-                sourceData = JSON.parse(data.sources);
-            } catch {
-                // Si ce n'est pas du JSON, on met tout dans details
-                sourceData.details = data.sources;
+            let elt = data.sources.split(' | ')
+            for (let part of elt) {
+                if (part.startsWith('Auteur:')) {
+                    sourceData.author = part.replace('Auteur:', '').trim();
+
+                    continue
+                }
+
+                if (part.startsWith('Titre:')) {
+                    sourceData.title = part.replace('Titre:', '').trim();
+
+                    continue
+                }
+
+                if (part.startsWith('URL:')) {
+                    sourceData.url = part.replace('URL:', '').trim();
+
+                    continue
+                }
+
+                sourceData.details = part.replace('Détails:', '').trim();
             }
         }
 
@@ -1010,7 +1022,6 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
         if (formData.location.country !== initialFormData.location.country) return true;
 
         // Comparer la source
-        if (formData.source.type !== initialFormData.source.type) return true;
         if (formData.source.author !== initialFormData.source.author) return true;
         if (formData.source.title !== initialFormData.source.title) return true;
         if (formData.source.url !== initialFormData.source.url) return true;
@@ -1083,12 +1094,6 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
             }
         }
 
-        // Validation de la description (obligatoire pour mobiliers et monuments uniquement)
-        if ((source === 'mobiliers_images' || source === 'monuments_lieux') &&
-            (!formData.description || formData.description.trim() === '')) {
-            newErrors.description = 'La description est requise';
-        }
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -1139,7 +1144,6 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
             // Préparation de la source sous forme de chaîne formatée
             const sourceComponents = [];
-            if (formData.source.type) sourceComponents.push(`Type: ${formData.source.type}`);
             if (formData.source.author) sourceComponents.push(`Auteur: ${formData.source.author}`);
             if (formData.source.title) sourceComponents.push(`Titre: ${formData.source.title}`);
             if (formData.source.url) sourceComponents.push(`URL: ${formData.source.url}`);
@@ -1351,7 +1355,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                         Retour
                     </Button>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-6"
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'TEXTAREA') {
+                                e.preventDefault();
+                            }
+                        }}
+                    >
                         {/* En-tête */}
                         <div className="mb-6">
                             <h1 className="text-3xl mb-2">{"title" in result ? result.title : result.firstname}</h1>
@@ -1368,7 +1380,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                             <CardContent className="space-y-6">
                                 {/* Siècles */}
                                 <div>
-                                    <Label>Siècles</Label>
+                                    <Label className="flex items-center gap-1">
+                                        Siècles
+                                        <InfoTooltip content={tooltipTexts.common.centuries} />
+                                    </Label>
                                     <p className="text-sm text-muted-foreground mb-3">
                                         Sélectionnez les siècles concernés (optionnel)
                                     </p>
@@ -1392,7 +1407,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 <div>
                                     <div className="flex items-center gap-2 mb-2">
                                         <MapPin className="w-4 h-4 text-muted-foreground" />
-                                        <Label>Localisation *</Label>
+                                        <Label className="flex items-center gap-1">
+                                            Localisation *
+                                            <InfoTooltip content={tooltipTexts.location.title} />
+                                        </Label>
                                     </div>
                                     <p className="text-sm text-muted-foreground mb-4">
                                         Renseignez au moins un pays ou une commune
@@ -1578,6 +1596,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                     <div className="flex items-center gap-2 mb-3">
                                         <ImageIcon className="w-4 h-4 text-muted-foreground" />
                                         <Label>Images</Label>
+                                        <InfoTooltip content={tooltipTexts.common.images} />
                                     </div>
 
                                     <div className="space-y-6">
@@ -1667,7 +1686,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                                             id={`caption-${index}`}
                                                                             value={image.caption}
                                                                             onChange={(e) => updateImageCaption(index, e.target.value)}
-                                                                            placeholder="Décrivez ce que montre l'image..."
+                                                                            placeholder="Taper votre légende ici"
                                                                             rows={2}
                                                                             className="mt-1"
                                                                         />
@@ -1684,7 +1703,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                 {/* Thèmes */}
                                 <div>
-                                    <Label>Thèmes</Label>
+                                    <Label className="flex items-center gap-1">
+                                        Thèmes
+                                        <InfoTooltip content={tooltipTexts.common.themes} />
+                                    </Label>
                                     {Array.isArray(themes) && themes.length > 0 ? (
                                         <SearchableMultiSelect
                                             options={themes.filter(t => t && t.id && t.name).map(t => ({ id: String(t.id), name: t.name }))}
@@ -1703,7 +1725,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                 {/* Contributeurs */}
                                 <div>
-                                    <Label>Contributeurs</Label>
+                                    <Label className="flex items-center gap-1">
+                                        Contributeurs
+                                        <InfoTooltip content={tooltipTexts.common.contributors} />
+                                    </Label>
                                     <p className="text-sm text-muted-foreground mb-3">
                                         Personnes ayant contribué à cette fiche (en plus de vous)
                                     </p>
@@ -1737,29 +1762,19 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                 {/* Source */}
                                 <div>
-                                    <Label>Source de l'information</Label>
+                                    <Label className="flex items-center gap-1">
+                                        Source de l'information
+                                        <InfoTooltip content={tooltipTexts.source.title} />
+                                    </Label>
                                     <p className="text-sm text-muted-foreground mb-3">
                                         Informations optionnelles sur la source
                                     </p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                                         <div>
-                                            <Label htmlFor="sourceType" className="text-sm">Type de source</Label>
-                                            <Select
-                                                value={formData.source.type}
-                                                onValueChange={(value) => handleSourceChange('type', value)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Sélectionner" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {Array.isArray(sourceTypes) && sourceTypes.filter(type => type).map((type) => (
-                                                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="sourceAuthor" className="text-sm">Auteur</Label>
+                                            <Label htmlFor="sourceAuthor" className="text-sm flex items-center gap-1">
+                                                Auteur
+                                                <InfoTooltip content={tooltipTexts.source.author} />
+                                            </Label>
                                             <Input
                                                 id="sourceAuthor"
                                                 value={formData.source.author}
@@ -1768,7 +1783,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             />
                                         </div>
                                         <div>
-                                            <Label htmlFor="sourceTitle" className="text-sm">Titre</Label>
+                                            <Label htmlFor="sourceTitle" className="text-sm flex items-center gap-1">
+                                                Titre
+                                                <InfoTooltip content={tooltipTexts.source.sourceTitle} />
+                                            </Label>
                                             <Input
                                                 id="sourceTitle"
                                                 value={formData.source.title}
@@ -1777,7 +1795,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             />
                                         </div>
                                         <div>
-                                            <Label htmlFor="sourceUrl" className="text-sm">URL/Référence</Label>
+                                            <Label htmlFor="sourceUrl" className="text-sm flex items-center gap-1">
+                                                URL/Référence
+                                                <InfoTooltip content={tooltipTexts.source.url} />
+                                            </Label>
                                             <Input
                                                 id="sourceUrl"
                                                 value={formData.source.url}
@@ -1786,7 +1807,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <Label htmlFor="sourceDetails" className="text-sm">Détails</Label>
+                                            <Label htmlFor="sourceDetails" className="text-sm flex items-center gap-1">
+                                                Détails
+                                                <InfoTooltip content={tooltipTexts.source.details} />
+                                            </Label>
                                             <Textarea
                                                 id="sourceDetails"
                                                 value={formData.source.details}
@@ -1809,10 +1833,11 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 {/* Types d'éléments - pas pour personnes physiques */}
                                 {source !== 'personnes_physiques' && (
                                     <div>
-                                        <Label>
+                                        <Label className="flex items-center gap-1">
                                             {source === 'mobiliers_images' ? 'Types de mobilier' :
                                                 source === 'monuments_lieux' ? 'Types de monument' :
                                                     'Types de personne morale'}
+                                            <InfoTooltip content={tooltipTexts.common.natures} />
                                         </Label>
                                         {source === 'mobiliers_images' && Array.isArray(furnituresNatures) && furnituresNatures.length > 0 ? (
                                             <SearchableMultiSelect
@@ -1852,7 +1877,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 {/* Description - pour mobiliers et monuments uniquement */}
                                 {(source === 'mobiliers_images' || source === 'monuments_lieux') && (
                                     <div>
-                                        <Label htmlFor="description">Description *</Label>
+                                        <Label htmlFor="description" className="flex items-center gap-1">
+                                            Description
+                                            <InfoTooltip content={tooltipTexts.common.description} />
+                                        </Label>
                                         <Textarea
                                             id="description"
                                             value={formData.description || ''}
@@ -1868,7 +1896,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 {/* Histoire - pas pour personnes physiques */}
                                 {source !== 'personnes_physiques' && (
                                     <div>
-                                        <Label htmlFor="history">Histoire</Label>
+                                        <Label htmlFor="history" className="flex items-center gap-1">
+                                            Histoire
+                                            <InfoTooltip content={tooltipTexts.common.history} />
+                                        </Label>
                                         <Textarea
                                             id="history"
                                             value={formData.history || ''}
@@ -1884,7 +1915,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                     <>
                                         {/* Inscriptions */}
                                         <div>
-                                            <Label htmlFor="inscription">Inscriptions</Label>
+                                            <Label className="flex items-center gap-1" htmlFor="inscription">
+                                                Inscriptions
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.inscription} />
+                                            </Label>
                                             <Textarea
                                                 id="inscription"
                                                 value={formData.inscription || ''}
@@ -1896,7 +1930,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Emplacement actuel */}
                                         <div>
-                                            <Label htmlFor="currentLocation">Emplacement actuel</Label>
+                                            <Label className="flex items-center gap-1" htmlFor="currentLocation">
+                                                Emplacement actuel
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.currentLocation} />
+                                            </Label>
                                             <Input
                                                 id="currentLocation"
                                                 value={formData.currentLocation || ''}
@@ -1907,7 +1944,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Emplacement d'origine */}
                                         <div>
-                                            <Label htmlFor="originalLocation">Emplacement d'origine</Label>
+                                            <Label className="flex items-center gap-1" htmlFor="originalLocation">
+                                                Emplacement d'origine
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.originalLocation} />
+                                            </Label>
                                             <Input
                                                 id="originalLocation"
                                                 value={formData.originalLocation || ''}
@@ -1927,7 +1967,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                         </p>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <Label htmlFor="latitude" className="text-sm">Latitude</Label>
+                                                <Label htmlFor="latitude" className="text-sm flex items-center gap-1">
+                                                    Latitude
+                                                    <InfoTooltip content={tooltipTexts.location.latitude} />
+                                                </Label>
                                                 <Input
                                                     id="latitude"
                                                     value={formData.coordinates?.latitude || ''}
@@ -1942,7 +1985,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                 />
                                             </div>
                                             <div>
-                                                <Label htmlFor="longitude" className="text-sm">Longitude</Label>
+                                                <Label htmlFor="longitude" className="text-sm flex items-center gap-1">
+                                                    Longitude
+                                                    <InfoTooltip content={tooltipTexts.location.longitude} />
+                                                </Label>
                                                 <Input
                                                     id="longitude"
                                                     value={formData.coordinates?.longitude || ''}
@@ -1971,7 +2017,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                     checked={formData.simpleMention || false}
                                                     onCheckedChange={(checked) => handleInputChange('simpleMention', checked)}
                                                 />
-                                                <Label htmlFor="simpleMention" className="text-sm">Simple mention</Label>
+                                                <Label className="flex items-center gap-1 text-sm" htmlFor="simpleMention">
+                                                    Simple mention
+                                                    <InfoTooltip content={tooltipTexts.personnesMorales.simpleMention} />
+                                                </Label>
                                             </div>
 
                                             <div className="flex items-center space-x-2">
@@ -1980,13 +2029,19 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                     checked={formData.foundationAct || false}
                                                     onCheckedChange={(checked) => handleInputChange('foundationAct', checked)}
                                                 />
-                                                <Label htmlFor="foundationAct" className="text-sm">Acte de fondation</Label>
+                                                <Label className="flex items-center gap-1 text-sm" htmlFor="foundationAct">
+                                                    Acte de fondation
+                                                    <InfoTooltip content={tooltipTexts.personnesMorales.foundationAct} />
+                                                </Label>
                                             </div>
                                         </div>
 
                                         {/* Texte des statuts */}
                                         <div>
-                                            <Label htmlFor="statutesText">Texte des statuts</Label>
+                                            <Label htmlFor="statutesText" className="flex items-center gap-1 text-sm">
+                                                Texte des statuts
+                                                <InfoTooltip content={tooltipTexts.personnesMorales.statutesText} />
+                                            </Label>
                                             <Textarea
                                                 id="statutesText"
                                                 value={formData.statutesText || ''}
@@ -1998,7 +2053,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Description du fonctionnement */}
                                         <div>
-                                            <Label htmlFor="functioningDescription">Description du fonctionnement</Label>
+                                            <Label className="flex items-center gap-1" htmlFor="functioningDescription">
+                                                Fonctionnement
+                                                <InfoTooltip content={tooltipTexts.personnesMorales.functioningDescription} />
+                                            </Label>
                                             <Textarea
                                                 id="functioningDescription"
                                                 value={formData.functioningDescription || ''}
@@ -2010,7 +2068,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Participation sociale */}
                                         <div>
-                                            <Label htmlFor="socialParticipation">Participation sociale</Label>
+                                            <Label className="flex items-center gap-1" htmlFor="socialParticipation">
+                                                Participation à la vie sociale
+                                                <InfoTooltip content={tooltipTexts.personnesMorales.socialParticipation} />
+                                            </Label>
                                             <Textarea
                                                 id="socialParticipation"
                                                 value={formData.socialParticipation || ''}
@@ -2022,7 +2083,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Objets liés */}
                                         <div>
-                                            <Label htmlFor="relatedObjects">Objets liés</Label>
+                                            <Label className="flex items-center gap-1" htmlFor="relatedObjects">
+                                                Objets liés
+                                                <InfoTooltip content={tooltipTexts.personnesMorales.relatedObjects} />
+                                            </Label>
                                             <Textarea
                                                 id="relatedObjects"
                                                 value={formData.relatedObjects || ''}
@@ -2034,7 +2098,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Commentaire */}
                                         <div>
-                                            <Label htmlFor="comment">Commentaire</Label>
+                                            <Label className="flex items-center gap-1" htmlFor="comment">
+                                                Commentaire
+                                                <InfoTooltip content={tooltipTexts.personnesMorales.comment} />
+                                            </Label>
                                             <Textarea
                                                 id="comment"
                                                 value={formData.comment || ''}
@@ -2052,7 +2119,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                         {/* Dates de naissance et décès */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <Label htmlFor="birthDate">Date de naissance</Label>
+                                                <Label htmlFor="birthDate" className="flex items-center gap-1">
+                                                    Date de naissance
+                                                    <InfoTooltip content={tooltipTexts.personnesPhysiques.birthDate} />
+                                                </Label>
                                                 <Input
                                                     id="birthDate"
                                                     type="date"
@@ -2061,7 +2131,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                 />
                                             </div>
                                             <div>
-                                                <Label htmlFor="deathDate">Date de décès</Label>
+                                                <Label htmlFor="deathDate" className="flex items-center gap-1">
+                                                    Date de décès
+                                                    <InfoTooltip content={tooltipTexts.personnesPhysiques.deathDate} />
+                                                </Label>
                                                 <Input
                                                     id="deathDate"
                                                     type="date"
@@ -2073,7 +2146,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Attestation */}
                                         <div>
-                                            <Label htmlFor="attestation">Attestation</Label>
+                                            <Label htmlFor="attestation" className="flex items-center gap-1">
+                                                Attestation
+                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.attestation} />
+                                            </Label>
                                             <Textarea
                                                 id="attestation"
                                                 value={formData.attestation || ''}
@@ -2085,7 +2161,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Périodes historiques */}
                                         <div>
-                                            <Label>Périodes historiques</Label>
+                                            <Label className="flex items-center gap-1">
+                                                Périodes historiques
+                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.historicalPeriods} />
+                                            </Label>
                                             {Array.isArray(historicalPeriods) && historicalPeriods.length > 0 ? (
                                                 <SearchableMultiSelect
                                                     options={historicalPeriods.filter(h => h && h.id && h.name).map(h => ({ id: String(h.id), name: h.name }))}
@@ -2104,7 +2183,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Professions */}
                                         <div>
-                                            <Label>Professions</Label>
+                                            <Label className="flex items-center gap-1">
+                                                Professions
+                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.professions} />
+                                            </Label>
                                             {Array.isArray(professions) && professions.length > 0 ? (
                                                 <SearchableMultiSelect
                                                     options={professions.filter(p => p && p.id && p.name).map(p => ({ id: String(p.id), name: p.name }))}
@@ -2123,7 +2205,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Éléments biographiques */}
                                         <div>
-                                            <Label htmlFor="biographicalElements">Éléments biographiques</Label>
+                                            <Label htmlFor="biographicalElements" className="flex items-center gap-1">
+                                                Éléments biographiques
+                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.biographicalElements} />
+                                            </Label>
                                             <Textarea
                                                 id="biographicalElements"
                                                 value={formData.biographicalElements || ''}
@@ -2135,7 +2220,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Éléments de pèlerinage */}
                                         <div>
-                                            <Label htmlFor="pilgrimage">Éléments de pèlerinage</Label>
+                                            <Label htmlFor="pilgrimage" className="flex items-center gap-1">
+                                                Pèlerinage
+                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.pilgrimage} />
+                                            </Label>
                                             <Textarea
                                                 id="pilgrimage"
                                                 value={formData.pilgrimage || ''}
@@ -2147,7 +2235,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Modes de transport */}
                                         <div>
-                                            <Label>Modes de transport</Label>
+                                            <Label className="flex items-center gap-1">
+                                                Modes de transport
+                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.transportModes} />
+                                            </Label>
                                             {Array.isArray(travels) && travels.length > 0 ? (
                                                 <SearchableMultiSelect
                                                     options={travels.filter(t => t && t.id && t.name).map(t => ({ id: String(t.id), name: t.name }))}
@@ -2166,7 +2257,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Nature de l'événement */}
                                         <div>
-                                            <Label htmlFor="eventNature">Nature de l'événement</Label>
+                                            <Label htmlFor="eventNature" className="flex items-center gap-1">
+                                                Nature de l'événement
+                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.eventNature} />
+                                            </Label>
                                             <Input
                                                 id="eventNature"
                                                 value={formData.eventNature || ''}
@@ -2177,7 +2271,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Commutation de vœu */}
                                         <div>
-                                            <Label htmlFor="commutationVow">Commutation de vœu</Label>
+                                            <Label htmlFor="commutationVow" className="flex items-center gap-1">
+                                                Commutation de vœu
+                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.commutationVow} />
+                                            </Label>
                                             <Textarea
                                                 id="commutationVow"
                                                 value={formData.commutationVow || ''}
@@ -2189,7 +2286,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                         {/* Commentaire */}
                                         <div>
-                                            <Label htmlFor="comment">Commentaire</Label>
+                                            <Label htmlFor="comment" className="flex items-center gap-1">
+                                                Commentaire
+                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.comment} />
+                                            </Label>
                                             <Textarea
                                                 id="comment"
                                                 value={formData.comment || ''}
@@ -2204,7 +2304,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 {/* États de conservation - pour mobiliers et monuments uniquement */}
                                 {(source === 'mobiliers_images' || source === 'monuments_lieux') && (
                                     <div>
-                                        <Label>États de conservation</Label>
+                                        <Label className="flex items-center gap-1">
+                                            États de conservation
+                                            <InfoTooltip content={tooltipTexts.common.conservationStates} />
+                                        </Label>
                                         {Array.isArray(conservationStates) && conservationStates.length > 0 ? (
                                             <SearchableMultiSelect
                                                 options={conservationStates.filter(c => c && c.id && c.name).map(c => ({ id: String(c.id), name: c.name }))}
@@ -2225,7 +2328,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 {/* Matériaux - pour mobiliers et monuments uniquement */}
                                 {(source === 'mobiliers_images' || source === 'monuments_lieux') && (
                                     <div>
-                                        <Label>Matériaux</Label>
+                                        <Label className="flex items-center gap-1">
+                                            Matériaux
+                                            <InfoTooltip content={tooltipTexts.common.materials} />
+                                        </Label>
                                         {Array.isArray(materials) && materials.length > 0 ? (
                                             <SearchableMultiSelect
                                                 options={materials.filter(m => m && m.id && m.name).map(m => ({ id: String(m.id), name: m.name }))}
@@ -2246,7 +2352,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 {/* Techniques - uniquement pour mobiliers */}
                                 {source === 'mobiliers_images' && (
                                     <div>
-                                        <Label>Techniques</Label>
+                                        <Label className="flex items-center gap-1">
+                                            Techniques
+                                            <InfoTooltip content={tooltipTexts.mobiliersImages.techniques} />
+                                        </Label>
                                         {Array.isArray(furnituresTechniques) && furnituresTechniques.length > 0 ? (
                                             <SearchableMultiSelect
                                                 options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({ id: t.id, name: t.name }))}
@@ -2267,7 +2376,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 {/* Protection - pour mobiliers et monuments uniquement */}
                                 {(source === 'mobiliers_images' || source === 'monuments_lieux') && (
                                     <div>
-                                        <Label>Protection</Label>
+                                        <Label htmlFor="protected" className="flex items-center gap-1 text-sm">
+                                            Protégé
+                                            <InfoTooltip content={tooltipTexts.common.protected} />
+                                        </Label>
                                         <div className="space-y-4 mt-3">
                                             <div className="flex items-center space-x-2">
                                                 <Checkbox
@@ -2279,12 +2391,15 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                             </div>
 
                                             <div>
-                                                <Label htmlFor="protectionComment" className="text-sm">Commentaire de protection</Label>
+                                                <Label htmlFor="protectionComment" className="flex items-center gap-1 text-sm">
+                                                    Commentaire de protection
+                                                    <InfoTooltip content={tooltipTexts.common.protectionComment} />
+                                                </Label>
                                                 <Textarea
                                                     id="protectionComment"
                                                     value={formData.protectionComment || ''}
                                                     onChange={(e) => handleInputChange('protectionComment', e.target.value)}
-                                                    placeholder="Détails sur la protection..."
+                                                    placeholder="Taper vos commentaires ici"
                                                     rows={2}
                                                 />
                                             </div>
@@ -2294,7 +2409,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
 
                                 {/* Bibliographie */}
                                 <div>
-                                    <Label htmlFor="bibliography">Bibliographie</Label>
+                                    <Label htmlFor="bibliography" className="flex items-center gap-1 text-sm">
+                                        Bibliographie
+                                        <InfoTooltip content={tooltipTexts.common.bibliography} />
+                                    </Label>
                                     <Textarea
                                         id="bibliography"
                                         value={formData.bibliography || ''}
@@ -2309,7 +2427,10 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                         {/* Fiches liées */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Fiches liées</CardTitle>
+                                <CardTitle>
+                                    Fiches liées
+                                    <InfoTooltip content={tooltipTexts.common.relatedForms} />
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <div>
@@ -2446,7 +2567,9 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 </Button>
                                 <Button
                                     type="submit"
-                                    disabled={isSubmitting || isSavingDraft || !hasFormChanged()}
+                                    disabled={isSubmitting || isSavingDraft || !hasFormChanged() || !(
+                                        selectedCommune && selectedDepartment && selectedRegion && selectedCountry
+                                    )}
                                     className="gap-2"
                                 >
                                     {isSubmitting ? (
