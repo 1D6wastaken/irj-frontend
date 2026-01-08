@@ -56,6 +56,9 @@ async function getFilterIds(names: string[], filterType: string): Promise<number
       case 'centuries':
         filterOptions = await FilterCache.get('centuries', () => apiService.getCenturies());
         break;
+      case 'themes':
+        filterOptions = await FilterCache.get('themes', () => apiService.getThemes());
+        break;
       case 'buildingNatures':
         filterOptions = await FilterCache.get('buildingNatures', () => apiService.getBuildingNatures());
         break;
@@ -111,6 +114,11 @@ export async function transformFiltersToApiFormat(
     // Transformation des siècles (commun à toutes les catégories)
     if (filters.centuries && filters.centuries.length > 0) {
       body.centuries = await getFilterIds(filters.centuries, 'centuries');
+    }
+
+    // Transformation des themes (commun à toutes les catégories)
+    if (filters.themes && filters.themes.length > 0) {
+      body.themes = await getFilterIds(filters.themes, 'themes');
     }
 
     // Transformation des filtres géographiques

@@ -238,6 +238,7 @@ export const DOMAIN_MAPPING = {
 // Interfaces pour les requêtes et réponses API existantes
 export interface SearchRequestBody {
     centuries?: number[];
+    themes?: number[];
     countries?: number[];
     regions?: number[];
     departments?: number[];
