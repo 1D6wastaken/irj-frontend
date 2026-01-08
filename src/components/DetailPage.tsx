@@ -948,7 +948,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                         </TechnicalInfoItem>
                     )}
 
-                    {mobilier.protected !== undefined && (
+                    {mobilier.protected !== undefined || mobilier.protection_comment && (
                         <TechnicalInfoItem label="État de protection">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2">
@@ -1156,7 +1156,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                         </TechnicalInfoItem>
                     )}
 
-                    {monument.protected !== undefined && (
+                    {monument.protected !== undefined || monument.protection_comment && (
                         <TechnicalInfoItem label="État de protection">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2">
