@@ -582,7 +582,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         const files = e.target.files;
         if (files && files.length > 0) {
             const fileArray = Array.from(files);
-            const MAX_SIZE = 5 * 1024 * 1024; // 5MB en bytes
+            const MAX_SIZE = 1024 * 1024; // 1MB en bytes
             const oversizedFiles: string[] = [];
             const validFiles: File[] = [];
 
@@ -598,7 +598,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
             // Alerter l'utilisateur si certains fichiers sont trop grands
             if (oversizedFiles.length > 0) {
                 toast.error(
-                    `${oversizedFiles.length} image(s) dépassent 5MB et seront refusées par le serveur : ${oversizedFiles.join(', ')}`,
+                    `${oversizedFiles.length} image(s) dépassent 1MB et seront refusées par le serveur : ${oversizedFiles.join(', ')}`,
                     { duration: 6000 }
                 );
             }
