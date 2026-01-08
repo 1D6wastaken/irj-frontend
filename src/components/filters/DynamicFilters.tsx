@@ -16,6 +16,7 @@ interface DynamicFiltersProps {
 export function DynamicFilters({selectedCategories, pendingFilters, onToggleArrayFilter}: DynamicFiltersProps) {
     // États pour les données dynamiques
     const [centuries, setCenturies] = useState<FilterOption[]>([]);
+    const [themes, setThemes] = useState<FilterOption[]>([]);
     const [buildingNatures, setBuildingNatures] = useState<FilterOption[]>([]);
     const [conservationStates, setConservationStates] = useState<FilterOption[]>([]);
     const [materials, setMaterials] = useState<FilterOption[]>([]);
@@ -27,6 +28,7 @@ export function DynamicFilters({selectedCategories, pendingFilters, onToggleArra
 
     // États de chargement
     const [loadingCenturies, setLoadingCenturies] = useState(true);
+    const [loadingThemes, setLoadingThemes] = useState(true);
     const [loadingCategoryData, setLoadingCategoryData] = useState(false);
 
     // Charger les siècles au démarrage
@@ -44,6 +46,23 @@ export function DynamicFilters({selectedCategories, pendingFilters, onToggleArra
         };
 
         loadCenturies();
+    }, []);
+
+    // Charger les themes au démarrage
+    useEffect(() => {
+        const loadThemes = async () => {
+            try {
+                setLoadingThemes(true);
+                const themesData = await apiService.getThemes();
+                setThemes(themesData);
+            } catch (error) {
+                console.error('Erreur lors du chargement des themes:', error);
+            } finally {
+                setLoadingThemes(false);
+            }
+        };
+
+        loadThemes();
     }, []);
 
     // Charger les données spécifiques aux catégories sélectionnées
@@ -173,6 +192,26 @@ export function DynamicFilters({selectedCategories, pendingFilters, onToggleArra
                         onToggle={(value) => onToggleArrayFilter('centuries', value)}
                         placeholder="Sélectionner des siècles"
                         filterKey="centuries"
+                    />
+                )}
+            </div>
+
+            {/* Filtres par themes */}
+            <div className="border border-border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                    <Calendar className="w-4 h-4 text-primary"/>
+                    <h4 className="font-medium">Thèmes</h4>
+                    <InfoTooltip content={tooltipTexts.search.themes}/>
+                </div>
+                {loadingThemes ? (
+                    <Skeleton className="h-9 w-full"/>
+                ) : (
+                    <MultiSelect
+                        options={themes}
+                        selectedItems={pendingFilters.themes}
+                        onToggle={(value) => onToggleArrayFilter('themes', value)}
+                        placeholder="Sélectionner des thèmes"
+                        filterKey="themes"
                     />
                 )}
             </div>

@@ -42,6 +42,7 @@ export interface AdvancedFilters {
         countries?: string[]; // Array d'IDs de pays
     };
     centuries?: string[];
+    themes?: string[];
     naturesMonu?: string[];
     naturesMob?: string[];
     naturesOrg?: string[];

@@ -24,6 +24,7 @@ export const tooltipTexts = {
     search: {
         location: "Recherchez par lieu (pays, région, département et commune). Plusieurs critères peuvent être combinés pour affiner la recherche.",
         centuries: "Recherchez par siècle. Vous pouvez sélectionner un ou plusieurs siècles pour affiner les résultats.",
+        themes: "Recherchez par thèmes. Vous pouvez sélectionner un ou plusieurs thèmes pour affiner les résultats.",
         category: "Filtrez les résultats par catégorie d'élément patrimonial : Monuments & Lieux, Mobiliers & Images, Personnes Morales ou Personnes Physiques.",
         monumentsLieux: {
             natures: "Filtrez les monuments ou lieux par type (ex: église, chapelle, cimetière, fontaine, etc.).",
