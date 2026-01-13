@@ -598,7 +598,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
             // Alerter l'utilisateur si certains fichiers sont trop grands
             if (oversizedFiles.length > 0) {
                 toast.error(
-                    `${oversizedFiles.length} image(s) dépassent 1MB et seront refusées par le serveur : ${oversizedFiles.join(', ')}`,
+                    `${oversizedFiles.length} image(s) dépassent 1MB : ${oversizedFiles.join(', ')}`,
                     { duration: 6000 }
                 );
             }
@@ -1494,7 +1494,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div className="flex items-start gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
                                                     <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                                                     <p className="text-xs text-amber-800">
-                                                        Les images de plus de 5 MB seront refusées par le serveur. Assurez-vous que vos images ne dépassent pas cette taille.
+                                                        Les images de plus de 1 MB seront refusées par le serveur. Assurez-vous que vos images ne dépassent pas cette taille.
                                                     </p>
                                                 </div>
                                             </div>
@@ -1522,14 +1522,14 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                                 {image.file.name}
                                                                             </p>
                                                                             <p className={`text-xs ${
-                                                                                image.file.size > 5 * 1024 * 1024
+                                                                                image.file.size > 1024 * 1024
                                                                                     ? 'text-destructive font-medium'
                                                                                     : 'text-muted-foreground'
                                                                             }`}>
                                                                                 {image.file.size > 1024 * 1024
                                                                                     ? `${(image.file.size / (1024 * 1024)).toFixed(2)} MB`
                                                                                     : `${(image.file.size / 1024).toFixed(1)} KB`}
-                                                                                {image.file.size > 5 * 1024 * 1024 && (
+                                                                                {image.file.size > 1024 * 1024 && (
                                                                                     <span className="ml-1">⚠️ Trop grande</span>
                                                                                 )}
                                                                             </p>

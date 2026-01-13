@@ -9,7 +9,7 @@ import {
     ImageIcon,
     Trash2,
     Link,
-    FileText,
+    FileText, CheckCircle,
 } from "lucide-react";
 import {Button} from "./ui/button";
 import {Input} from "./ui/input";
@@ -40,8 +40,11 @@ import {getMediaImageUrl} from "../utils/searchUtils";
 import {ImageWithFallback} from "./ImageWithFallback";
 import {InfoTooltip} from "./InfoTooltip.tsx";
 import {tooltipTexts} from "../constants/tooltipTexts.ts";
+import {User} from "../App";
+import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "./ui/dialog.tsx";
 
 interface EditDraftPageProps {
+    user: User;
     recordId: string;
     source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques';
     onBack: () => void;
@@ -118,7 +121,7 @@ interface FormData {
     commutationVow?: string;
 }
 
-export function EditDraftPage({recordId, source, onBack, onSessionExpired}: EditDraftPageProps) {
+export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}: EditDraftPageProps) {
     const [result, setResult] = useState<MobilierImageDetail | MonumentLieuDetail | PersonneMoraleDetail | PersonnePhysiqueDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -200,6 +203,13 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
     const [professions, setProfessions] = useState<FilterOption[]>([]);
     const [travels, setTravels] = useState<FilterOption[]>([]);
     const [historicalPeriods, setHistoricalPeriods] = useState<FilterOption[]>([]);
+
+    // États pour le modal de contact admin
+    const [showContactAdminModal, setShowContactAdminModal] = useState(false);
+    const [contactSubject, setContactSubject] = useState('');
+    const [contactMessage, setContactMessage] = useState('');
+    const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+    const [contactSent, setContactSent] = useState(false);
 
     useEffect(() => {
         window.scrollTo({top: 0, behavior: 'smooth'});
@@ -828,6 +838,39 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
         }));
     };
 
+    const popupContactAdmin = () => {
+        setShowContactAdminModal(true);
+        setContactSent(false);
+        setContactSubject('');
+        setContactMessage('');
+    };
+
+    const handleSendContactMessage = async () => {
+        if (!contactSubject.trim() || !contactMessage.trim()) {
+            toast.error('Veuillez remplir tous les champs');
+            return;
+        }
+
+        setIsSubmittingContact(true);
+
+        try {
+            await apiService.postContact(contactSubject, contactMessage, user.email);
+            setContactSent(true);
+        } catch (error) {
+            console.error('Erreur lors de l\'envoi du message:', error);
+            toast.error('Erreur lors de l\'envoi du message. Veuillez réessayer.');
+        } finally {
+            setIsSubmittingContact(false);
+        }
+    };
+
+    const handleCloseContactModal = () => {
+        setShowContactAdminModal(false);
+        setContactSent(false);
+        setContactSubject('');
+        setContactMessage('');
+    };
+
     // Recherche de communes
     useEffect(() => {
         if (communeQuery.length >= 2) {
@@ -944,25 +987,50 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
         const files = e.target.files;
         if (!files) return;
 
-        const newImages: ImageUpload[] = [];
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                newImages.push({
-                    file,
-                    caption: '',
-                    preview: reader.result as string
-                });
+        const fileArray = Array.from(files);
+        const MAX_SIZE = 1 * 1024 * 1024; // 1MB en bytes
+        const oversizedFiles: string[] = [];
+        const validFiles: File[] = [];
 
-                if (newImages.length === files.length) {
-                    setFormData(prev => ({
-                        ...prev,
-                        images: [...prev.images, ...newImages]
-                    }));
-                }
-            };
-            reader.readAsDataURL(file);
+        // Séparer les fichiers valides des fichiers trop grands
+        fileArray.forEach((file) => {
+            if (file.size > MAX_SIZE) {
+                oversizedFiles.push(file.name);
+            } else {
+                validFiles.push(file);
+            }
         });
+
+        // Alerter l'utilisateur si certains fichiers sont trop grands
+        if (oversizedFiles.length > 0) {
+            toast.error(
+                `${oversizedFiles.length} image(s) dépassent 1MB : ${oversizedFiles.join(', ')}`,
+                { duration: 6000 }
+            );
+        }
+
+        // Traiter uniquement les fichiers valides
+        if (validFiles.length > 0) {
+            const newImages: ImageUpload[] = [];
+            validFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    newImages.push({
+                        file,
+                        caption: '',
+                        preview: reader.result as string
+                    });
+
+                    if (newImages.length === validFiles.length) {
+                        setFormData(prev => ({
+                            ...prev,
+                            images: [...prev.images, ...newImages]
+                        }));
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
     };
 
     const removeImage = (index: number) => {
@@ -1509,7 +1577,17 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
                                         </Label>
                                     </div>
                                     <p className="text-sm text-muted-foreground mb-4">
-                                        Renseignez au moins un pays ou une commune
+                                        La localisation complète est requise. <Button
+                                        type="button"
+                                        variant="link"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            popupContactAdmin();
+                                        }}
+                                        className="text-xs px-0 h-auto"
+                                    >Des informations sont manquantes? Faites le nous savoir !
+                                    </Button>
                                     </p>
 
                                     <div className="space-y-4">
@@ -2759,6 +2837,101 @@ export function EditDraftPage({recordId, source, onBack, onSessionExpired}: Edit
                                 </Button>
                             </div>
                         </div>
+                        {/* Modal de contact admin */}
+                        <Dialog open={showContactAdminModal} onOpenChange={(open) => {
+                            if (!open) handleCloseContactModal();
+                        }}>
+                            <DialogContent className="sm:max-w-md">
+                                {!contactSent ? (
+                                    <>
+                                        <DialogHeader>
+                                            <DialogTitle>Contacter les administrateurs</DialogTitle>
+                                            <DialogDescription>
+                                                Informez-nous d'une donnée manquante dans la localisation
+                                            </DialogDescription>
+                                        </DialogHeader>
+
+                                        <div className="space-y-4 py-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="contact-email">Email</Label>
+                                                <Input
+                                                    id="contact-email"
+                                                    value={user.email}
+                                                    disabled
+                                                    className="bg-muted"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="contact-subject">Objet *</Label>
+                                                <Input
+                                                    id="contact-subject"
+                                                    value={contactSubject}
+                                                    onChange={(e) => setContactSubject(e.target.value)}
+                                                    placeholder="Ex: Ville manquante dans le département..."
+                                                    disabled={isSubmittingContact}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="contact-message">Message *</Label>
+                                                <Textarea
+                                                    id="contact-message"
+                                                    value={contactMessage}
+                                                    onChange={(e) => setContactMessage(e.target.value)}
+                                                    placeholder="Décrivez la donnée manquante..."
+                                                    className="min-h-[100px]"
+                                                    disabled={isSubmittingContact}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <DialogFooter className="gap-2">
+                                            <Button
+                                                variant="outline"
+                                                onClick={handleCloseContactModal}
+                                                disabled={isSubmittingContact}
+                                            >
+                                                Annuler
+                                            </Button>
+                                            <Button
+                                                onClick={handleSendContactMessage}
+                                                disabled={isSubmittingContact}
+                                            >
+                                                {isSubmittingContact ? 'Envoi...' : 'Envoyer'}
+                                            </Button>
+                                        </DialogFooter>
+                                    </>
+                                ) : (
+                                    <>
+                                        <DialogHeader>
+                                            <DialogTitle className="flex items-center gap-2">
+                                                <CheckCircle className="w-5 h-5 text-green-600" />
+                                                Message envoyé
+                                            </DialogTitle>
+                                        </DialogHeader>
+
+                                        <div className="py-4">
+                                            <p className="text-sm">
+                                                Merci pour votre message !
+                                            </p>
+                                            <p className="text-sm mt-2">
+                                                Notre équipe va prendre connaissance de votre requête et la traiter dans les plus brefs délais.
+                                            </p>
+                                            <p className="text-sm mt-2">
+                                                En attendant, vous pouvez toujours enregistrer votre fiche pour y retourner plus tard.
+                                            </p>
+                                        </div>
+
+                                        <DialogFooter>
+                                            <Button onClick={handleCloseContactModal}>
+                                                Fermer
+                                            </Button>
+                                        </DialogFooter>
+                                    </>
+                                )}
+                            </DialogContent>
+                        </Dialog>
                     </form>
                 </div>
             </div>

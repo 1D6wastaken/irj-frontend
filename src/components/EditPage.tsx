@@ -1,5 +1,18 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save, MapPin, Plus, X, Search, ImageIcon, Trash2, Link, FileText, AlertCircle } from "lucide-react";
+import {
+    ArrowLeft,
+    Save,
+    MapPin,
+    Plus,
+    X,
+    Search,
+    ImageIcon,
+    Trash2,
+    Link,
+    FileText,
+    AlertCircle,
+    CheckCircle, AlertTriangle
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -15,8 +28,11 @@ import { getMediaImageUrl } from "../utils/searchUtils";
 import { ImageWithFallback } from "./ImageWithFallback";
 import { InfoTooltip } from "./InfoTooltip";
 import { tooltipTexts } from "../constants/tooltipTexts";
+import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "./ui/dialog.tsx";
+import {User} from "../App";
 
 interface EditPageProps {
+    user: User;
     recordId: string;
     source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques';
     onBack: () => void;
@@ -92,7 +108,7 @@ interface FormData {
     commutationVow?: string;
 }
 
-export function EditPage({recordId, source, onBack, onSessionExpired }: EditPageProps) {
+export function EditPage({user, recordId, source, onBack, onSessionExpired }: EditPageProps) {
     const [result, setResult] = useState<MobilierImageDetail | MonumentLieuDetail | PersonneMoraleDetail | PersonnePhysiqueDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -100,6 +116,12 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [wasSubmittedAsDraft, setWasSubmittedAsDraft] = useState(false);
     const [submissionSuccess, setSubmissionSuccess] = useState(false);
+
+    const [showContactAdminModal, setShowContactAdminModal] = useState(false);
+    const [contactSubject, setContactSubject] = useState('');
+    const [contactMessage, setContactMessage] = useState('');
+    const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+    const [contactSent, setContactSent] = useState(false);
 
     // États pour le formulaire
     const [formData, setFormData] = useState<FormData>({
@@ -250,6 +272,39 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
         } finally {
             setIsSearchingFiches(false);
         }
+    };
+
+    const popupContactAdmin = () => {
+        setShowContactAdminModal(true);
+        setContactSent(false);
+        setContactSubject('');
+        setContactMessage('');
+    };
+
+    const handleSendContactMessage = async () => {
+        if (!contactSubject.trim() || !contactMessage.trim()) {
+            toast.error('Veuillez remplir tous les champs');
+            return;
+        }
+
+        setIsSubmittingContact(true);
+
+        try {
+            await apiService.postContact(contactSubject, contactMessage, user.email);
+            setContactSent(true);
+        } catch (error) {
+            console.error('Erreur lors de l\'envoi du message:', error);
+            toast.error('Erreur lors de l\'envoi du message. Veuillez réessayer.');
+        } finally {
+            setIsSubmittingContact(false);
+        }
+    };
+
+    const handleCloseContactModal = () => {
+        setShowContactAdminModal(false);
+        setContactSent(false);
+        setContactSubject('');
+        setContactMessage('');
     };
 
     const loadInitialData = async () => {
@@ -917,25 +972,50 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
         const files = e.target.files;
         if (!files) return;
 
-        const newImages: ImageUpload[] = [];
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                newImages.push({
-                    file,
-                    caption: '',
-                    preview: reader.result as string
-                });
+        const fileArray = Array.from(files);
+        const MAX_SIZE = 1024 * 1024; // 1MB en bytes
+        const oversizedFiles: string[] = [];
+        const validFiles: File[] = [];
 
-                if (newImages.length === files.length) {
-                    setFormData(prev => ({
-                        ...prev,
-                        images: [...prev.images, ...newImages]
-                    }));
-                }
-            };
-            reader.readAsDataURL(file);
+        // Séparer les fichiers valides des fichiers trop grands
+        fileArray.forEach((file) => {
+            if (file.size > MAX_SIZE) {
+                oversizedFiles.push(file.name);
+            } else {
+                validFiles.push(file);
+            }
         });
+
+        // Alerter l'utilisateur si certains fichiers sont trop grands
+        if (oversizedFiles.length > 0) {
+            toast.error(
+                `${oversizedFiles.length} image(s) dépassent 1MB : ${oversizedFiles.join(', ')}`,
+                { duration: 6000 }
+            );
+        }
+
+        // Traiter uniquement les fichiers valides
+        if (validFiles.length > 0) {
+            const newImages: ImageUpload[] = [];
+            validFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    newImages.push({
+                        file,
+                        caption: '',
+                        preview: reader.result as string
+                    });
+
+                    if (newImages.length === validFiles.length) {
+                        setFormData(prev => ({
+                            ...prev,
+                            images: [...prev.images, ...newImages]
+                        }));
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
     };
 
     const removeImage = (index: number) => {
@@ -1190,7 +1270,7 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
             } else if (source === 'monuments_lieux') {
                 submissionData = {
                     ...submissionData,
-                    conservationStates: formData.conservationStates,
+                    conservationStates: formData.conservationStates ? formData.conservationStates.map(c => parseInt(c)) : [],
                     isProtected: formData.protected || false,
                     protectionComment: formData.protectionComment || undefined,
                     materials: formData.materials ? formData.materials.map(c => parseInt(c)) : [],
@@ -1413,7 +1493,17 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                         </Label>
                                     </div>
                                     <p className="text-sm text-muted-foreground mb-4">
-                                        Renseignez au moins un pays ou une commune
+                                        La localisation complète est requise. <Button
+                                        type="button"
+                                        variant="link"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            popupContactAdmin();
+                                        }}
+                                        className="text-xs px-0 h-auto"
+                                    >Des informations sont manquantes? Faites le nous savoir !
+                                    </Button>
                                     </p>
 
                                     <div className="space-y-4">
@@ -1653,6 +1743,12 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                                 onChange={handleImageUpload}
                                                 className="cursor-pointer mb-4"
                                             />
+                                            <div className="flex items-start gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                                                <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                                <p className="text-xs text-amber-800">
+                                                    Les images de plus de 1 MB seront refusées par le serveur. Assurez-vous que vos images ne dépassent pas cette taille.
+                                                </p>
+                                            </div>
 
                                             {formData.images.length > 0 && (
                                                 <div className="space-y-4">
@@ -2586,6 +2682,101 @@ export function EditPage({recordId, source, onBack, onSessionExpired }: EditPage
                                 </Button>
                             </div>
                         </div>
+                        {/* Modal de contact admin */}
+                        <Dialog open={showContactAdminModal} onOpenChange={(open) => {
+                            if (!open) handleCloseContactModal();
+                        }}>
+                            <DialogContent className="sm:max-w-md">
+                                {!contactSent ? (
+                                    <>
+                                        <DialogHeader>
+                                            <DialogTitle>Contacter les administrateurs</DialogTitle>
+                                            <DialogDescription>
+                                                Informez-nous d'une donnée manquante dans la localisation
+                                            </DialogDescription>
+                                        </DialogHeader>
+
+                                        <div className="space-y-4 py-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="contact-email">Email</Label>
+                                                <Input
+                                                    id="contact-email"
+                                                    value={user.email}
+                                                    disabled
+                                                    className="bg-muted"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="contact-subject">Objet *</Label>
+                                                <Input
+                                                    id="contact-subject"
+                                                    value={contactSubject}
+                                                    onChange={(e) => setContactSubject(e.target.value)}
+                                                    placeholder="Ex: Ville manquante dans le département..."
+                                                    disabled={isSubmittingContact}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="contact-message">Message *</Label>
+                                                <Textarea
+                                                    id="contact-message"
+                                                    value={contactMessage}
+                                                    onChange={(e) => setContactMessage(e.target.value)}
+                                                    placeholder="Décrivez la donnée manquante..."
+                                                    className="min-h-[100px]"
+                                                    disabled={isSubmittingContact}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <DialogFooter className="gap-2">
+                                            <Button
+                                                variant="outline"
+                                                onClick={handleCloseContactModal}
+                                                disabled={isSubmittingContact}
+                                            >
+                                                Annuler
+                                            </Button>
+                                            <Button
+                                                onClick={handleSendContactMessage}
+                                                disabled={isSubmittingContact}
+                                            >
+                                                {isSubmittingContact ? 'Envoi...' : 'Envoyer'}
+                                            </Button>
+                                        </DialogFooter>
+                                    </>
+                                ) : (
+                                    <>
+                                        <DialogHeader>
+                                            <DialogTitle className="flex items-center gap-2">
+                                                <CheckCircle className="w-5 h-5 text-green-600" />
+                                                Message envoyé
+                                            </DialogTitle>
+                                        </DialogHeader>
+
+                                        <div className="py-4">
+                                            <p className="text-sm">
+                                                Merci pour votre message !
+                                            </p>
+                                            <p className="text-sm mt-2">
+                                                Notre équipe va prendre connaissance de votre requête et la traiter dans les plus brefs délais.
+                                            </p>
+                                            <p className="text-sm mt-2">
+                                                En attendant, vous pouvez toujours enregistrer votre fiche pour y retourner plus tard.
+                                            </p>
+                                        </div>
+
+                                        <DialogFooter>
+                                            <Button onClick={handleCloseContactModal}>
+                                                Fermer
+                                            </Button>
+                                        </DialogFooter>
+                                    </>
+                                )}
+                            </DialogContent>
+                        </Dialog>
                     </form>
                 </div>
             </div>

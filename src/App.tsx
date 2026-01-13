@@ -961,6 +961,7 @@ export default function App() {
                             pendingContributorsCount={pendingContributorsCount}
                         />
                         <EditPage
+                            user={user}
                             recordId={currentEditId}
                             source={currentEditSource}
                             onBack={handleBackToDetail}
@@ -997,6 +998,7 @@ export default function App() {
                             pendingContributorsCount={pendingContributorsCount}
                         />
                         <EditDraftPage
+                            user={user}
                             recordId={currentEditDraftId}
                             source={currentEditDraftSource}
                             onBack={handleBackToMyDrafts}
