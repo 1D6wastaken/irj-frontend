@@ -1387,7 +1387,6 @@ export default function App() {
                     </div>
                     <SearchSection
                         onSearch={handleSearch}
-                        onViewDetail={handleViewDetail}
                         initialQuery={searchQuery}
                         initialCategories={selectedCategories}
                         initialFilters={advancedFilters}

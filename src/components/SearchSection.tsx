@@ -1,5 +1,5 @@
 import {useState, useRef, useEffect} from "react";
-import {Search, MapPin, Users, User, Trophy, Church, ChevronDown} from "lucide-react";
+import {Search, Users, User, Trophy, Church, ChevronDown} from "lucide-react";
 import {Button} from "./ui/button";
 import {Input} from "./ui/input";
 import {Badge} from "./ui/badge";
@@ -8,15 +8,12 @@ import {AdvancedFilters} from "../App";
 import {LocationFilter} from "./filters/LocationFilter";
 import {DynamicFilters} from "./filters/DynamicFilters";
 import {categories} from "../constants/filters";
-import {apiService, SearchItem} from "../config/api";
-import {transformFiltersToApiFormat, debounce, SOURCE_LABELS} from "../utils/searchUtils";
 import {dynamicHomeText} from "../hooks/dynamicHomeText.tsx";
 import {InfoTooltip} from "./InfoTooltip.tsx";
 import {tooltipTexts} from "../constants/tooltipTexts.ts";
 
 interface SearchSectionProps {
     onSearch: (query: string, categories: string[], filters: AdvancedFilters) => void;
-    onViewDetail?: (resultId: string, source?: string) => void;
     initialQuery?: string;
     initialCategories?: string[];
     initialFilters?: AdvancedFilters;
@@ -24,7 +21,6 @@ interface SearchSectionProps {
 
 export function SearchSection({
                                   onSearch,
-                                  onViewDetail,
                                   initialQuery = '',
                                   initialCategories = [],
                                   initialFilters = {}
@@ -36,12 +32,6 @@ export function SearchSection({
         Object.keys(initialFilters).length > 0
     );
     const [pendingFilters, setPendingFilters] = useState<AdvancedFilters>(initialFilters);
-
-    // États pour l'autocomplétion
-    const [autocompleteResults, setAutocompleteResults] = useState<SearchItem[]>([]);
-    const [showAutocomplete, setShowAutocomplete] = useState(false);
-    const [isLoadingAutocomplete, setIsLoadingAutocomplete] = useState(false);
-    const [selectedAutocompleteIndex, setSelectedAutocompleteIndex] = useState(-1);
 
     const inputRef = useRef<HTMLInputElement>(null);
     const autocompleteRef = useRef<HTMLDivElement>(null);
@@ -88,46 +78,11 @@ export function SearchSection({
         });
     };
 
-    // Fonction de recherche autocomplete avec debounce
-    const performAutocompleteSearch = debounce(async (query: string) => {
-        if (!query.trim() || query.length < 2) {
-            setAutocompleteResults([]);
-            setShowAutocomplete(false);
-            return;
-        }
-
-        setIsLoadingAutocomplete(true);
-
-        try {
-            // Transformer les filtres pour l'API
-            const searchBody = await transformFiltersToApiFormat(selectedCategories, pendingFilters);
-
-            // Faire la recherche avec limit=3 pour l'autocomplétion
-            const response = await apiService.search(query, searchBody, 3, 1);
-
-            setAutocompleteResults(response.items);
-            setShowAutocomplete(response.items.length > 0);
-            setSelectedAutocompleteIndex(-1);
-        } catch (error) {
-            console.error('Erreur lors de la recherche autocomplete:', error);
-            setAutocompleteResults([]);
-            setShowAutocomplete(false);
-        } finally {
-            setIsLoadingAutocomplete(false);
-        }
-    }, 300);
-
-    // Effet pour déclencher l'autocomplétion
-    useEffect(() => {
-        performAutocompleteSearch(searchQuery);
-    }, [searchQuery, selectedCategories]);
-
     // Gestion des clics en dehors de l'autocomplétion
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (autocompleteRef.current && !autocompleteRef.current.contains(event.target as Node) &&
                 inputRef.current && !inputRef.current.contains(event.target as Node)) {
-                setShowAutocomplete(false);
             }
         };
 
@@ -137,46 +92,14 @@ export function SearchSection({
 
     const handleSearch = () => {
         const query = searchQuery.trim() || "";
-        setShowAutocomplete(false);
         onSearch(query, selectedCategories, pendingFilters);
     };
 
-    const handleAutocompleteSelect = (item: SearchItem) => {
-        setShowAutocomplete(false);
-        setSearchQuery('');
-        if (onViewDetail) {
-            onViewDetail(item.id, item.source);
-        }
-    };
-
     const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (!showAutocomplete) {
-            if (e.key === 'Enter') {
-                handleSearch();
-            }
-            return;
+        if (e.key === 'Enter') {
+            handleSearch();
         }
-
-        // Navigation dans l'autocomplétion
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            setSelectedAutocompleteIndex(prev =>
-                prev < autocompleteResults.length - 1 ? prev + 1 : prev
-            );
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            setSelectedAutocompleteIndex(prev => prev > 0 ? prev - 1 : -1);
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (selectedAutocompleteIndex >= 0 && selectedAutocompleteIndex < autocompleteResults.length) {
-                handleAutocompleteSelect(autocompleteResults[selectedAutocompleteIndex]);
-            } else {
-                handleSearch();
-            }
-        } else if (e.key === 'Escape') {
-            setShowAutocomplete(false);
-            setSelectedAutocompleteIndex(-1);
-        }
+        return;
     };
 
     const hasActiveFilters = () => {
@@ -224,76 +147,8 @@ export function SearchSection({
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     onKeyDown={handleKeyPress}
-                                    onFocus={() => {
-                                        if (autocompleteResults.length > 0) {
-                                            setShowAutocomplete(true);
-                                        }
-                                    }}
                                     className="pl-12 py-4 text-lg border-input bg-input-background rounded-xl"
                                 />
-
-                                {/* Autocomplétion */}
-                                {showAutocomplete && (
-                                    <div
-                                        ref={autocompleteRef}
-                                        className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-50 max-h-90 overflow-y-auto"
-                                    >
-                                        {isLoadingAutocomplete ? (
-                                            <div className="p-4 text-center text-muted-foreground">
-                                                Recherche en cours...
-                                            </div>
-                                        ) : (
-                                            <>
-                                                {autocompleteResults.map((item, index) => {
-                                                    const categoryInfo = categories.find(cat => cat.id === item.source);
-
-                                                    return <div
-                                                        key={item.id}
-                                                        className={`p-3 border-b border-border last:border-b-0 cursor-pointer transition-colors ${
-                                                            index === selectedAutocompleteIndex
-                                                                ? 'bg-accent'
-                                                                : 'hover:bg-accent/50'
-                                                        }`}
-                                                        onClick={() => handleAutocompleteSelect(item)}
-                                                    >
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <Badge variant="secondary"
-                                                                       className={`text-xs ${categoryInfo ? categoryInfo.color : ''}`}>
-                                                                    <MapPin className="w-3 h-3 mr-1"/>
-                                                                    {SOURCE_LABELS[item.source]}
-                                                                </Badge>
-                                                            </div>
-                                                            <p className="font-medium text-sm line-clamp-1">{item.title}</p>
-                                                            <div className="flex flex-wrap gap-1 mt-1">
-                                                                {item.natures?.slice(0, 2).map((nature) => (
-                                                                    <Badge key={nature} variant="outline"
-                                                                           className="text-xs">
-                                                                        {nature}
-                                                                    </Badge>
-                                                                ))}
-                                                                {item.centuries?.slice(0, 1).map((century) => (
-                                                                    <Badge key={century} variant="outline"
-                                                                           className="text-xs">
-                                                                        {century}
-                                                                    </Badge>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                })}
-                                                <div className="p-2 bg-muted/30 text-center">
-                                                    <button
-                                                        onClick={handleSearch}
-                                                        className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                                                    >
-                                                        Voir tous les résultats pour "{searchQuery}"
-                                                    </button>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
                             </div>
                             <Button
                                 onClick={handleSearch}
