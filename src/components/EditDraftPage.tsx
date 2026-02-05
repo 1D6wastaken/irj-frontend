@@ -42,6 +42,7 @@ import {InfoTooltip} from "./InfoTooltip.tsx";
 import {tooltipTexts} from "../constants/tooltipTexts.ts";
 import {User} from "../App";
 import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "./ui/dialog.tsx";
+import {RichTextEditor} from "./RichTextEditor.tsx";
 
 interface EditDraftPageProps {
     user: User;
@@ -2084,36 +2085,37 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                 {/* Description - pour mobiliers et monuments uniquement */}
                                 {(source === 'mobiliers_images' || source === 'monuments_lieux') && (
                                     <div>
-                                        <Label htmlFor="description" className="flex items-center gap-1">
-                                            Description
-                                            <InfoTooltip content={tooltipTexts.common.description} />
-                                        </Label>
-                                        <Textarea
-                                            id="description"
+                                        <RichTextEditor
                                             value={formData.description || ''}
-                                            onChange={(e) => handleInputChange('description', e.target.value)}
+                                            onChange={(value) => handleInputChange('description', value)}
+                                            label={
+                                                <span className="flex items-center gap-1">
+                                                    Description
+                                                    <InfoTooltip content={tooltipTexts.common.description} />
+                                                </span>
+                                            }
                                             placeholder="Description détaillée de l'objet"
-                                            rows={4}
-                                            className={errors.description ? 'border-destructive' : ''}
+                                            required={false}
+                                            minHeight="150px"
                                         />
-                                        {errors.description &&
-                                            <p className="text-destructive text-sm mt-1">{errors.description}</p>}
                                     </div>
                                 )}
 
                                 {/* Histoire - pas pour personnes physiques */}
                                 {source !== 'personnes_physiques' && (
                                     <div>
-                                        <Label htmlFor="history" className="flex items-center gap-1">
-                                            Histoire
-                                            <InfoTooltip content={tooltipTexts.common.history} />
-                                        </Label>
-                                        <Textarea
-                                            id="history"
+                                        <RichTextEditor
                                             value={formData.history || ''}
-                                            onChange={(e) => handleInputChange('history', e.target.value)}
+                                            onChange={(value) => handleInputChange('history', value)}
+                                            label={
+                                                <span className="flex items-center gap-1">
+                                                    Histoire
+                                                    <InfoTooltip content={tooltipTexts.common.history} />
+                                                </span>
+                                            }
                                             placeholder="Histoire de l'objet"
-                                            rows={3}
+                                            required={false}
+                                            minHeight="150px"
                                         />
                                     </div>
                                 )}
@@ -2123,16 +2125,18 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                     <>
                                         {/* Inscriptions */}
                                         <div>
-                                            <Label className="flex items-center gap-1" htmlFor="inscription">
-                                                Inscriptions
-                                                <InfoTooltip content={tooltipTexts.mobiliersImages.inscription} />
-                                            </Label>
-                                            <Textarea
-                                                id="inscription"
+                                            <RichTextEditor
                                                 value={formData.inscription || ''}
-                                                onChange={(e) => handleInputChange('inscription', e.target.value)}
+                                                onChange={(value) => handleInputChange('inscription', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Inscriptions
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.inscription} />
+                                                </span>
+                                                }
                                                 placeholder="Inscriptions présentes sur l'objet"
-                                                rows={3}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
@@ -2246,76 +2250,86 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
 
                                         {/* Texte des statuts */}
                                         <div>
-                                            <Label htmlFor="statutesText" className="flex items-center gap-1 text-sm">
-                                                Texte des statuts
-                                                <InfoTooltip content={tooltipTexts.personnesMorales.statutesText} />
-                                            </Label>
-                                            <Textarea
-                                                id="statutesText"
+                                            <RichTextEditor
                                                 value={formData.statutesText || ''}
-                                                onChange={(e) => handleInputChange('statutesText', e.target.value)}
+                                                onChange={(value) => handleInputChange('statutesText', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Texte des statuts
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.statutesText} />
+                                                    </span>
+                                                }
                                                 placeholder="Texte des statuts de la personne morale"
-                                                rows={3}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
                                         {/* Description du fonctionnement */}
                                         <div>
-                                            <Label className="flex items-center gap-1" htmlFor="functioningDescription">
-                                                Fonctionnement
-                                                <InfoTooltip content={tooltipTexts.personnesMorales.functioningDescription} />
-                                            </Label>
-                                            <Textarea
-                                                id="functioningDescription"
+                                            <RichTextEditor
                                                 value={formData.functioningDescription || ''}
-                                                onChange={(e) => handleInputChange('functioningDescription', e.target.value)}
+                                                onChange={(value) => handleInputChange('functioningDescription', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Fonctionnement
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.functioningDescription} />
+                                                    </span>
+                                                }
                                                 placeholder="Comment fonctionne cette personne morale"
-                                                rows={3}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
                                         {/* Participation sociale */}
                                         <div>
-                                            <Label className="flex items-center gap-1" htmlFor="socialParticipation">
-                                                Participation à la vie sociale
-                                                <InfoTooltip content={tooltipTexts.personnesMorales.socialParticipation} />
-                                            </Label>
-                                            <Textarea
-                                                id="socialParticipation"
+                                            <RichTextEditor
                                                 value={formData.socialParticipation || ''}
-                                                onChange={(e) => handleInputChange('socialParticipation', e.target.value)}
+                                                onChange={(value) => handleInputChange('socialParticipation', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Participation à la vie sociale
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.socialParticipation} />
+                                                    </span>
+                                                }
                                                 placeholder="Implication et participation sociale"
-                                                rows={3}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
                                         {/* Objets liés */}
                                         <div>
-                                            <Label className="flex items-center gap-1" htmlFor="relatedObjects">
-                                                Objets liés
-                                                <InfoTooltip content={tooltipTexts.personnesMorales.relatedObjects} />
-                                            </Label>
-                                            <Textarea
-                                                id="relatedObjects"
+                                            <RichTextEditor
                                                 value={formData.relatedObjects || ''}
-                                                onChange={(e) => handleInputChange('relatedObjects', e.target.value)}
+                                                onChange={(value) => handleInputChange('relatedObjects', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Objets liés
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.relatedObjects} />
+                                                    </span>
+                                                }
                                                 placeholder="Objets et artefacts liés à cette personne morale"
-                                                rows={3}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
                                         {/* Commentaire */}
                                         <div>
-                                            <Label className="flex items-center gap-1" htmlFor="comment">
-                                                Commentaire
-                                                <InfoTooltip content={tooltipTexts.personnesMorales.comment} />
-                                            </Label>
-                                            <Textarea
-                                                id="comment"
+                                            <RichTextEditor
                                                 value={formData.comment || ''}
-                                                onChange={(e) => handleInputChange('comment', e.target.value)}
+                                                onChange={(value) => handleInputChange('comment', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Commentaire
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.comment} />
+                                                    </span>
+                                                }
                                                 placeholder="Commentaires additionnels"
-                                                rows={3}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
                                     </>
@@ -2425,31 +2439,35 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
 
                                         {/* Éléments biographiques */}
                                         <div>
-                                            <Label htmlFor="biographicalElements" className="flex items-center gap-1">
-                                                Éléments biographiques
-                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.biographicalElements} />
-                                            </Label>
-                                            <Textarea
-                                                id="biographicalElements"
+                                            <RichTextEditor
                                                 value={formData.biographicalElements || ''}
-                                                onChange={(e) => handleInputChange('biographicalElements', e.target.value)}
+                                                onChange={(value) => handleInputChange('biographicalElements', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Éléments biographiques
+                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.biographicalElements} />
+                                                    </span>
+                                                }
                                                 placeholder="Éléments biographiques de la personne"
-                                                rows={4}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
                                         {/* Éléments de pèlerinage */}
                                         <div>
-                                            <Label htmlFor="pilgrimage" className="flex items-center gap-1">
-                                                Pèlerinage
-                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.pilgrimage} />
-                                            </Label>
-                                            <Textarea
-                                                id="pilgrimage"
+                                            <RichTextEditor
                                                 value={formData.pilgrimage || ''}
-                                                onChange={(e) => handleInputChange('pilgrimage', e.target.value)}
+                                                onChange={(value) => handleInputChange('pilgrimage', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Pèlerinage
+                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.pilgrimage} />
+                                                    </span>
+                                                }
                                                 placeholder="Informations sur les pèlerinages effectués"
-                                                rows={3}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
@@ -2497,31 +2515,35 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
 
                                         {/* Commutation de vœu */}
                                         <div>
-                                            <Label htmlFor="commutationVow" className="flex items-center gap-1">
-                                                Commutation de vœu
-                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.commutationVow} />
-                                            </Label>
-                                            <Textarea
-                                                id="commutationVow"
+                                            <RichTextEditor
                                                 value={formData.commutationVow || ''}
-                                                onChange={(e) => handleInputChange('commutationVow', e.target.value)}
+                                                onChange={(value) => handleInputChange('commutationVow', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Commutation de vœu
+                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.commutationVow} />
+                                                    </span>
+                                                }
                                                 placeholder="Informations sur la commutation de vœu"
-                                                rows={3}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
                                         {/* Commentaire */}
                                         <div>
-                                            <Label htmlFor="comment" className="flex items-center gap-1">
-                                                Commentaire
-                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.comment} />
-                                            </Label>
-                                            <Textarea
-                                                id="comment"
+                                            <RichTextEditor
                                                 value={formData.comment || ''}
-                                                onChange={(e) => handleInputChange('comment', e.target.value)}
+                                                onChange={(value) => handleInputChange('comment', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Commentaire
+                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.comment} />
+                                                    </span>
+                                                }
                                                 placeholder="Commentaires additionnels"
-                                                rows={3}
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
                                     </>

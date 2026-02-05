@@ -38,8 +38,9 @@ import {
 import {User} from "../App";
 import {SearchableMultiSelect} from "./SearchableMultiSelect";
 import {SearchableSelect} from "./SearchableSelect";
-import { InfoTooltip } from "./InfoTooltip";
-import { tooltipTexts } from "../constants/tooltipTexts";
+import {InfoTooltip} from "./InfoTooltip";
+import {tooltipTexts} from "../constants/tooltipTexts";
+import {RichTextEditor} from "./RichTextEditor";
 
 
 interface ContributePageProps {
@@ -109,7 +110,7 @@ interface FormData {
     deathDate?: string;
 }
 
-export function ContributePage({ user, onBack }: ContributePageProps) {
+export function ContributePage({user, onBack}: ContributePageProps) {
     const [formData, setFormData] = useState<FormData>({
         category: '',
         name: '',
@@ -388,7 +389,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
         setIsSearchingFiches(true);
         try {
-            let searchReqBody : SearchRequestBody = {}
+            let searchReqBody: SearchRequestBody = {}
             switch (formData.category) {
                 case 'monuments_lieux':
                     searchReqBody = {
@@ -454,7 +455,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
             [field]: value
         }));
         if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
+            setErrors(prev => ({...prev, [field]: ''}));
         }
     };
 
@@ -493,7 +494,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         }));
         // Effacer l'erreur de localisation si elle existe
         if (errors.location) {
-            setErrors(prev => ({ ...prev, location: '' }));
+            setErrors(prev => ({...prev, location: ''}));
         }
     };
 
@@ -554,7 +555,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
         // Effacer l'erreur de localisation si elle existe
         if (errors.location) {
-            setErrors(prev => ({ ...prev, location: '' }));
+            setErrors(prev => ({...prev, location: ''}));
         }
     };
 
@@ -599,7 +600,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
             if (oversizedFiles.length > 0) {
                 toast.error(
                     `${oversizedFiles.length} image(s) dépassent 1MB : ${oversizedFiles.join(', ')}`,
-                    { duration: 6000 }
+                    {duration: 6000}
                 );
             }
 
@@ -648,7 +649,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         setFormData(prev => ({
             ...prev,
             images: prev.images.map((img, i) =>
-                i === index ? { ...img, caption } : img
+                i === index ? {...img, caption} : img
             )
         }));
     };
@@ -731,7 +732,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
         }
 
         // Validation de la localisation (tous les champs obligatoires)
-        let locationError :string[] = [];
+        let locationError: string[] = [];
         if (!formData.location.country) {
             locationError.push('le pays');
         }
@@ -747,8 +748,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
         if (locationError.length > 0) {
             if (locationError.length > 1) {
-                locationError[locationError.length -1] = 'et ' + locationError[locationError.length -1];
-                newErrors.location = 'La localisation est incomplète : ' + locationError.slice(0, locationError.length - 1).join(', ') + ' ' + locationError[locationError.length -1] + ' sont requis.';
+                locationError[locationError.length - 1] = 'et ' + locationError[locationError.length - 1];
+                newErrors.location = 'La localisation est incomplète : ' + locationError.slice(0, locationError.length - 1).join(', ') + ' ' + locationError[locationError.length - 1] + ' sont requis.';
             } else {
                 newErrors.location = 'La localisation est incomplète : ' + locationError[0] + ' est requis.';
             }
@@ -856,7 +857,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined ,
+                    contributors: formData.contributors || undefined,
                     source: sourceInfo,
                     description: formData.description || '',
                     history: formData.history || undefined,
@@ -891,7 +892,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined ,
+                    contributors: formData.contributors || undefined,
                     source: sourceInfo,
                     description: formData.description || '',
                     inscription: formData.inscription || undefined,
@@ -924,7 +925,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined ,
+                    contributors: formData.contributors || undefined,
                     source: sourceInfo,
                     simple_mention: formData.simpleMention,
                     foundation_deed: formData.foundationAct,
@@ -955,7 +956,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                     region: selectedRegion?.id || undefined,
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
-                    contributors: formData.contributors || undefined ,
+                    contributors: formData.contributors || undefined,
                     source: sourceInfo,
                     birthday: formData.birthDate || undefined,
                     death: formData.deathDate || undefined,
@@ -1093,27 +1094,30 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
             <div className="min-h-screen bg-secondary py-8">
                 <div className="container mx-auto px-4">
                     <div className="max-w-2xl mx-auto">
-                        <Card className={wasSubmittedAsDraft ? "border-blue-200 bg-blue-50" : "border-green-200 bg-green-50"}>
+                        <Card
+                            className={wasSubmittedAsDraft ? "border-blue-200 bg-blue-50" : "border-green-200 bg-green-50"}>
                             <CardContent className="text-center py-12">
                                 {wasSubmittedAsDraft ? (
                                     <>
-                                        <FileText className="w-16 h-16 text-blue-500 mx-auto mb-6" />
+                                        <FileText className="w-16 h-16 text-blue-500 mx-auto mb-6"/>
                                         <h2 className="text-2xl mb-4 text-blue-800">
                                             Brouillon enregistré avec succès !
                                         </h2>
                                         <p className="text-blue-700 mb-6 leading-relaxed">
-                                            Votre brouillon a été sauvegardé. Vous pourrez le retrouver dans votre espace personnel
+                                            Votre brouillon a été sauvegardé. Vous pourrez le retrouver dans votre
+                                            espace personnel
                                             et le compléter ou le soumettre plus tard.
                                         </p>
                                     </>
                                 ) : (
                                     <>
-                                        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
+                                        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6"/>
                                         <h2 className="text-2xl font-bold text-green-800 mb-4">
                                             Fiche soumise avec succès !
                                         </h2>
                                         <p className="text-green-700 mb-6 leading-relaxed">
-                                            Votre contribution a été reçue et sera examinée par notre équipe d'administrateurs.
+                                            Votre contribution a été reçue et sera examinée par notre équipe
+                                            d'administrateurs.
                                         </p>
                                     </>
                                 )}
@@ -1144,7 +1148,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                             onClick={onBack}
                             className="mb-4"
                         >
-                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            <ArrowLeft className="w-4 h-4 mr-2"/>
                             Retour
                         </Button>
                         <h1 className="text-3xl font-bold text-foreground">
@@ -1155,7 +1159,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                         </p>
                         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 text-blue-600" />
+                                <Users className="w-4 h-4 text-blue-600"/>
                                 <span className="text-sm font-medium text-blue-800">Auteur de la fiche</span>
                             </div>
                             <p className="text-sm text-blue-700 mt-1">
@@ -1178,7 +1182,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     Catégorie
-                                    <InfoTooltip content={tooltipTexts.common.category} />
+                                    <InfoTooltip content={tooltipTexts.common.category}/>
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -1213,7 +1217,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                         <div>
                                             <Label htmlFor="name" className="flex items-center gap-1">
                                                 Nom/Titre *
-                                                <InfoTooltip content={tooltipTexts.common.name} />
+                                                <InfoTooltip content={tooltipTexts.common.name}/>
                                             </Label>
                                             <Input
                                                 id="name"
@@ -1222,23 +1226,30 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 className={errors.name ? 'border-destructive' : ''}
                                                 placeholder="Nom ou titre de l'élément"
                                             />
-                                            {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
+                                            {errors.name &&
+                                                <p className="text-destructive text-sm mt-1">{errors.name}</p>}
                                         </div>
 
                                         {/* Siècles */}
                                         <div>
                                             <Label className="flex items-center gap-1">
                                                 Siècles
-                                                <InfoTooltip content={tooltipTexts.common.centuries} />
+                                                <InfoTooltip content={tooltipTexts.common.centuries}/>
                                             </Label>
                                             <p className="text-sm text-muted-foreground mb-3">
                                                 Sélectionnez les siècles concernés (optionnel)
                                             </p>
                                             {Array.isArray(centuries) && centuries.length > 0 ? (
                                                 <SearchableMultiSelect
-                                                    options={centuries.filter(c => c && c.id && c.name).map(c => ({ id: c.id, name: c.name }))}
+                                                    options={centuries.filter(c => c && c.id && c.name).map(c => ({
+                                                        id: c.id,
+                                                        name: c.name
+                                                    }))}
                                                     selectedValues={formData.centuries || []}
-                                                    onChange={(selected) => setFormData(prev => ({ ...prev, centuries: selected }))}
+                                                    onChange={(selected) => setFormData(prev => ({
+                                                        ...prev,
+                                                        centuries: selected
+                                                    }))}
                                                     placeholder="Sélectionner des siècles"
                                                     searchPlaceholder="Rechercher un siècle..."
                                                     emptyMessage="Aucun siècle trouvé"
@@ -1248,16 +1259,17 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     Chargement des siècles...
                                                 </div>
                                             )}
-                                            {errors.centuries && <p className="text-destructive text-sm mt-2">{errors.centuries}</p>}
+                                            {errors.centuries &&
+                                                <p className="text-destructive text-sm mt-2">{errors.centuries}</p>}
                                         </div>
 
                                         {/* Localisation */}
                                         <div>
                                             <div className="flex items-center gap-2 mb-2">
-                                                <MapPin className="w-4 h-4 text-muted-foreground" />
+                                                <MapPin className="w-4 h-4 text-muted-foreground"/>
                                                 <Label className="flex items-center gap-1">
                                                     Localisation *
-                                                    <InfoTooltip content={tooltipTexts.location.title} />
+                                                    <InfoTooltip content={tooltipTexts.location.title}/>
                                                 </Label>
                                             </div>
                                             <p className="text-sm text-muted-foreground mb-4">
@@ -1279,7 +1291,10 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     <Label className="text-sm">Pays</Label>
                                                     <div className="mt-1">
                                                         <SearchableSelect
-                                                            options={countries.filter(c => c && c.id && c.name).map(c => ({ id: c.id, name: c.name }))}
+                                                            options={countries.filter(c => c && c.id && c.name).map(c => ({
+                                                                id: c.id,
+                                                                name: c.name
+                                                            }))}
                                                             selectedValue={selectedCountry?.id || ''}
                                                             onChange={(countryId) => {
                                                                 const country = countries.find(c => c.id === countryId);
@@ -1342,7 +1357,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div className="relative">
                                                     <Label className="text-sm">Commune</Label>
                                                     <div className="relative mt-1">
-                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                                        <Search
+                                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
                                                         <Input
                                                             placeholder={selectedCommune ? selectedCommune.name : "Rechercher une commune..."}
                                                             value={selectedCommune ? selectedCommune.name : communeQuery}
@@ -1373,14 +1389,17 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     </div>
 
                                                     {showCommuneResults && !selectedCommune && (
-                                                        <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
+                                                        <div
+                                                            className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
                                                             {isSearchingCommunes && (
-                                                                <div className="p-4 text-center text-sm text-muted-foreground">
+                                                                <div
+                                                                    className="p-4 text-center text-sm text-muted-foreground">
                                                                     Recherche en cours...
                                                                 </div>
                                                             )}
                                                             {!isSearchingCommunes && communes.length === 0 && communeQuery.length >= 2 && (
-                                                                <div className="p-4 text-center text-sm text-muted-foreground">
+                                                                <div
+                                                                    className="p-4 text-center text-sm text-muted-foreground">
                                                                     Aucune commune trouvée
                                                                 </div>
                                                             )}
@@ -1399,7 +1418,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         </div>
                                                     )}
 
-                                                    {errors.commune && <p className="text-destructive text-sm mt-1">{errors.commune}</p>}
+                                                    {errors.commune &&
+                                                        <p className="text-destructive text-sm mt-1">{errors.commune}</p>}
                                                 </div>
 
                                                 {/* Affichage de la localisation sélectionnée */}
@@ -1407,7 +1427,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     <div className="p-3 bg-accent rounded-lg">
                                                         <div className="flex items-center justify-between">
                                                             <div>
-                                                                <div className="text-sm font-medium text-accent-foreground">
+                                                                <div
+                                                                    className="text-sm font-medium text-accent-foreground">
                                                                     Localisation sélectionnée :
                                                                 </div>
                                                                 <div className="text-xs text-muted-foreground mt-1">
@@ -1436,7 +1457,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                 }}
                                                                 className="ml-2"
                                                             >
-                                                                <X className="w-4 h-4" />
+                                                                <X className="w-4 h-4"/>
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -1455,8 +1476,9 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
                                             {/* Message d'erreur pour la localisation */}
                                             {errors.location && (
-                                                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg mt-4">
-                                                    <AlertTriangle className="w-4 h-4 text-destructive" />
+                                                <div
+                                                    className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg mt-4">
+                                                    <AlertTriangle className="w-4 h-4 text-destructive"/>
                                                     <p className="text-sm text-destructive">{errors.location}</p>
                                                 </div>
                                             )}
@@ -1466,9 +1488,9 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                         <div>
                                             <div className="flex items-center justify-between mb-4">
                                                 <div className="flex items-center gap-2">
-                                                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                                                    <ImageIcon className="w-4 h-4 text-muted-foreground"/>
                                                     <Label>Images</Label>
-                                                    <InfoTooltip content={tooltipTexts.common.images} />
+                                                    <InfoTooltip content={tooltipTexts.common.images}/>
                                                 </div>
                                                 <Badge variant="secondary">
                                                     {formData.images.length} image{formData.images.length !== 1 ? 's' : ''}
@@ -1478,8 +1500,9 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                             {/* Bouton d'ajout d'images */}
                                             <div className="mb-4">
                                                 <label htmlFor="imageInput" className="cursor-pointer">
-                                                    <div className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-muted-foreground/25 rounded-lg hover:border-primary/50 hover:bg-accent/50 transition-colors">
-                                                        <Plus className="w-5 h-5" />
+                                                    <div
+                                                        className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-muted-foreground/25 rounded-lg hover:border-primary/50 hover:bg-accent/50 transition-colors">
+                                                        <Plus className="w-5 h-5"/>
                                                         <span className="text-sm">Ajouter des images</span>
                                                     </div>
                                                     <input
@@ -1491,10 +1514,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         className="hidden"
                                                     />
                                                 </label>
-                                                <div className="flex items-start gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
-                                                    <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                                <div
+                                                    className="flex items-start gap-2 mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                                                    <AlertTriangle
+                                                        className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0"/>
                                                     <p className="text-xs text-amber-800">
-                                                        Les images de plus de 1 MB seront refusées par le serveur. Assurez-vous que vos images ne dépassent pas cette taille.
+                                                        Les images de plus de 1 MB seront refusées par le serveur.
+                                                        Assurez-vous que vos images ne dépassent pas cette taille.
                                                     </p>
                                                 </div>
                                             </div>
@@ -1516,7 +1542,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
                                                                 {/* Informations et légende */}
                                                                 <div className="flex-1 space-y-2">
-                                                                    <div className="flex items-start justify-between gap-2">
+                                                                    <div
+                                                                        className="flex items-start justify-between gap-2">
                                                                         <div>
                                                                             <p className="text-sm font-medium truncate">
                                                                                 {image.file.name}
@@ -1541,12 +1568,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                             onClick={() => removeImage(index)}
                                                                             className="text-destructive hover:text-destructive"
                                                                         >
-                                                                            <Trash2 className="w-4 h-4" />
+                                                                            <Trash2 className="w-4 h-4"/>
                                                                         </Button>
                                                                     </div>
 
                                                                     <div>
-                                                                        <Label htmlFor={`caption-${index}`} className="text-xs">
+                                                                        <Label htmlFor={`caption-${index}`}
+                                                                               className="text-xs">
                                                                             Légende
                                                                         </Label>
                                                                         <Textarea
@@ -1570,13 +1598,19 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                         <div>
                                             <Label className="flex items-center gap-1">
                                                 Thèmes
-                                                <InfoTooltip content={tooltipTexts.common.themes} />
+                                                <InfoTooltip content={tooltipTexts.common.themes}/>
                                             </Label>
                                             {Array.isArray(themes) && themes.length > 0 ? (
                                                 <SearchableMultiSelect
-                                                    options={themes.filter(t => t && t.id && t.name).map(t => ({ id: t.id, name: t.name }))}
+                                                    options={themes.filter(t => t && t.id && t.name).map(t => ({
+                                                        id: t.id,
+                                                        name: t.name
+                                                    }))}
                                                     selectedValues={formData.themes || []}
-                                                    onChange={(selected) => setFormData(prev => ({ ...prev, themes: selected }))}
+                                                    onChange={(selected) => setFormData(prev => ({
+                                                        ...prev,
+                                                        themes: selected
+                                                    }))}
                                                     placeholder="Sélectionner des thèmes"
                                                     searchPlaceholder="Rechercher un thème..."
                                                     emptyMessage="Aucun thème trouvé"
@@ -1592,7 +1626,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                         <div>
                                             <Label className="flex items-center gap-1">
                                                 Contributeurs
-                                                <InfoTooltip content={tooltipTexts.common.contributors} />
+                                                <InfoTooltip content={tooltipTexts.common.contributors}/>
                                             </Label>
                                             <p className="text-sm text-muted-foreground mb-3">
                                                 Personnes ayant contribué à cette fiche (en plus de vous)
@@ -1606,13 +1640,14 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addContributor())}
                                                     />
                                                     <Button type="button" onClick={addContributor} size="sm">
-                                                        <Plus className="w-4 h-4" />
+                                                        <Plus className="w-4 h-4"/>
                                                     </Button>
                                                 </div>
                                                 {formData.contributors.length > 0 && (
                                                     <div className="flex flex-wrap gap-2">
                                                         {formData.contributors.map((contributor, index) => (
-                                                            <Badge key={index} variant="secondary" className="flex items-center gap-2">
+                                                            <Badge key={index} variant="secondary"
+                                                                   className="flex items-center gap-2">
                                                                 {contributor}
                                                                 <X
                                                                     className="w-3 h-3 cursor-pointer"
@@ -1629,13 +1664,14 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                         <div>
                                             <Label className="flex items-center gap-1">
                                                 Source de l'information
-                                                <InfoTooltip content={tooltipTexts.source.title} />
+                                                <InfoTooltip content={tooltipTexts.source.title}/>
                                             </Label>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                                                 <div>
-                                                    <Label htmlFor="sourceAuthor" className="text-sm flex items-center gap-1">
+                                                    <Label htmlFor="sourceAuthor"
+                                                           className="text-sm flex items-center gap-1">
                                                         Auteur
-                                                        <InfoTooltip content={tooltipTexts.source.author} />
+                                                        <InfoTooltip content={tooltipTexts.source.author}/>
                                                     </Label>
                                                     <Input
                                                         id="sourceAuthor"
@@ -1644,12 +1680,14 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         className={errors.sourceAuthor ? 'border-destructive' : ''}
                                                         placeholder="Nom de l'auteur"
                                                     />
-                                                    {errors.sourceAuthor && <p className="text-destructive text-sm mt-1">{errors.sourceAuthor}</p>}
+                                                    {errors.sourceAuthor &&
+                                                        <p className="text-destructive text-sm mt-1">{errors.sourceAuthor}</p>}
                                                 </div>
                                                 <div>
-                                                    <Label htmlFor="sourceTitle" className="text-sm flex items-center gap-1">
+                                                    <Label htmlFor="sourceTitle"
+                                                           className="text-sm flex items-center gap-1">
                                                         Titre
-                                                        <InfoTooltip content={tooltipTexts.source.sourceTitle} />
+                                                        <InfoTooltip content={tooltipTexts.source.sourceTitle}/>
                                                     </Label>
                                                     <Input
                                                         id="sourceTitle"
@@ -1659,9 +1697,10 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <Label htmlFor="sourceUrl" className="text-sm flex items-center gap-1">
+                                                    <Label htmlFor="sourceUrl"
+                                                           className="text-sm flex items-center gap-1">
                                                         URL/Référence
-                                                        <InfoTooltip content={tooltipTexts.source.url} />
+                                                        <InfoTooltip content={tooltipTexts.source.url}/>
                                                     </Label>
                                                     <Input
                                                         id="sourceUrl"
@@ -1671,9 +1710,10 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     />
                                                 </div>
                                                 <div className="md:col-span-2">
-                                                    <Label htmlFor="sourceDetails" className="text-sm flex items-center gap-1">
+                                                    <Label htmlFor="sourceDetails"
+                                                           className="text-sm flex items-center gap-1">
                                                         Détails
-                                                        <InfoTooltip content={tooltipTexts.source.details} />
+                                                        <InfoTooltip content={tooltipTexts.source.details}/>
                                                     </Label>
                                                     <Textarea
                                                         id="sourceDetails"
@@ -1700,13 +1740,19 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         Types d'éléments
-                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.natures} />
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.natures}/>
                                                     </Label>
                                                     {Array.isArray(buildingNatures) && buildingNatures.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={buildingNatures.filter(n => n && n.id && n.name).map(n => ({ id: n.id, name: n.name }))}
+                                                            options={buildingNatures.filter(n => n && n.id && n.name).map(n => ({
+                                                                id: n.id,
+                                                                name: n.name
+                                                            }))}
                                                             selectedValues={formData.natures || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, natures: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                natures: selected
+                                                            }))}
                                                             placeholder="Sélectionner des types"
                                                             searchPlaceholder="Rechercher un type..."
                                                             emptyMessage="Aucun type trouvé"
@@ -1719,32 +1765,37 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="description" className="flex items-center gap-1">
-                                                        Description
-                                                        <InfoTooltip content={tooltipTexts.common.description} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="description"
+                                                    <RichTextEditor
                                                         value={formData.description || ''}
-                                                        onChange={(e) => handleInputChange('description', e.target.value)}
-                                                        className={errors.description ? 'border-destructive' : ''}
+                                                        onChange={(value) => handleInputChange('description', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Description
+                                                                <InfoTooltip content={tooltipTexts.common.description}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Description détaillée du monument ou lieu"
-                                                        rows={4}
+                                                        required={false}
+                                                        minHeight="150px"
+                                                        className={errors.description ? 'border-destructive' : ''}
                                                     />
-                                                    {errors.description && <p className="text-destructive text-sm mt-1">{errors.description}</p>}
+                                                    {errors.description &&
+                                                        <p className="text-destructive text-sm mt-1">{errors.description}</p>}
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="history" className="flex items-center gap-1">
-                                                        Histoire
-                                                        <InfoTooltip content={tooltipTexts.common.history} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="history"
+                                                    <RichTextEditor
                                                         value={formData.history || ''}
-                                                        onChange={(e) => handleInputChange('history', e.target.value)}
+                                                        onChange={(value) => handleInputChange('history', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Histoire
+                                                                <InfoTooltip content={tooltipTexts.common.history}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Histoire et contexte historique"
-                                                        rows={4}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
@@ -1768,9 +1819,10 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     </Label>
                                                     <div className="grid grid-cols-2 gap-4 mt-3">
                                                         <div>
-                                                            <Label htmlFor="latitude" className="text-sm flex items-center gap-1">
+                                                            <Label htmlFor="latitude"
+                                                                   className="text-sm flex items-center gap-1">
                                                                 Latitude
-                                                                <InfoTooltip content={tooltipTexts.location.latitude} />
+                                                                <InfoTooltip content={tooltipTexts.location.latitude}/>
                                                             </Label>
                                                             <Input
                                                                 id="latitude"
@@ -1780,9 +1832,10 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Label htmlFor="longitude" className="text-sm flex items-center gap-1">
+                                                            <Label htmlFor="longitude"
+                                                                   className="text-sm flex items-center gap-1">
                                                                 Longitude
-                                                                <InfoTooltip content={tooltipTexts.location.longitude} />
+                                                                <InfoTooltip content={tooltipTexts.location.longitude}/>
                                                             </Label>
                                                             <Input
                                                                 id="longitude"
@@ -1797,13 +1850,20 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         États de conservation
-                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.conservationStates} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.monumentsLieux.conservationStates}/>
                                                     </Label>
                                                     {Array.isArray(conservationStates) && conservationStates.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({ id: c.id, name: c.name }))}
+                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({
+                                                                id: c.id,
+                                                                name: c.name
+                                                            }))}
                                                             selectedValues={formData.conservationStates || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, conservationStates: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                conservationStates: selected
+                                                            }))}
                                                             placeholder="Sélectionner des états"
                                                             searchPlaceholder="Rechercher un état..."
                                                             emptyMessage="Aucun état trouvé"
@@ -1818,13 +1878,19 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         Matériaux
-                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.materials} />
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.materials}/>
                                                     </Label>
                                                     {Array.isArray(materials) && materials.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({ id: m.id, name: m.name }))}
+                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({
+                                                                id: m.id,
+                                                                name: m.name
+                                                            }))}
                                                             selectedValues={formData.materials || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, materials: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                materials: selected
+                                                            }))}
                                                             placeholder="Sélectionner des matériaux"
                                                             searchPlaceholder="Rechercher un matériau..."
                                                             emptyMessage="Aucun matériau trouvé"
@@ -1845,9 +1911,11 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                 checked={formData.protected || false}
                                                                 onCheckedChange={(checked) => handleInputChange('protected', checked)}
                                                             />
-                                                            <Label htmlFor="protected" className="flex items-center gap-1 text-sm">
+                                                            <Label htmlFor="protected"
+                                                                   className="flex items-center gap-1 text-sm">
                                                                 Monument protégé
-                                                                <InfoTooltip content={tooltipTexts.monumentsLieux.protected} />
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.monumentsLieux.protected}/>
                                                             </Label>
                                                         </div>
 
@@ -1875,13 +1943,19 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         Type d'Élément
-                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.natures} />
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.natures}/>
                                                     </Label>
                                                     {Array.isArray(furnituresNatures) && furnituresNatures.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={furnituresNatures.filter(n => n && n.id && n.name).map(n => ({ id: n.id, name: n.name }))}
+                                                            options={furnituresNatures.filter(n => n && n.id && n.name).map(n => ({
+                                                                id: n.id,
+                                                                name: n.name
+                                                            }))}
                                                             selectedValues={formData.natures || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, natures: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                natures: selected
+                                                            }))}
                                                             placeholder="Sélectionner des types"
                                                             searchPlaceholder="Rechercher un type..."
                                                             emptyMessage="Aucun type trouvé"
@@ -1894,52 +1968,61 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="description">
-                                                        Description
-                                                        <InfoTooltip content={tooltipTexts.common.description} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="description"
+                                                    <RichTextEditor
                                                         value={formData.description || ''}
-                                                        onChange={(e) => handleInputChange('description', e.target.value)}
-                                                        className={errors.description ? 'border-destructive' : ''}
+                                                        onChange={(value) => handleInputChange('description', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Description
+                                                                <InfoTooltip content={tooltipTexts.common.description}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Description détaillée de l'objet"
-                                                        rows={4}
+                                                        required={false}
+                                                        minHeight="150px"
+                                                        className={errors.description ? 'border-destructive' : ''}
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="history">
-                                                        Histoire
-                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.history} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="history"
+                                                    <RichTextEditor
                                                         value={formData.history || ''}
-                                                        onChange={(e) => handleInputChange('history', e.target.value)}
+                                                        onChange={(value) => handleInputChange('history', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Histoire
+                                                                <InfoTooltip content={tooltipTexts.common.history}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Histoire de l'objet"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="inscription">
-                                                        Inscriptions
-                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.inscription} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="inscription"
+                                                    <RichTextEditor
                                                         value={formData.inscription || ''}
-                                                        onChange={(e) => handleInputChange('inscription', e.target.value)}
+                                                        onChange={(value) => handleInputChange('inscription', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Inscriptions
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.mobiliersImages.inscription}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Inscriptions présentes sur l'objet"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="currentLocation">
+                                                    <Label className="flex items-center gap-1"
+                                                           htmlFor="currentLocation">
                                                         Emplacement actuel
-                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.currentLocation} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.mobiliersImages.currentLocation}/>
                                                     </Label>
                                                     <Input
                                                         id="currentLocation"
@@ -1950,9 +2033,11 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="originalLocation">
+                                                    <Label className="flex items-center gap-1"
+                                                           htmlFor="originalLocation">
                                                         Emplacement d'origine
-                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.originalLocation} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.mobiliersImages.originalLocation}/>
                                                     </Label>
                                                     <Input
                                                         id="originalLocation"
@@ -1965,13 +2050,20 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         États de conservation
-                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.conservationStates} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.mobiliersImages.conservationStates}/>
                                                     </Label>
                                                     {Array.isArray(conservationStates) && conservationStates.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({ id: c.id, name: c.name }))}
+                                                            options={conservationStates.filter(c => c && c.id && c.name).map(c => ({
+                                                                id: c.id,
+                                                                name: c.name
+                                                            }))}
                                                             selectedValues={formData.conservationStates || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, conservationStates: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                conservationStates: selected
+                                                            }))}
                                                             placeholder="Sélectionner des états"
                                                             searchPlaceholder="Rechercher un état..."
                                                             emptyMessage="Aucun état trouvé"
@@ -1986,13 +2078,19 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         Matériaux
-                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.materials} />
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.materials}/>
                                                     </Label>
                                                     {Array.isArray(materials) && materials.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({ id: m.id, name: m.name }))}
+                                                            options={materials.filter(m => m && m.id && m.name).map(m => ({
+                                                                id: m.id,
+                                                                name: m.name
+                                                            }))}
                                                             selectedValues={formData.materials || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, materials: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                materials: selected
+                                                            }))}
                                                             placeholder="Sélectionner des matériaux"
                                                             searchPlaceholder="Rechercher un matériau..."
                                                             emptyMessage="Aucun matériau trouvé"
@@ -2007,13 +2105,19 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         Techniques
-                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.techniques} />
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.techniques}/>
                                                     </Label>
                                                     {Array.isArray(furnituresTechniques) && furnituresTechniques.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({ id: t.id, name: t.name }))}
+                                                            options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({
+                                                                id: t.id,
+                                                                name: t.name
+                                                            }))}
                                                             selectedValues={formData.techniques || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, techniques: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                techniques: selected
+                                                            }))}
                                                             placeholder="Sélectionner des techniques"
                                                             searchPlaceholder="Rechercher une technique..."
                                                             emptyMessage="Aucune technique trouvée"
@@ -2034,9 +2138,11 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                 checked={formData.protected || false}
                                                                 onCheckedChange={(checked) => handleInputChange('protected', checked)}
                                                             />
-                                                            <Label htmlFor="protected" className="flex items-center gap-1 text-sm">
+                                                            <Label htmlFor="protected"
+                                                                   className="flex items-center gap-1 text-sm">
                                                                 Objet protégé
-                                                                <InfoTooltip content={tooltipTexts.mobiliersImages.protected} />
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.mobiliersImages.protected}/>
                                                             </Label>
                                                         </div>
 
@@ -2078,13 +2184,19 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         Types d'organisation
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.natures} />
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.natures}/>
                                                     </Label>
                                                     {Array.isArray(legalEntityNatures) && legalEntityNatures.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={legalEntityNatures.filter(n => n && n.id && n.name).map(n => ({ id: n.id, name: n.name }))}
+                                                            options={legalEntityNatures.filter(n => n && n.id && n.name).map(n => ({
+                                                                id: n.id,
+                                                                name: n.name
+                                                            }))}
                                                             selectedValues={formData.natures || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, natures: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                natures: selected
+                                                            }))}
                                                             placeholder="Sélectionner des types"
                                                             searchPlaceholder="Rechercher un type..."
                                                             emptyMessage="Aucun type trouvé"
@@ -2097,72 +2209,86 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="comment">
-                                                        Commentaire
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.comment} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="comment"
+                                                    <RichTextEditor
                                                         value={formData.comment || ''}
-                                                        onChange={(e) => handleInputChange('comment', e.target.value)}
+                                                        onChange={(value) => handleInputChange('comment', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Commentaire
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesMorales.comment}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Commentaire sur l'organisation"
-                                                        rows={4}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="history">
-                                                        Histoire
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.history} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="history"
+                                                    <RichTextEditor
                                                         value={formData.history || ''}
-                                                        onChange={(e) => handleInputChange('history', e.target.value)}
+                                                        onChange={(value) => handleInputChange('history', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Histoire
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.history}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Histoire de l'organisation"
-                                                        rows={4}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="functioningDescription">
-                                                        Fonctionnement
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.functioningDescription} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="functioningDescription"
+                                                    <RichTextEditor
                                                         value={formData.functioningDescription || ''}
-                                                        onChange={(e) => handleInputChange('functioningDescription', e.target.value)}
+                                                        onChange={(value) => handleInputChange('functioningDescription', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Fonctionnement
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesMorales.functioningDescription}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Comment l'organisation fonctionne"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="socialParticipation">
-                                                        Participation à la vie sociale
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.socialParticipation} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="socialParticipation"
+                                                    <RichTextEditor
                                                         value={formData.socialParticipation || ''}
-                                                        onChange={(e) => handleInputChange('socialParticipation', e.target.value)}
+                                                        onChange={(value) => handleInputChange('socialParticipation', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Participation à la vie sociale
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesMorales.socialParticipation}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Rôle dans la société"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label className="flex items-center gap-1" htmlFor="relatedObjects">
-                                                        Objets liés
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.relatedObjects} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="relatedObjects"
+                                                    <RichTextEditor
                                                         value={formData.relatedObjects || ''}
-                                                        onChange={(e) => handleInputChange('relatedObjects', e.target.value)}
+                                                        onChange={(value) => handleInputChange('relatedObjects', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Objets liés
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesMorales.relatedObjects}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Objets en relation avec l'organisation"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
@@ -2172,9 +2298,11 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         checked={formData.simpleMention}
                                                         onCheckedChange={(checked) => handleInputChange('simpleMention', checked)}
                                                     />
-                                                    <Label className="flex items-center gap-1 text-sm" htmlFor="simpleMention">
+                                                    <Label className="flex items-center gap-1 text-sm"
+                                                           htmlFor="simpleMention">
                                                         Simple mention
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.simpleMention} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.personnesMorales.simpleMention}/>
                                                     </Label>
                                                 </div>
 
@@ -2184,9 +2312,11 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         checked={formData.foundationAct}
                                                         onCheckedChange={(checked) => handleInputChange('foundationAct', checked)}
                                                     />
-                                                    <Label className="flex items-center gap-1 text-sm" htmlFor="foundationAct">
+                                                    <Label className="flex items-center gap-1 text-sm"
+                                                           htmlFor="foundationAct">
                                                         Acte de fondation
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.foundationAct} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.personnesMorales.foundationAct}/>
                                                     </Label>
                                                 </div>
 
@@ -2196,9 +2326,11 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         checked={formData.statutesText}
                                                         onCheckedChange={(checked) => handleInputChange('statutesText', checked)}
                                                     />
-                                                    <Label htmlFor="statutesText" className="flex items-center gap-1 text-sm">
+                                                    <Label htmlFor="statutesText"
+                                                           className="flex items-center gap-1 text-sm">
                                                         Texte des statuts
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.statutesText} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.personnesMorales.statutesText}/>
                                                     </Label>
                                                 </div>
 
@@ -2225,7 +2357,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     <div>
                                                         <Label htmlFor="birthDate" className="flex items-center gap-1">
                                                             Date de naissance
-                                                            <InfoTooltip content={tooltipTexts.personnesPhysiques.birthDate} />
+                                                            <InfoTooltip
+                                                                content={tooltipTexts.personnesPhysiques.birthDate}/>
                                                         </Label>
                                                         <Input
                                                             id="birthDate"
@@ -2237,7 +2370,8 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                     <div>
                                                         <Label htmlFor="deathDate" className="flex items-center gap-1">
                                                             Date de décès
-                                                            <InfoTooltip content={tooltipTexts.personnesPhysiques.deathDate} />
+                                                            <InfoTooltip
+                                                                content={tooltipTexts.personnesPhysiques.deathDate}/>
                                                         </Label>
                                                         <Input
                                                             id="deathDate"
@@ -2249,85 +2383,107 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="attestation" className="flex items-center gap-1">
-                                                        Attestation
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.attestation} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="attestation"
+                                                    <RichTextEditor
                                                         value={formData.attestation || ''}
-                                                        onChange={(e) => handleInputChange('attestation', e.target.value)}
+                                                        onChange={(value) => handleInputChange('attestation', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Attestation
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesPhysiques.attestation}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Attestation concernant la personne"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="biographicalElements" className="flex items-center gap-1">
-                                                        Éléments biographiques
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.biographicalElements} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="biographicalElements"
+                                                    <RichTextEditor
                                                         value={formData.biographicalElements || ''}
-                                                        onChange={(e) => handleInputChange('biographicalElements', e.target.value)}
+                                                        onChange={(value) => handleInputChange('biographicalElements', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Éléments biographiques
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesPhysiques.biographicalElements}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Informations biographiques"
-                                                        rows={4}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="pilgrimage" className="flex items-center gap-1">
-                                                        Pèlerinage
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.pilgrimage} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="pilgrimage"
+                                                    <RichTextEditor
                                                         value={formData.pilgrimage || ''}
-                                                        onChange={(e) => handleInputChange('pilgrimage', e.target.value)}
+                                                        onChange={(value) => handleInputChange('pilgrimage', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Pèlerinage
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesPhysiques.pilgrimage}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Informations sur le pèlerinage"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="commutationVow" className="flex items-center gap-1">
-                                                        Commutation de vœu
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.commutationVow} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="commutationVow"
+                                                    <RichTextEditor
                                                         value={formData.commutationVow || ''}
-                                                        onChange={(e) => handleInputChange('commutationVow', e.target.value)}
+                                                        onChange={(value) => handleInputChange('commutationVow', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Commutation de vœu
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesPhysiques.commutationVow}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Informations sur la commutation de vœu"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="eventNature" className="flex items-center gap-1">
-                                                        Nature de l'événement
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.eventNature} />
-                                                    </Label>
-                                                    <Textarea
-                                                        id="eventNature"
+                                                    <RichTextEditor
                                                         value={formData.eventNature || ''}
-                                                        onChange={(e) => handleInputChange('eventNature', e.target.value)}
+                                                        onChange={(value) => handleInputChange('eventNature', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Nature de l'événement
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesPhysiques.eventNature}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Informations sur la nature de l'événement"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         Périodes historiques
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.historicalPeriods} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.personnesPhysiques.historicalPeriods}/>
                                                     </Label>
                                                     {Array.isArray(historicalPeriods) && historicalPeriods.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={historicalPeriods.filter(h => h && h.id && h.name).map(h => ({ id: h.id, name: h.name }))}
+                                                            options={historicalPeriods.filter(h => h && h.id && h.name).map(h => ({
+                                                                id: h.id,
+                                                                name: h.name
+                                                            }))}
                                                             selectedValues={formData.historicalPeriods || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, historicalPeriods: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                historicalPeriods: selected
+                                                            }))}
                                                             placeholder="Sélectionner des périodes"
                                                             searchPlaceholder="Rechercher une période..."
                                                             emptyMessage="Aucune période trouvée"
@@ -2342,13 +2498,20 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         Professions
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.professions} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.personnesPhysiques.professions}/>
                                                     </Label>
                                                     {Array.isArray(professions) && professions.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={professions.filter(p => p && p.id && p.name).map(p => ({ id: p.id, name: p.name }))}
+                                                            options={professions.filter(p => p && p.id && p.name).map(p => ({
+                                                                id: p.id,
+                                                                name: p.name
+                                                            }))}
                                                             selectedValues={formData.professions || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, professions: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                professions: selected
+                                                            }))}
                                                             placeholder="Sélectionner des professions"
                                                             searchPlaceholder="Rechercher une profession..."
                                                             emptyMessage="Aucune profession trouvée"
@@ -2363,13 +2526,20 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                 <div>
                                                     <Label className="flex items-center gap-1">
                                                         Modes de transport
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.transportModes} />
+                                                        <InfoTooltip
+                                                            content={tooltipTexts.personnesPhysiques.transportModes}/>
                                                     </Label>
                                                     {Array.isArray(travels) && travels.length > 0 ? (
                                                         <SearchableMultiSelect
-                                                            options={travels.filter(t => t && t.id && t.name).map(t => ({ id: t.id, name: t.name }))}
+                                                            options={travels.filter(t => t && t.id && t.name).map(t => ({
+                                                                id: t.id,
+                                                                name: t.name
+                                                            }))}
                                                             selectedValues={formData.transportModes || []}
-                                                            onChange={(selected) => setFormData(prev => ({ ...prev, transportModes: selected }))}
+                                                            onChange={(selected) => setFormData(prev => ({
+                                                                ...prev,
+                                                                transportModes: selected
+                                                            }))}
                                                             placeholder="Sélectionner des modes"
                                                             searchPlaceholder="Rechercher un mode..."
                                                             emptyMessage="Aucun mode trouvé"
@@ -2418,20 +2588,22 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                     <CardHeader>
                                         <CardTitle>
                                             Fiches liées
-                                            <InfoTooltip content={tooltipTexts.common.relatedForms} />
+                                            <InfoTooltip content={tooltipTexts.common.relatedForms}/>
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-6">
                                         <div>
                                             <Label>Rechercher des fiches à lier</Label>
                                             <p className="text-sm text-muted-foreground mb-3">
-                                                Recherchez et sélectionnez des fiches existantes à associer à cette nouvelle fiche
+                                                Recherchez et sélectionnez des fiches existantes à associer à cette
+                                                nouvelle fiche
                                             </p>
 
                                             {/* Barre de recherche avec autocomplétion */}
                                             <div className="relative">
                                                 <div className="relative">
-                                                    <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                                                    <Search
+                                                        className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"/>
                                                     <Input
                                                         value={ficheSearchQuery}
                                                         onChange={(e) => {
@@ -2447,15 +2619,18 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
 
                                                 {/* Résultats de recherche */}
                                                 {showFicheResults && (
-                                                    <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
+                                                    <div
+                                                        className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-64 overflow-auto">
                                                         {isSearchingFiches && (
-                                                            <div className="p-4 text-center text-sm text-muted-foreground">
-                                                                <Search className="w-4 h-4 mx-auto mb-2 animate-spin" />
+                                                            <div
+                                                                className="p-4 text-center text-sm text-muted-foreground">
+                                                                <Search className="w-4 h-4 mx-auto mb-2 animate-spin"/>
                                                                 Recherche en cours...
                                                             </div>
                                                         )}
                                                         {!isSearchingFiches && ficheSearchResults.length === 0 && ficheSearchQuery.length >= 2 && (
-                                                            <div className="p-4 text-center text-sm text-muted-foreground">
+                                                            <div
+                                                                className="p-4 text-center text-sm text-muted-foreground">
                                                                 Aucune fiche trouvée
                                                             </div>
                                                         )}
@@ -2467,8 +2642,10 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                         onClick={() => handleSelectFiche(fiche)}
                                                                         className="p-3 hover:bg-accent rounded cursor-pointer border-b border-border last:border-b-0"
                                                                     >
-                                                                        <div className="font-medium">{fiche.title || 'Titre non disponible'}</div>
-                                                                        <div className="text-xs text-muted-foreground mt-1">
+                                                                        <div
+                                                                            className="font-medium">{fiche.title || 'Titre non disponible'}</div>
+                                                                        <div
+                                                                            className="text-xs text-muted-foreground mt-1">
                                                                             {getCategoryDisplayName(fiche.source)}
                                                                         </div>
                                                                     </div>
@@ -2491,7 +2668,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                             className="flex items-center justify-between p-3 bg-accent rounded-lg"
                                                         >
                                                             <div className="flex items-center gap-3">
-                                                                <Link className="w-4 h-4 text-muted-foreground" />
+                                                                <Link className="w-4 h-4 text-muted-foreground"/>
                                                                 <div>
                                                                     <div className="font-medium">{form.title}</div>
                                                                     <div className="text-xs text-muted-foreground">
@@ -2506,7 +2683,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                                 onClick={() => removeRelatedForm(index)}
                                                                 className="text-muted-foreground hover:text-destructive"
                                                             >
-                                                                <X className="w-4 h-4" />
+                                                                <X className="w-4 h-4"/>
                                                             </Button>
                                                         </div>
                                                     ))}
@@ -2526,12 +2703,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                     >
                                         {isSubmittingForm && isSavingDraft ? (
                                             <>
-                                                <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                                                <div
+                                                    className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-primary border-t-transparent"/>
                                                 Enregistrement...
                                             </>
                                         ) : (
                                             <>
-                                                <FileText className="w-4 h-4 mr-2" />
+                                                <FileText className="w-4 h-4 mr-2"/>
                                                 Enregistrer comme brouillon
                                             </>
                                         )}
@@ -2545,12 +2723,13 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                     >
                                         {isSubmittingForm && !isSavingDraft ? (
                                             <>
-                                                <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                                <div
+                                                    className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"/>
                                                 Soumission en cours...
                                             </>
                                         ) : (
                                             <>
-                                                <Save className="w-4 h-4 mr-2" />
+                                                <Save className="w-4 h-4 mr-2"/>
                                                 Soumettre la fiche
                                             </>
                                         )}
@@ -2562,7 +2741,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                     <DialogContent className="sm:max-w-md">
                                         <DialogHeader>
                                             <DialogTitle className="flex items-center gap-2">
-                                                <AlertTriangle className="w-5 h-5 text-destructive" />
+                                                <AlertTriangle className="w-5 h-5 text-destructive"/>
                                                 {imageErrorType === '400' ? 'Erreur de chargement de l\'image' : 'Erreur interne'}
                                             </DialogTitle>
                                             <DialogDescription>
@@ -2661,7 +2840,7 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                             <>
                                                 <DialogHeader>
                                                     <DialogTitle className="flex items-center gap-2">
-                                                        <CheckCircle className="w-5 h-5 text-green-600" />
+                                                        <CheckCircle className="w-5 h-5 text-green-600"/>
                                                         Message envoyé
                                                     </DialogTitle>
                                                 </DialogHeader>
@@ -2671,10 +2850,12 @@ export function ContributePage({ user, onBack }: ContributePageProps) {
                                                         Merci pour votre message !
                                                     </p>
                                                     <p className="text-sm mt-2">
-                                                        Notre équipe va prendre connaissance de votre requête et la traiter dans les plus brefs délais.
+                                                        Notre équipe va prendre connaissance de votre requête et la
+                                                        traiter dans les plus brefs délais.
                                                     </p>
                                                     <p className="text-sm mt-2">
-                                                        En attendant, vous pouvez toujours enregistrer votre fiche pour y retourner plus tard.
+                                                        En attendant, vous pouvez toujours enregistrer votre fiche pour
+                                                        y retourner plus tard.
                                                     </p>
                                                 </div>
 
