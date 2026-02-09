@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
 import {
     Bold,
     Italic,
-    Underline,
+    Underline as UnderlineIcon,
     Strikethrough,
     Code,
     FileCode,
@@ -12,12 +16,11 @@ import {
     Quote,
     List,
     ListOrdered,
-    CheckSquare,
     Link as LinkIcon,
-    Eye,
-    EyeOff
+    Undo,
+    Redo,
+    X
 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
 
 interface RichTextEditorProps {
     value: string;
@@ -38,171 +41,331 @@ export function RichTextEditor({
                                    label,
                                    required = false
                                }: RichTextEditorProps) {
-    const [showPreview, setShowPreview] = useState(true);
-    const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+    const [showLinkDialog, setShowLinkDialog] = useState(false);
+    const [linkUrl, setLinkUrl] = useState('');
+    const [linkText, setLinkText] = useState('');
+    const [selectedText, setSelectedText] = useState('');
 
-    const insertMarkdown = (before: string, after: string = '', placeholder: string = '') => {
-        const textarea = textareaRef.current;
-        if (!textarea) return;
+    const editor = useEditor({
+        extensions: [
+            StarterKit.configure({
+                heading: {
+                    levels: [1, 2, 3]
+                }
+            }),
+            Underline,
+            Link.configure({
+                openOnClick: false,
+                HTMLAttributes: {
+                    class: 'text-blue-600 hover:underline cursor-pointer'
+                }
+            })
+        ],
+        content: value,
+        editorProps: {
+            attributes: {
+                class: 'tiptap-editor-content focus:outline-none p-4',
+                style: `min-height: ${minHeight}`
+            }
+        },
+        onUpdate: ({ editor }) => {
+            const html = editor.getHTML();
+            onChange(html);
+        }
+    }, []); // Tableau de dépendances vide pour éviter les réinitialisations
 
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const selectedText = value.substring(start, end);
-        const textToInsert = selectedText || placeholder;
+    // Synchroniser le contenu quand value change de l'extérieur
+    useEffect(() => {
+        if (editor && value !== editor.getHTML()) {
+            editor.commands.setContent(value);
+        }
+    }, [value, editor]);
 
-        const newValue =
-            value.substring(0, start) +
-            before +
-            textToInsert +
-            after +
-            value.substring(end);
+    if (!editor) {
+        return null;
+    }
 
-        onChange(newValue);
+    const addLink = () => {
+        // Si un lien existe déjà, le retirer
+        if (editor.isActive('link')) {
+            editor.chain().focus().unsetLink().run();
+            return;
+        }
 
-        // Restore focus and selection
-        setTimeout(() => {
-            textarea.focus();
-            const newCursorPos = start + before.length + textToInsert.length;
-            textarea.setSelectionRange(newCursorPos, newCursorPos);
-        }, 0);
+        // Récupérer le texte sélectionné
+        const { from, to } = editor.state.selection;
+        const selected = editor.state.doc.textBetween(from, to, '');
+
+        setSelectedText(selected);
+        setLinkUrl('https://');
+        setLinkText('');
+        setShowLinkDialog(true);
     };
 
-    const insertLineMarkdown = (prefix: string) => {
-        const textarea = textareaRef.current;
-        if (!textarea) return;
+    const handleInsertLink = () => {
+        if (!linkUrl || linkUrl === 'https://' || linkUrl.trim() === '') {
+            return;
+        }
 
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
+        // Si du texte est sélectionné, créer un lien dessus
+        if (selectedText && selectedText.trim() !== '') {
+            editor
+                .chain()
+                .focus()
+                .extendMarkRange('link')
+                .setLink({ href: linkUrl })
+                .run();
+        } else {
+            // Si rien n'est sélectionné, insérer le texte avec le lien
+            if (linkText && linkText.trim() !== '') {
+                editor
+                    .chain()
+                    .focus()
+                    .insertContent(`<a href="${linkUrl}">${linkText}</a> `)
+                    .run();
+            }
+        }
 
-        // Find the start of the current line
-        const beforeCursor = value.substring(0, start);
-        const lineStart = beforeCursor.lastIndexOf('\n') + 1;
+        // Réinitialiser et fermer le dialogue
+        setShowLinkDialog(false);
+        setLinkUrl('');
+        setLinkText('');
+        setSelectedText('');
+    };
 
-        // Find the end of the current line
-        const afterCursor = value.substring(end);
-        const lineEndOffset = afterCursor.indexOf('\n');
-        const lineEnd = lineEndOffset === -1 ? value.length : end + lineEndOffset;
-
-        const lineText = value.substring(lineStart, lineEnd);
-        const newLine = prefix + (lineText.startsWith(prefix) ? lineText.substring(prefix.length) : lineText);
-
-        const newValue =
-            value.substring(0, lineStart) +
-            newLine +
-            value.substring(lineEnd);
-
-        onChange(newValue);
-
-        setTimeout(() => {
-            textarea.focus();
-            textarea.setSelectionRange(lineStart + prefix.length, lineStart + prefix.length);
-        }, 0);
+    const handleCancelLink = () => {
+        setShowLinkDialog(false);
+        setLinkUrl('');
+        setLinkText('');
+        setSelectedText('');
+        editor.chain().focus().run();
     };
 
     const toolbarButtons = [
         {
             icon: Bold,
             title: 'Gras (Ctrl+B)',
-            action: () => insertMarkdown('**', '**', 'texte en gras')
+            action: () => editor.chain().focus().toggleBold().run(),
+            isActive: editor.isActive('bold')
         },
         {
             icon: Italic,
             title: 'Italique (Ctrl+I)',
-            action: () => insertMarkdown('_', '_', 'texte en italique')
+            action: () => editor.chain().focus().toggleItalic().run(),
+            isActive: editor.isActive('italic')
         },
         {
-            icon: Underline,
-            title: 'Souligné',
-            action: () => insertMarkdown('<u>', '</u>', 'texte souligné')
+            icon: UnderlineIcon,
+            title: 'Souligné (Ctrl+U)',
+            action: () => editor.chain().focus().toggleUnderline().run(),
+            isActive: editor.isActive('underline')
         },
         {
             icon: Strikethrough,
             title: 'Barré',
-            action: () => insertMarkdown('~', '~', 'texte barré')
+            action: () => editor.chain().focus().toggleStrike().run(),
+            isActive: editor.isActive('strike')
         },
         {
             icon: Code,
             title: 'Code inline',
-            action: () => insertMarkdown('`', '`', 'code')
+            action: () => editor.chain().focus().toggleCode().run(),
+            isActive: editor.isActive('code')
         },
         {
             icon: FileCode,
             title: 'Bloc de code',
-            action: () => insertMarkdown('\n```\n', '\n```\n', 'code block')
+            action: () => editor.chain().focus().toggleCodeBlock().run(),
+            isActive: editor.isActive('codeBlock')
         },
+        { divider: true },
         {
             icon: Heading1,
             title: 'Titre 1',
-            action: () => insertLineMarkdown('# ')
+            action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+            isActive: editor.isActive('heading', { level: 1 })
         },
         {
             icon: Heading2,
             title: 'Titre 2',
-            action: () => insertLineMarkdown('## ')
+            action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+            isActive: editor.isActive('heading', { level: 2 })
         },
         {
             icon: Heading3,
             title: 'Titre 3',
-            action: () => insertLineMarkdown('### ')
+            action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+            isActive: editor.isActive('heading', { level: 3 })
         },
+        { divider: true },
         {
             icon: Quote,
             title: 'Citation',
-            action: () => insertLineMarkdown('> ')
+            action: () => editor.chain().focus().toggleBlockquote().run(),
+            isActive: editor.isActive('blockquote')
         },
         {
             icon: List,
             title: 'Liste à puce',
-            action: () => insertLineMarkdown('- ')
+            action: () => editor.chain().focus().toggleBulletList().run(),
+            isActive: editor.isActive('bulletList')
         },
         {
             icon: ListOrdered,
             title: 'Liste numérotée',
-            action: () => insertLineMarkdown('1. ')
+            action: () => editor.chain().focus().toggleOrderedList().run(),
+            isActive: editor.isActive('orderedList')
         },
-        {
-            icon: CheckSquare,
-            title: 'Case à cocher',
-            action: () => insertLineMarkdown('- [ ] ')
-        },
+        { divider: true },
         {
             icon: LinkIcon,
             title: 'Lien',
-            action: () => insertMarkdown('[', '](url)', 'texte du lien')
+            action: addLink,
+            isActive: editor.isActive('link')
+        },
+        { divider: true },
+        {
+            icon: Undo,
+            title: 'Annuler (Ctrl+Z)',
+            action: () => editor.chain().focus().undo().run(),
+            isActive: false
+        },
+        {
+            icon: Redo,
+            title: 'Rétablir (Ctrl+Shift+Z)',
+            action: () => editor.chain().focus().redo().run(),
+            isActive: false
         }
     ];
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.ctrlKey || e.metaKey) {
-            if (e.key === 'b') {
-                e.preventDefault();
-                insertMarkdown('**', '**', 'texte en gras');
-            } else if (e.key === 'i') {
-                e.preventDefault();
-                insertMarkdown('_', '_', 'texte en italique');
-            }
-        }
-
-        // Handle tab key for code indentation
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            const textarea = textareaRef.current;
-            if (!textarea) return;
-
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-
-            const newValue = value.substring(0, start) + '  ' + value.substring(end);
-            onChange(newValue);
-
-            setTimeout(() => {
-                textarea.setSelectionRange(start + 2, start + 2);
-            }, 0);
-        }
-    };
-
     return (
         <div className={`flex flex-col ${className}`}>
+            {/* Styles CSS scopés uniquement pour cet éditeur */}
+            <style>{`
+        .tiptap-editor-content h1 {
+          font-size: 2em !important;
+          font-weight: bold !important;
+          margin-top: 0.67em !important;
+          margin-bottom: 0.67em !important;
+          line-height: 1.2 !important;
+        }
+
+        .tiptap-editor-content h2 {
+          font-size: 1.5em !important;
+          font-weight: bold !important;
+          margin-top: 0.75em !important;
+          margin-bottom: 0.75em !important;
+          line-height: 1.3 !important;
+        }
+
+        .tiptap-editor-content h3 {
+          font-size: 1.17em !important;
+          font-weight: bold !important;
+          margin-top: 0.83em !important;
+          margin-bottom: 0.83em !important;
+          line-height: 1.4 !important;
+        }
+
+        .tiptap-editor-content ul {
+          list-style-type: disc !important;
+          padding-left: 1.5em !important;
+          margin: 1em 0 !important;
+        }
+
+        .tiptap-editor-content ol {
+          list-style-type: decimal !important;
+          padding-left: 1.5em !important;
+          margin: 1em 0 !important;
+        }
+
+        .tiptap-editor-content li {
+          margin: 0.25em 0 !important;
+        }
+
+        .tiptap-editor-content ul ul,
+        .tiptap-editor-content ol ol,
+        .tiptap-editor-content ul ol,
+        .tiptap-editor-content ol ul {
+          margin: 0.25em 0 !important;
+        }
+
+        .tiptap-editor-content blockquote {
+          border-left: 4px solid #d1d5db !important;
+          padding-left: 1em !important;
+          margin: 1em 0 !important;
+          font-style: italic !important;
+          color: #6b7280 !important;
+        }
+
+        .tiptap-editor-content code {
+          background-color: #f3f4f6 !important;
+          padding: 0.125em 0.25em !important;
+          border-radius: 0.25em !important;
+          font-family: 'Courier New', Courier, monospace !important;
+          font-size: 0.875em !important;
+        }
+
+        .tiptap-editor-content pre {
+          background-color: #f3f4f6 !important;
+          padding: 1em !important;
+          border-radius: 0.5em !important;
+          overflow-x: auto !important;
+          margin: 1em 0 !important;
+        }
+
+        .tiptap-editor-content pre code {
+          background-color: transparent !important;
+          padding: 0 !important;
+          font-size: 0.875em !important;
+        }
+
+        .tiptap-editor-content a {
+          color: #2563eb !important;
+          text-decoration: underline !important;
+          cursor: pointer !important;
+        }
+
+        .tiptap-editor-content a:hover {
+          color: #1d4ed8 !important;
+        }
+
+        .tiptap-editor-content strong {
+          font-weight: bold !important;
+        }
+
+        .tiptap-editor-content em {
+          font-style: italic !important;
+        }
+
+        .tiptap-editor-content u {
+          text-decoration: underline !important;
+        }
+
+        .tiptap-editor-content s {
+          text-decoration: line-through !important;
+        }
+
+        .tiptap-editor-content p {
+          margin: 0.5em 0 !important;
+        }
+
+        .tiptap-editor-content p:first-child {
+          margin-top: 0 !important;
+        }
+
+        .tiptap-editor-content p:last-child {
+          margin-bottom: 0 !important;
+        }
+
+        .tiptap-editor-content p.is-editor-empty:first-child::before {
+          color: #adb5bd !important;
+          content: attr(data-placeholder) !important;
+          float: left !important;
+          height: 0 !important;
+          pointer-events: none !important;
+        }
+      `}</style>
+
             {label && (
                 <label className="block mb-2 font-medium">
                     {label}
@@ -213,120 +376,123 @@ export function RichTextEditor({
             <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
                 {/* Toolbar */}
                 <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50 flex-wrap">
-                    {toolbarButtons.map((button, index) => (
-                        <button
-                            key={index}
-                            type="button"
-                            onClick={button.action}
-                            title={button.title}
-                            className="p-2 hover:bg-gray-200 rounded transition-colors"
-                        >
-                            <button.icon className="w-4 h-4 text-gray-700" />
-                        </button>
-                    ))}
+                    {toolbarButtons.map((button, index) => {
+                        if ('divider' in button) {
+                            return (
+                                <div key={`divider-${index}`} className="w-px h-6 bg-gray-300 mx-1" />
+                            );
+                        }
 
-                    <div className="ml-auto">
-                        <button
-                            type="button"
-                            onClick={() => setShowPreview(!showPreview)}
-                            title={showPreview ? 'Masquer l\'aperçu' : 'Afficher l\'aperçu'}
-                            className="p-2 hover:bg-gray-200 rounded transition-colors"
-                        >
-                            {showPreview ? (
-                                <EyeOff className="w-4 h-4 text-gray-700" />
-                            ) : (
-                                <Eye className="w-4 h-4 text-gray-700" />
-                            )}
-                        </button>
+                        return (
+                            <button
+                                key={index}
+                                type="button"
+                                onClick={button.action}
+                                title={button.title}
+                                className={`p-2 hover:bg-gray-200 rounded transition-colors ${
+                                    button.isActive ? 'bg-gray-300' : ''
+                                }`}
+                            >
+                                <button.icon className="w-4 h-4 text-gray-700" />
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* Editor */}
+                <EditorContent
+                    editor={editor}
+                    placeholder={placeholder}
+                />
+            </div>
+
+            {/* Helper text */}
+            <div className="mt-2 text-xs text-gray-500">
+                Éditeur de texte enrichi. Utilisez la barre d'outils ou les raccourcis clavier (Ctrl+B, Ctrl+I, etc.).
+            </div>
+
+            {/* Link dialog */}
+            {showLinkDialog && (
+                <div
+                    className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+                    onClick={handleCancelLink}
+                >
+                    <div
+                        className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-medium">Ajouter un lien</h3>
+                            <button
+                                type="button"
+                                className="text-gray-500 hover:text-gray-700"
+                                onClick={handleCancelLink}
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {selectedText && selectedText.trim() !== '' && (
+                            <div className="mb-4 p-3 bg-gray-100 rounded">
+                                <span className="text-sm text-gray-600">Texte sélectionné : </span>
+                                <span className="text-sm font-medium">{selectedText}</span>
+                            </div>
+                        )}
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                URL du lien <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                value={linkUrl}
+                                onChange={(e) => setLinkUrl(e.target.value)}
+                                placeholder="https://exemple.com"
+                                autoFocus
+                            />
+                        </div>
+
+                        {(!selectedText || selectedText.trim() === '') && (
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Texte du lien <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    value={linkText}
+                                    onChange={(e) => setLinkText(e.target.value)}
+                                    placeholder="Texte à afficher"
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex justify-end gap-2">
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                                onClick={handleCancelLink}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                onClick={handleInsertLink}
+                                disabled={
+                                    !linkUrl ||
+                                    linkUrl === 'https://' ||
+                                    linkUrl.trim() === '' ||
+                                    ((!selectedText || selectedText.trim() === '') && (!linkText || linkText.trim() === ''))
+                                }
+                            >
+                                Insérer le lien
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                {/* Editor/Preview */}
-                <div className="flex">
-                    {/* Editor */}
-                    <textarea
-                        ref={textareaRef}
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder={placeholder}
-                        className={`p-4 focus:outline-none resize-none font-mono text-sm ${showPreview ? 'w-1/2 border-r border-gray-300' : 'w-full'}`}
-                        style={{ minHeight }}
-                    />
-
-                    {/* Preview */}
-                    {showPreview && (
-                        <div
-                            className="w-1/2 p-4 overflow-auto prose prose-sm max-w-none bg-gray-50"
-                            style={{ minHeight }}
-                        >
-                            <ReactMarkdown
-                                components={{
-                                    // Custom rendering for underline tags
-                                    u: ({ children }) => <u>{children}</u>,
-                                    // Custom rendering for strikethrough
-                                    del: ({ children }) => <span className="line-through">{children}</span>,
-                                    // Handle checkboxes
-                                    input: (props) => (
-                                        <input
-                                            type="checkbox"
-                                            checked={props.checked}
-                                            disabled
-                                            className="mr-2"
-                                        />
-                                    ),
-                                    // Style headings
-                                    h1: ({ children }) => <h1 className="text-2xl font-bold mb-4">{children}</h1>,
-                                    h2: ({ children }) => <h2 className="text-xl font-bold mb-3">{children}</h2>,
-                                    h3: ({ children }) => <h3 className="text-lg font-bold mb-2">{children}</h3>,
-                                    // Style quotes
-                                    blockquote: ({ children }) => (
-                                        <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">
-                                            {children}
-                                        </blockquote>
-                                    ),
-                                    // Style code blocks (pre contient code)
-                                    pre: ({ children }) => (
-                                        <pre className="bg-gray-100 p-4 rounded my-4 overflow-x-auto">
-                      {children}
-                    </pre>
-                                    ),
-                                    // Style code inline et code dans pre
-                                    code: ({ children, className }) => {
-                                        // Si le code a une className, c'est probablement dans un bloc de code
-                                        const isCodeBlock = className && className.includes('language-');
-
-                                        if (isCodeBlock) {
-                                            return <code className="font-mono text-sm">{children}</code>;
-                                        }
-
-                                        // Code inline
-                                        return (
-                                            <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">
-                                                {children}
-                                            </code>
-                                        );
-                                    },
-                                    // Style lists
-                                    ul: ({ children }) => <ul className="list-disc list-inside my-4">{children}</ul>,
-                                    ol: ({ children }) => <ol className="list-decimal list-inside my-4">{children}</ol>,
-                                    li: ({ children }) => <li className="my-1">{children}</li>,
-                                    // Style links
-                                    a: ({ href, children }) => (
-                                        <a href={href} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
-                                            {children}
-                                        </a>
-                                    ),
-                                    // Style paragraphs
-                                    p: ({ children }) => <p className="my-2">{children}</p>
-                                }}
-                            >
-                                {value || '*Aucun contenu à prévisualiser*'}
-                            </ReactMarkdown>
-                        </div>
-                    )}
-                </div>
-            </div>
+            )}
         </div>
     );
 }
