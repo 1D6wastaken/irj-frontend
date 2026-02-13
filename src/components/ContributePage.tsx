@@ -1637,7 +1637,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         placeholder="Nom du contributeur"
                                                         value={newContributor}
                                                         onChange={(e) => setNewContributor(e.target.value)}
-                                                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addContributor())}
+                                                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addContributor())}
                                                     />
                                                     <Button type="button" onClick={addContributor} size="sm">
                                                         <Plus className="w-4 h-4"/>
