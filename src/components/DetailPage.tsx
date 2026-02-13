@@ -919,9 +919,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
         if (mobilier.inscriptions) {
             sections.push(
                 <TechnicalSection key="inscriptions" title="Inscriptions">
-                    <div className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md">
-                        {mobilier.inscriptions}
-                    </div>
+                    <HtmlContent content={mobilier.inscriptions} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }
