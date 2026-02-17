@@ -589,9 +589,9 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                 )}
 
                 {/* Emplacement actuel */}
-                {mobilier.conversation_place && (
+                {mobilier.conservation_place && (
                     <TechnicalInfoItem label="Emplacement actuel">
-                        <span>{mobilier.conversation_place}</span>
+                        <span>{mobilier.conservation_place}</span>
                     </TechnicalInfoItem>
                 )}
 

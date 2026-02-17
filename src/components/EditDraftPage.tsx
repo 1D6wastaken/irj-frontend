@@ -699,7 +699,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             const mobilierData = data as MobilierImageDetail;
             formDataToSet.techniques = extractIds(mobilierData.techniques);
             formDataToSet.inscription = mobilierData.inscriptions || '';
-            formDataToSet.currentLocation = mobilierData.conversation_place || '';
+            formDataToSet.currentLocation = mobilierData.conservation_place || '';
             formDataToSet.originalLocation = mobilierData.origin_place || '';
         }
 

@@ -329,7 +329,7 @@ export interface MobilierImageDetail {
     contributors: string;
     protected?: boolean;
     protection_comment?: string;
-    conversation_place?: string
+    conservation_place?: string
     origin_place?: string
     authors: FilterOption[];
     sources?: string;
