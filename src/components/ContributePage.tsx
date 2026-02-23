@@ -68,12 +68,7 @@ interface FormData {
     themes: string[];
     contributors: string[];
     relatedForms: { id: string; title: string; source: string; }[];
-    source: {
-        author: string;
-        title: string;
-        url: string;
-        details: string;
-    };
+    source: string;
     // Champs spécifiques
     description?: string;
     history?: string;
@@ -108,6 +103,7 @@ interface FormData {
     relatedObjects?: string;
     birthDate?: string;
     deathDate?: string;
+    temoinComment: string;
 }
 
 export function ContributePage({user, onBack}: ContributePageProps) {
@@ -125,12 +121,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         themes: [],
         contributors: [],
         relatedForms: [],
-        source: {
-            author: '',
-            title: '',
-            url: '',
-            details: ''
-        },
+        source: '',
         coordinates: {
             latitude: '',
             longitude: ''
@@ -143,7 +134,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         professions: [],
         simpleMention: false,
         statutesText: false,
-        protected: false
+        protected: false,
+        temoinComment: '',
     });
 
     // États pour les données dynamiques
@@ -559,16 +551,6 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         }
     };
 
-    const handleSourceChange = (field: keyof FormData['source'], value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            source: {
-                ...prev.source,
-                [field]: value
-            }
-        }));
-    };
-
     const handleCoordinatesChange = (field: 'latitude' | 'longitude', value: string) => {
         setFormData(prev => ({
             ...prev,
@@ -838,14 +820,6 @@ export function ContributePage({user, onBack}: ContributePageProps) {
             .filter(form => form.source === 'personnes_physiques')
             .map(form => form.id);
 
-        const sourceComponents = [];
-        if (formData.source.author) sourceComponents.push(`Auteur: ${formData.source.author}`);
-        if (formData.source.title) sourceComponents.push(`Titre: ${formData.source.title}`);
-        if (formData.source.url) sourceComponents.push(`URL: ${formData.source.url}`);
-        if (formData.source.details) sourceComponents.push(`Détails: ${formData.source.details}`);
-
-        const sourceInfo = sourceComponents.join(' | ') || undefined;
-
         switch (formData.category) {
             case 'monuments_lieux':
                 submissionData = {
@@ -858,7 +832,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
                     contributors: formData.contributors || undefined,
-                    source: sourceInfo,
+                    source: formData.source || undefined,
                     description: formData.description || '',
                     history: formData.history || undefined,
                     bibliography: formData.bibliography || undefined,
@@ -876,7 +850,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     linkedMobiliersImages,
                     linkedPersMorales,
                     linkedPersPhysiques,
-                    draft: isDraft
+                    draft: isDraft,
+                    temoinComment: formData.temoinComment
                 };
 
                 await apiService.submitMonumentLieu(submissionData);
@@ -893,7 +868,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
                     contributors: formData.contributors || undefined,
-                    source: sourceInfo,
+                    source: formData.source,
                     description: formData.description || '',
                     inscription: formData.inscription || undefined,
                     history: formData.history || undefined,
@@ -909,7 +884,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     linkedMonumentsLieux,
                     linkedPersMorales,
                     linkedPersPhysiques,
-                    draft: isDraft
+                    draft: isDraft,
+                    temoinComment: formData.temoinComment
                 };
 
                 await apiService.submitMobilierImage(submissionData);
@@ -926,7 +902,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
                     contributors: formData.contributors || undefined,
-                    source: sourceInfo,
+                    source: formData.source,
                     simple_mention: formData.simpleMention,
                     foundation_deed: formData.foundationAct,
                     status_text: formData.statutesText,
@@ -940,7 +916,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     linkedMonumentsLieux,
                     linkedMobiliersImages,
                     linkedPersPhysiques,
-                    draft: isDraft
+                    draft: isDraft,
+                    temoinComment: formData.temoinComment
                 };
 
                 await apiService.submitPersonneMorale(submissionData);
@@ -957,7 +934,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     country: selectedCountry?.id || undefined,
                     themes: formData.themes,
                     contributors: formData.contributors || undefined,
-                    source: sourceInfo,
+                    source: formData.source,
                     birthday: formData.birthDate || undefined,
                     death: formData.deathDate || undefined,
                     attestation: formData.attestation || undefined,
@@ -973,7 +950,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     linkedMonumentsLieux,
                     linkedMobiliersImages,
                     linkedPersMorales,
-                    draft: isDraft
+                    draft: isDraft,
+                    temoinComment: formData.temoinComment
                 };
 
                 await apiService.submitPersonnePhysique(submissionData);
@@ -1035,12 +1013,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
             themes: [],
             contributors: [],
             relatedForms: [],
-            source: {
-                author: '',
-                title: '',
-                url: '',
-                details: ''
-            },
+            source: '',
             coordinates: {
                 latitude: '',
                 longitude: ''
@@ -1053,7 +1026,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
             professions: [],
             simpleMention: false,
             statutesText: false,
-            protected: false
+            protected: false,
+            temoinComment: '',
         });
         setErrors({});
         setSelectedCountry(null);
@@ -1662,68 +1636,20 @@ export function ContributePage({user, onBack}: ContributePageProps) {
 
                                         {/* Source */}
                                         <div>
-                                            <Label className="flex items-center gap-1">
-                                                Source de l'information
-                                                <InfoTooltip content={tooltipTexts.source.title}/>
-                                            </Label>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                                                <div>
-                                                    <Label htmlFor="sourceAuthor"
-                                                           className="text-sm flex items-center gap-1">
-                                                        Auteur
-                                                        <InfoTooltip content={tooltipTexts.source.author}/>
-                                                    </Label>
-                                                    <Input
-                                                        id="sourceAuthor"
-                                                        value={formData.source.author}
-                                                        onChange={(e) => handleSourceChange('author', e.target.value)}
-                                                        className={errors.sourceAuthor ? 'border-destructive' : ''}
-                                                        placeholder="Nom de l'auteur"
-                                                    />
-                                                    {errors.sourceAuthor &&
-                                                        <p className="text-destructive text-sm mt-1">{errors.sourceAuthor}</p>}
-                                                </div>
-                                                <div>
-                                                    <Label htmlFor="sourceTitle"
-                                                           className="text-sm flex items-center gap-1">
-                                                        Titre
-                                                        <InfoTooltip content={tooltipTexts.source.sourceTitle}/>
-                                                    </Label>
-                                                    <Input
-                                                        id="sourceTitle"
-                                                        value={formData.source.title}
-                                                        onChange={(e) => handleSourceChange('title', e.target.value)}
-                                                        placeholder="Titre de la source"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <Label htmlFor="sourceUrl"
-                                                           className="text-sm flex items-center gap-1">
-                                                        URL/Référence
-                                                        <InfoTooltip content={tooltipTexts.source.url}/>
-                                                    </Label>
-                                                    <Input
-                                                        id="sourceUrl"
-                                                        value={formData.source.url}
-                                                        onChange={(e) => handleSourceChange('url', e.target.value)}
-                                                        placeholder="Lien web ou référence"
-                                                    />
-                                                </div>
-                                                <div className="md:col-span-2">
-                                                    <Label htmlFor="sourceDetails"
-                                                           className="text-sm flex items-center gap-1">
-                                                        Détails
-                                                        <InfoTooltip content={tooltipTexts.source.details}/>
-                                                    </Label>
-                                                    <Textarea
-                                                        id="sourceDetails"
-                                                        value={formData.source.details}
-                                                        onChange={(e) => handleSourceChange('details', e.target.value)}
-                                                        placeholder="Chapitre, page, ligne, etc."
-                                                        rows={3}
-                                                    />
-                                                </div>
-                                            </div>
+                                            <RichTextEditor
+                                                value={formData.source || ''}
+                                                onChange={(value) => handleInputChange('source', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                                Source de l'information
+                                                                <InfoTooltip content={tooltipTexts.source.title}/>
+                                                            </span>
+                                                }
+                                                placeholder="Source de l'information"
+                                                required={false}
+                                                minHeight="150px"
+                                                className={errors.description ? 'border-destructive' : ''}
+                                            />
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -1802,7 +1728,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 <div>
                                                     <Label htmlFor="bibliography" className="flex items-center gap-1">
                                                         Bibliographie
-                                                        <InfoTooltip content={tooltipTexts.common.bibliography} />
+                                                        <InfoTooltip content={tooltipTexts.common.bibliography}/>
                                                     </Label>
                                                     <Textarea
                                                         id="bibliography"
@@ -1920,9 +1846,11 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         </div>
 
                                                         <div>
-                                                            <Label htmlFor="protectionComment" className="flex items-center gap-1 text-sm">
-                                                                Commentaire de protection
-                                                                <InfoTooltip content={tooltipTexts.monumentsLieux.protectionComment} />
+                                                            <Label htmlFor="protectionComment"
+                                                                   className="flex items-center gap-1 text-sm">
+                                                                Nature de la protection
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.monumentsLieux.protectionComment}/>
                                                             </Label>
                                                             <Textarea
                                                                 id="protectionComment"
@@ -2147,9 +2075,11 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         </div>
 
                                                         <div>
-                                                            <Label htmlFor="protectionComment" className="flex items-center gap-1 text-sm">
-                                                                Commentaire de protection
-                                                                <InfoTooltip content={tooltipTexts.mobiliersImages.protectionComment} />
+                                                            <Label htmlFor="protectionComment"
+                                                                   className="flex items-center gap-1 text-sm">
+                                                                Nature de la protection
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.mobiliersImages.protectionComment}/>
                                                             </Label>
                                                             <Textarea
                                                                 id="protectionComment"
@@ -2163,9 +2093,10 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="bibliography" className="flex items-center gap-1 text-sm">
+                                                    <Label htmlFor="bibliography"
+                                                           className="flex items-center gap-1 text-sm">
                                                         Bibliographie
-                                                        <InfoTooltip content={tooltipTexts.common.bibliography} />
+                                                        <InfoTooltip content={tooltipTexts.common.bibliography}/>
                                                     </Label>
                                                     <Textarea
                                                         id="bibliography"
@@ -2232,7 +2163,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         label={
                                                             <span className="flex items-center gap-1">
                                                                 Histoire
-                                                                <InfoTooltip content={tooltipTexts.personnesMorales.history}/>
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesMorales.history}/>
                                                             </span>
                                                         }
                                                         placeholder="Histoire de l'organisation"
@@ -2335,9 +2267,10 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="bibliography" className="flex items-center gap-1 text-sm">
+                                                    <Label htmlFor="bibliography"
+                                                           className="flex items-center gap-1 text-sm">
                                                         Bibliographie
-                                                        <InfoTooltip content={tooltipTexts.common.bibliography} />
+                                                        <InfoTooltip content={tooltipTexts.common.bibliography}/>
                                                     </Label>
                                                     <Textarea
                                                         id="bibliography"
@@ -2554,7 +2487,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 <div>
                                                     <Label htmlFor="comment" className="flex items-center gap-1">
                                                         Commentaire
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.comment} />
+                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.comment}/>
                                                     </Label>
                                                     <Textarea
                                                         id="comment"
@@ -2566,9 +2499,10 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="bibliography" className="flex items-center gap-1 text-sm">
+                                                    <Label htmlFor="bibliography"
+                                                           className="flex items-center gap-1 text-sm">
                                                         Bibliographie
-                                                        <InfoTooltip content={tooltipTexts.common.bibliography} />
+                                                        <InfoTooltip content={tooltipTexts.common.bibliography}/>
                                                     </Label>
                                                     <Textarea
                                                         id="bibliography"
@@ -2692,6 +2626,31 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                         )}
                                     </CardContent>
                                 </Card>
+
+                                {/* Commentaire éventuel */}
+                                {formData.category === 'mobiliers_images' && (
+                                    <>
+                                        <Card>
+                                            <CardHeader>
+                                                <CardTitle>
+                                                    Commentaires éventuels
+                                                    <InfoTooltip content={tooltipTexts.common.optionalComment}/>
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="space-y-6">
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.temoinComment || ''}
+                                                        onChange={(value) => handleInputChange('temoinComment', value)}
+                                                        placeholder="Commentaires éventuels concernant la fiche"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </>
+                                )}
 
                                 {/* Boutons de soumission */}
                                 <div className="flex justify-end gap-3">

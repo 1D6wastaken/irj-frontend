@@ -20,6 +20,7 @@ export const tooltipTexts = {
         protected: "Indiquez si l'élément bénéficie d'une protection juridique (Monument Historique, site classé, etc.).",
         protectionComment: "Précisez le type et la date de protection (ex: Classé MH le 15/06/1920, Inscrit ISMH le 10/03/1995).",
         natures: "Sélectionnez la et les types qui décrivent le mieux cet élément patrimonial.",
+        optionalComment: "Ce champ est optionnel, mais n'hésitez pas à ajouter des commentaires ou informations complémentaires qui pourraient être utiles pour mieux comprendre ou documenter cet élément.",
     },
     search: {
         location: "Recherchez par lieu (pays, région, département et commune). Plusieurs critères peuvent être combinés pour affiner la recherche.",

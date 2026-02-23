@@ -79,12 +79,7 @@ interface FormData {
     themes: string[];
     contributors: string[];
     relatedForms: { id: string; title: string; source: string; }[];
-    source: {
-        author: string;
-        title: string;
-        url: string;
-        details: string;
-    };
+    source: string;
     description?: string;
     history?: string;
     bibliography?: string;
@@ -120,6 +115,7 @@ interface FormData {
     transportModes?: string[];
     eventNature?: string;
     commutationVow?: string;
+    temoinComment?: string;
 }
 
 export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}: EditDraftPageProps) {
@@ -147,12 +143,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
         themes: [],
         contributors: [],
         relatedForms: [],
-        source: {
-            author: '',
-            title: '',
-            url: '',
-            details: ''
-        },
+        source: '',
         materials: [],
         techniques: [],
         natures: [],
@@ -621,38 +612,6 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             contributorsList = data.contributors.split(',').map(c => c.trim()).filter(c => c !== '');
         }
 
-        // Extraire source depuis la string
-        let sourceData = {
-            author: '',
-            title: '',
-            url: '',
-            details: ''
-        };
-        if (data.sources) {
-            let elt = data.sources.split(' | ')
-            for (let part of elt) {
-                if (part.startsWith('Auteur:')) {
-                    sourceData.author = part.replace('Auteur:', '').trim();
-
-                    continue
-                }
-
-                if (part.startsWith('Titre:')) {
-                    sourceData.title = part.replace('Titre:', '').trim();
-
-                    continue
-                }
-
-                if (part.startsWith('URL:')) {
-                    sourceData.url = part.replace('URL:', '').trim();
-
-                    continue
-                }
-
-                sourceData.details = part.replace('Détails:', '').trim();
-            }
-        }
-
         // Préparer les données spécifiques selon le type
         const isMobilier = source == "mobiliers_images";
         const isMonument = source == "monuments_lieux";
@@ -674,9 +633,10 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             themes: extractIds(data.themes),
             contributors: contributorsList,
             relatedForms: linkedForms,
-            source: sourceData,
+            source: data.sources,
             bibliography: data.bibliography || '',
-            parent_id: data.parent_id || undefined
+            parent_id: data.parent_id || undefined,
+            temoinComment: data.temoinComment || '',
         };
 
         // Champs communs aux mobiliers, monuments et personnes morales
@@ -1064,16 +1024,6 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
         }
     };
 
-    const handleSourceChange = (field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            source: {...prev.source, [field]: value}
-        }));
-        if (errors[`source${field.charAt(0).toUpperCase()}${field.slice(1)}`]) {
-            setErrors(prev => ({...prev, [`source${field.charAt(0).toUpperCase()}${field.slice(1)}`]: ''}));
-        }
-    };
-
     // Fonction pour vérifier si le formulaire a été modifié
     const hasFormChanged = (): boolean => {
         if (!initialFormData) return false;
@@ -1118,10 +1068,10 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
         if (formData.location.country !== initialFormData.location.country) return true;
 
         // Comparer la source
-        if (formData.source.author !== initialFormData.source.author) return true;
-        if (formData.source.title !== initialFormData.source.title) return true;
-        if (formData.source.url !== initialFormData.source.url) return true;
-        if (formData.source.details !== initialFormData.source.details) return true;
+        if (formData.source !== initialFormData.source) return true;
+
+        // Comparer le commentaire témoin
+        if (formData.temoinComment !== initialFormData.temoinComment) return true;
 
         // Comparer les tableaux triés
         const arraysEqual = (a: string[], b: string[]): boolean => {
@@ -1243,14 +1193,6 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                 .filter(form => form.source === 'personnes_physiques')
                 .map(form => parseInt(form.id));
 
-            // Préparation de la source sous forme de chaîne formatée
-            const sourceComponents = [];
-            if (formData.source.author) sourceComponents.push(`Auteur: ${formData.source.author}`);
-            if (formData.source.title) sourceComponents.push(`Titre: ${formData.source.title}`);
-            if (formData.source.url) sourceComponents.push(`URL: ${formData.source.url}`);
-            if (formData.source.details) sourceComponents.push(`Détails: ${formData.source.details}`);
-            const sourceInfo = sourceComponents.join(' | ') || undefined;
-
             // Préparation des données de soumission selon le type de fiche
             let submissionData: any = {
                 title: formData.name,
@@ -1262,11 +1204,12 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                 country: selectedCountry?.id || undefined,
                 themes: formData.themes.map(c => parseInt(c)),
                 contributors: formData.contributors.length > 0 ? formData.contributors : undefined,
-                source: sourceInfo,
+                source: formData.source,
                 description: formData.description || '',
                 history: formData.history || undefined,
                 bibliography: formData.bibliography || undefined,
                 draft: isDraft,
+                temoinComment: formData.temoinComment || undefined,
             };
 
             // Ajouter les champs spécifiques selon le type de fiche
@@ -1952,64 +1895,20 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
 
                                 {/* Source */}
                                 <div>
-                                    <Label className="flex items-center gap-1">
-                                        Source de l'information
-                                        <InfoTooltip content={tooltipTexts.source.title} />
-                                    </Label>
-                                    <p className="text-sm text-muted-foreground mb-3">
-                                        Informations optionnelles sur la source
-                                    </p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                                        <div>
-                                            <Label htmlFor="sourceAuthor" className="text-sm flex items-center gap-1">
-                                                Auteur
-                                                <InfoTooltip content={tooltipTexts.source.author} />
-                                            </Label>
-                                            <Input
-                                                id="sourceAuthor"
-                                                value={formData.source.author}
-                                                onChange={(e) => handleSourceChange('author', e.target.value)}
-                                                placeholder="Nom de l'auteur"
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="sourceTitle" className="text-sm flex items-center gap-1">
-                                                Titre
-                                                <InfoTooltip content={tooltipTexts.source.sourceTitle} />
-                                            </Label>
-                                            <Input
-                                                id="sourceTitle"
-                                                value={formData.source.title}
-                                                onChange={(e) => handleSourceChange('title', e.target.value)}
-                                                placeholder="Titre de la source"
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="sourceUrl" className="text-sm flex items-center gap-1">
-                                                URL/Référence
-                                                <InfoTooltip content={tooltipTexts.source.url} />
-                                            </Label>
-                                            <Input
-                                                id="sourceUrl"
-                                                value={formData.source.url}
-                                                onChange={(e) => handleSourceChange('url', e.target.value)}
-                                                placeholder="Lien web ou référence"
-                                            />
-                                        </div>
-                                        <div className="md:col-span-2">
-                                            <Label htmlFor="sourceDetails" className="text-sm flex items-center gap-1">
-                                                Détails
-                                                <InfoTooltip content={tooltipTexts.source.details} />
-                                            </Label>
-                                            <Textarea
-                                                id="sourceDetails"
-                                                value={formData.source.details}
-                                                onChange={(e) => handleSourceChange('details', e.target.value)}
-                                                placeholder="Chapitre, page, ligne, etc."
-                                                rows={3}
-                                            />
-                                        </div>
-                                    </div>
+                                    <RichTextEditor
+                                        value={formData.source || ''}
+                                        onChange={(value) => handleInputChange('source', value)}
+                                        label={
+                                            <span className="flex items-center gap-1">
+                                                                Source de l'information
+                                                                <InfoTooltip content={tooltipTexts.source.title}/>
+                                                            </span>
+                                        }
+                                        placeholder="Source de l'information"
+                                        required={false}
+                                        minHeight="150px"
+                                        className={errors.description ? 'border-destructive' : ''}
+                                    />
                                 </div>
                             </CardContent>
                         </Card>
@@ -2658,7 +2557,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
 
                                             <div>
                                                 <Label htmlFor="protectionComment" className="flex items-center gap-1 text-sm">
-                                                    Commentaire de protection
+                                                    Nature de la protection
                                                     <InfoTooltip content={tooltipTexts.common.protectionComment} />
                                                 </Label>
                                                 <Textarea
@@ -2795,6 +2694,31 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                 )}
                             </CardContent>
                         </Card>
+
+                        {/* Commentaire éventuel */}
+                        {source === 'mobiliers_images' && (
+                            <>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>
+                                            Commentaires éventuels
+                                            <InfoTooltip content={tooltipTexts.common.optionalComment}/>
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        <div>
+                                            <RichTextEditor
+                                                value={formData.temoinComment || ''}
+                                                onChange={(value) => handleInputChange('temoinComment', value)}
+                                                placeholder="Commentaires éventuels concernant la fiche"
+                                                required={false}
+                                                minHeight="150px"
+                                            />
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </>
+                        )}
 
                         {/* Boutons d'action */}
                         <div className="space-y-3">
