@@ -1726,16 +1726,18 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="bibliography" className="flex items-center gap-1">
-                                                        Bibliographie
-                                                        <InfoTooltip content={tooltipTexts.common.bibliography}/>
-                                                    </Label>
-                                                    <Textarea
-                                                        id="bibliography"
+                                                    <RichTextEditor
                                                         value={formData.bibliography || ''}
-                                                        onChange={(e) => handleInputChange('bibliography', e.target.value)}
+                                                        onChange={(value) => handleInputChange('bibliography', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Bibliographie
+                                                                <InfoTooltip content={tooltipTexts.common.bibliography}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Références bibliographiques"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
@@ -1846,18 +1848,19 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         </div>
 
                                                         <div>
-                                                            <Label htmlFor="protectionComment"
-                                                                   className="flex items-center gap-1 text-sm">
+                                                            <RichTextEditor
+                                                                value={formData.protectionComment || ''}
+                                                                onChange={(value) => handleInputChange('protectionComment', value)}
+                                                                label={
+                                                                    <span className="flex items-center gap-1">
                                                                 Nature de la protection
                                                                 <InfoTooltip
                                                                     content={tooltipTexts.monumentsLieux.protectionComment}/>
-                                                            </Label>
-                                                            <Textarea
-                                                                id="protectionComment"
-                                                                value={formData.protectionComment || ''}
-                                                                onChange={(e) => handleInputChange('protectionComment', e.target.value)}
+                                                            </span>
+                                                                }
                                                                 placeholder="Taper vos commentaires ici"
-                                                                rows={2}
+                                                                required={false}
+                                                                minHeight="150px"
                                                             />
                                                         </div>
                                                     </div>
@@ -2075,35 +2078,38 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         </div>
 
                                                         <div>
-                                                            <Label htmlFor="protectionComment"
-                                                                   className="flex items-center gap-1 text-sm">
+                                                            <RichTextEditor
+                                                                value={formData.protectionComment || ''}
+                                                                onChange={(value) => handleInputChange('protectionComment', value)}
+                                                                label={
+                                                                    <span className="flex items-center gap-1">
                                                                 Nature de la protection
                                                                 <InfoTooltip
                                                                     content={tooltipTexts.mobiliersImages.protectionComment}/>
-                                                            </Label>
-                                                            <Textarea
-                                                                id="protectionComment"
-                                                                value={formData.protectionComment || ''}
-                                                                onChange={(e) => handleInputChange('protectionComment', e.target.value)}
+                                                            </span>
+                                                                }
                                                                 placeholder="Taper vos commentaires ici"
-                                                                rows={2}
+                                                                required={false}
+                                                                minHeight="150px"
                                                             />
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="bibliography"
-                                                           className="flex items-center gap-1 text-sm">
-                                                        Bibliographie
-                                                        <InfoTooltip content={tooltipTexts.common.bibliography}/>
-                                                    </Label>
-                                                    <Textarea
-                                                        id="bibliography"
+                                                    <RichTextEditor
                                                         value={formData.bibliography || ''}
-                                                        onChange={(e) => handleInputChange('bibliography', e.target.value)}
+                                                        onChange={(value) => handleInputChange('bibliography', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Bibliographie
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.common.bibliography}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Informations sur la bibliographie"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
                                             </>
@@ -2267,17 +2273,19 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="bibliography"
-                                                           className="flex items-center gap-1 text-sm">
-                                                        Bibliographie
-                                                        <InfoTooltip content={tooltipTexts.common.bibliography}/>
-                                                    </Label>
-                                                    <Textarea
-                                                        id="bibliography"
+                                                    <RichTextEditor
                                                         value={formData.bibliography || ''}
-                                                        onChange={(e) => handleInputChange('bibliography', e.target.value)}
+                                                        onChange={(value) => handleInputChange('bibliography', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Bibliographie
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.common.bibliography}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Informations sur la bibliographie"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
                                             </>
@@ -2485,31 +2493,36 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="comment" className="flex items-center gap-1">
-                                                        Commentaire
-                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.comment}/>
-                                                    </Label>
-                                                    <Textarea
-                                                        id="comment"
+                                                    <RichTextEditor
                                                         value={formData.comment || ''}
-                                                        onChange={(e) => handleInputChange('comment', e.target.value)}
+                                                        onChange={(value) => handleInputChange('comment', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Commentaire
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesPhysiques.comment}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Commentaire sur la personne physique"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <Label htmlFor="bibliography"
-                                                           className="flex items-center gap-1 text-sm">
-                                                        Bibliographie
-                                                        <InfoTooltip content={tooltipTexts.common.bibliography}/>
-                                                    </Label>
-                                                    <Textarea
-                                                        id="bibliography"
+                                                    <RichTextEditor
                                                         value={formData.bibliography || ''}
-                                                        onChange={(e) => handleInputChange('bibliography', e.target.value)}
+                                                        onChange={(value) => handleInputChange('bibliography', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Bibliographie
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.common.bibliography}/>
+                                                            </span>
+                                                        }
                                                         placeholder="Informations sur la bibliographie"
-                                                        rows={3}
+                                                        required={false}
+                                                        minHeight="150px"
                                                     />
                                                 </div>
                                             </>

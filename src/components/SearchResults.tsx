@@ -492,6 +492,10 @@ export function SearchResults({
                     <>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                             {results.map((result) => {
+                                // sort medias by title alphabetically
+                                if (result.medias) {
+                                    result.medias.sort((a, b) => a.title.localeCompare(b.title));
+                                }
 
                                 const categoryInfo = getCategoryInfo(result.source);
 

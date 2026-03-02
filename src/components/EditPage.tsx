@@ -2156,16 +2156,19 @@ export function EditPage({user, recordId, source, onBack, onSessionExpired }: Ed
 
                                         {/* Attestation */}
                                         <div>
-                                            <Label htmlFor="attestation" className="flex items-center gap-1">
-                                                Attestation
-                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.attestation} />
-                                            </Label>
-                                            <Textarea
-                                                id="attestation"
+                                            <RichTextEditor
                                                 value={formData.attestation || ''}
-                                                onChange={(e) => handleInputChange('attestation', e.target.value)}
-                                                placeholder="Attestation ou preuves documentaires"
-                                                rows={3}
+                                                onChange={(value) => handleInputChange('attestation', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                                Attestation
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesPhysiques.attestation}/>
+                                                            </span>
+                                                }
+                                                placeholder="Attestation concernant la personne"
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
@@ -2271,15 +2274,19 @@ export function EditPage({user, recordId, source, onBack, onSessionExpired }: Ed
 
                                         {/* Nature de l'événement */}
                                         <div>
-                                            <Label htmlFor="eventNature" className="flex items-center gap-1">
-                                                Nature de l'événement
-                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.eventNature} />
-                                            </Label>
-                                            <Input
-                                                id="eventNature"
+                                            <RichTextEditor
                                                 value={formData.eventNature || ''}
-                                                onChange={(e) => handleInputChange('eventNature', e.target.value)}
-                                                placeholder="Nature de l'événement associé"
+                                                onChange={(value) => handleInputChange('eventNature', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                                Nature de l'événement
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesPhysiques.eventNature}/>
+                                                            </span>
+                                                }
+                                                placeholder="Informations sur la nature de l'événement"
+                                                required={false}
+                                                minHeight="150px"
                                             />
                                         </div>
 
@@ -2409,16 +2416,19 @@ export function EditPage({user, recordId, source, onBack, onSessionExpired }: Ed
                                             </div>
 
                                             <div>
-                                                <Label htmlFor="protectionComment" className="flex items-center gap-1 text-sm">
-                                                    Nature de la protection
-                                                    <InfoTooltip content={tooltipTexts.common.protectionComment} />
-                                                </Label>
-                                                <Textarea
-                                                    id="protectionComment"
+                                                <RichTextEditor
                                                     value={formData.protectionComment || ''}
-                                                    onChange={(e) => handleInputChange('protectionComment', e.target.value)}
+                                                    onChange={(value) => handleInputChange('protectionComment', value)}
+                                                    label={
+                                                        <span className="flex items-center gap-1">
+                                                                Nature de la protection
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.common.protectionComment}/>
+                                                            </span>
+                                                    }
                                                     placeholder="Taper vos commentaires ici"
-                                                    rows={2}
+                                                    required={false}
+                                                    minHeight="150px"
                                                 />
                                             </div>
                                         </div>
@@ -2427,16 +2437,19 @@ export function EditPage({user, recordId, source, onBack, onSessionExpired }: Ed
 
                                 {/* Bibliographie */}
                                 <div>
-                                    <Label htmlFor="bibliography" className="flex items-center gap-1 text-sm">
-                                        Bibliographie
-                                        <InfoTooltip content={tooltipTexts.common.bibliography} />
-                                    </Label>
-                                    <Textarea
-                                        id="bibliography"
+                                    <RichTextEditor
                                         value={formData.bibliography || ''}
-                                        onChange={(e) => handleInputChange('bibliography', e.target.value)}
+                                        onChange={(value) => handleInputChange('bibliography', value)}
+                                        label={
+                                            <span className="flex items-center gap-1">
+                                                                Bibliographie
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.common.bibliography}/>
+                                                            </span>
+                                        }
                                         placeholder="Informations sur la bibliographie"
-                                        rows={3}
+                                        required={false}
+                                        minHeight="150px"
                                     />
                                 </div>
                             </CardContent>
