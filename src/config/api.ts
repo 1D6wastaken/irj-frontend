@@ -315,6 +315,7 @@ export interface MonumentLieuDetail {
     linked_individuals?: number[];
     linked_legal_entities?: number[];
     parent_id?: number;
+    temoinComment?: string;
 }
 
 export interface MobilierImageDetail {
@@ -348,6 +349,7 @@ export interface MobilierImageDetail {
     linked_individuals?: number[];
     linked_legal_entities?: number[];
     parent_id?: number;
+    temoinComment?: string;
 }
 
 export interface PersonneMoraleDetail {
@@ -379,6 +381,7 @@ export interface PersonneMoraleDetail {
     linked_individuals?: number[];
     linked_furniture_images?: number[];
     parent_id?: number;
+    temoinComment?: string;
 }
 
 export interface PersonnePhysiqueDetail {
@@ -411,6 +414,7 @@ export interface PersonnePhysiqueDetail {
     linked_furniture_images?: number[];
     linked_legal_entities?: number[];
     parent_id?: number;
+    temoinComment?: string;
 }
 
 export type DetailResult = MonumentLieuDetail | MobilierImageDetail | PersonneMoraleDetail | PersonnePhysiqueDetail;

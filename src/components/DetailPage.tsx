@@ -588,23 +588,6 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                     </TechnicalInfoItem>
                 )}
 
-                {/* Emplacement actuel */}
-                {mobilier.conservation_place && (
-                    <TechnicalInfoItem label="Emplacement actuel">
-                        <span>{mobilier.conservation_place}</span>
-                    </TechnicalInfoItem>
-                )}
-
-                {/* Contributeur */}
-                {hasContributors() && (
-                    <TechnicalInfoItem label="Contributeur">
-                        <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-muted-foreground"/>
-                            <span>{result.contributors}</span>
-                        </div>
-                    </TechnicalInfoItem>
-                )}
-
                 {/* Auteur de la fiche */}
                 {result.authors && result.authors.length > 0 && (
                     <TechnicalInfoItem label="Auteur de la fiche">
@@ -614,6 +597,16 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                                     {author.name}
                                 </Badge>
                             ))}
+                        </div>
+                    </TechnicalInfoItem>
+                )}
+
+                {/* Contributeur */}
+                {hasContributors() && (
+                    <TechnicalInfoItem label="Contributeur">
+                        <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-muted-foreground"/>
+                            <span>{result.contributors}</span>
                         </div>
                     </TechnicalInfoItem>
                 )}
@@ -940,13 +933,20 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                         </TechnicalInfoItem>
                     )}
 
+                    {/* Emplacement actuel */}
+                    {mobilier.conservation_place && (
+                        <TechnicalInfoItem label="Emplacement actuel">
+                            <span>{mobilier.conservation_place}</span>
+                        </TechnicalInfoItem>
+                    )}
+
                     {mobilier.origin_place && (
                         <TechnicalInfoItem label="Emplacement d'origine">
                             <span>{mobilier.origin_place}</span>
                         </TechnicalInfoItem>
                     )}
 
-                    {mobilier.protected !== undefined || mobilier.protection_comment && (
+                    {(mobilier.protected !== undefined || mobilier.protection_comment) && (
                         <TechnicalInfoItem label="État de protection">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2">
@@ -1003,6 +1003,14 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                                          className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
+                </TechnicalSection>
+            );
+        }
+
+        if (mobilier.temoinComment) {
+            sections.push(
+                <TechnicalSection key="temoinComment" title="Commentaires éventuels">
+                    <HtmlContent content={mobilier.temoinComment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }
@@ -1115,6 +1123,14 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
             );
         }
 
+        if (personne.temoinComment) {
+            sections.push(
+                <TechnicalSection key="temoinComment" title="Commentaires éventuels">
+                    <HtmlContent content={personne.temoinComment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                </TechnicalSection>
+            );
+        }
+
         return sections;
     };
 
@@ -1154,7 +1170,7 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                         </TechnicalInfoItem>
                     )}
 
-                    {monument.protected !== undefined || monument.protection_comment && (
+                    {(monument.protected !== undefined || monument.protection_comment) && (
                         <TechnicalInfoItem label="État de protection">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2">
@@ -1204,6 +1220,14 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                                          className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
+                </TechnicalSection>
+            );
+        }
+
+        if (monument.temoinComment) {
+            sections.push(
+                <TechnicalSection key="temoinComment" title="Commentaires éventuels">
+                    <HtmlContent content={monument.temoinComment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }
@@ -1311,6 +1335,14 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                                          className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                         </TechnicalInfoItem>
                     )}
+                </TechnicalSection>
+            );
+        }
+
+        if (personne.temoinComment) {
+            sections.push(
+                <TechnicalSection key="temoinComment" title="Commentaires éventuels">
+                    <HtmlContent content={personne.temoinComment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }

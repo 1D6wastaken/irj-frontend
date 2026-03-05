@@ -931,6 +931,14 @@ export function ValidateFormDetailPage({
             );
         }
 
+        if (mobilier.temoinComment) {
+            sections.push(
+                <TechnicalSection key="temoinComment" title="Commentaires éventuels">
+                    <HtmlContent content={mobilier.temoinComment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                </TechnicalSection>
+            );
+        }
+
         return sections;
     };
 
@@ -1036,6 +1044,14 @@ export function ValidateFormDetailPage({
                             <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
+                </TechnicalSection>
+            );
+        }
+
+        if (personne.temoinComment) {
+            sections.push(
+                <TechnicalSection key="temoinComment" title="Commentaires éventuels">
+                    <HtmlContent content={personne.temoinComment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }
@@ -1153,6 +1169,14 @@ export function ValidateFormDetailPage({
             );
         }
 
+        if (monument.temoinComment) {
+            sections.push(
+                <TechnicalSection key="temoinComment" title="Commentaires éventuels">
+                    <HtmlContent content={monument.temoinComment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                </TechnicalSection>
+            );
+        }
+
         return sections;
     };
 
@@ -1254,6 +1278,14 @@ export function ValidateFormDetailPage({
                             <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
+                </TechnicalSection>
+            );
+        }
+
+        if (personne.temoinComment) {
+            sections.push(
+                <TechnicalSection key="temoinComment" title="Commentaires éventuels">
+                    <HtmlContent content={personne.temoinComment} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }
