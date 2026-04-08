@@ -1016,6 +1016,15 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
         }));
     };
 
+    const updateExistingImageTitle = (imageId: string, newTitle: string) => {
+        setFormData(prev => ({
+            ...prev,
+            existingImages: prev.existingImages.map(img =>
+                img.id === imageId ? { ...img, title: newTitle } : img
+            ),
+        }));
+    };
+
     // Gestion des champs
     const handleInputChange = (field: string, value: any) => {
         setFormData(prev => ({...prev, [field]: value}));
@@ -1108,6 +1117,10 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
 
         // Vérifier si les images existantes ont changé
         if (formData.existingImages.length !== initialFormData.existingImages.length) return true;
+        for (const img of formData.existingImages) {
+            const original = initialFormData.existingImages.find(o => o.id === img.id);
+            if (!original || original.title !== img.title) return true;
+        }
 
         return false;
     };
@@ -1179,6 +1192,15 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                 .map(img => parseInt(img.id));
             const allMediaIds = [...existingMediaIds, ...newMediaIds];
 
+            // Construire media_titles pour les légendes modifiées
+            const mediaTitles: Record<string, string> = {};
+            for (const img of formData.existingImages) {
+                const original = initialFormData?.existingImages.find(o => o.id === img.id);
+                if (!original || original.title !== img.title) {
+                    mediaTitles[img.id] = img.title;
+                }
+            }
+
             // Extraire les fiches liées par type
             const linkedMonumentsLieux = formData.relatedForms
                 .filter(form => form.source === 'monuments_lieux')
@@ -1198,6 +1220,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                 title: formData.name,
                 centuries: formData.centuries.map(c => parseInt(c)),
                 medias: allMediaIds.length > 0 ? allMediaIds : undefined,
+                mediaTitles: Object.keys(mediaTitles).length > 0 ? mediaTitles : undefined,
                 city: selectedCommune == null ? undefined : parseInt(selectedCommune.id),
                 department: selectedDepartment == null ? undefined : parseInt(selectedDepartment.id),
                 region: selectedRegion == null ? undefined : parseInt(selectedRegion.id),
@@ -1235,7 +1258,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             } else if (source === 'monuments_lieux') {
                 submissionData = {
                     ...submissionData,
-                    conservationStates: formData.conservationStates,
+                    conservationStates: formData.conservationStates ? formData.conservationStates.map(c => parseInt(c)) : [],
                     isProtected: formData.protected || false,
                     protectionComment: formData.protectionComment || undefined,
                     materials: formData.materials ? formData.materials.map(c => parseInt(c)) : [],
@@ -1729,7 +1752,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                             <div>
                                                 <Label className="text-sm">Images existantes</Label>
                                                 <p className="text-sm text-muted-foreground mb-3">
-                                                    Les légendes des images existantes ne peuvent pas être modifiées
+                                                    Cliquez sur une légende pour la modifier
                                                 </p>
                                                 <div className="space-y-3">
                                                     {formData.existingImages.map((image) => (
@@ -1743,19 +1766,31 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                                                 />
                                                                 <div
                                                                     className="flex-1 flex items-center justify-between">
-                                                                    <div>
+                                                                    <div className="flex-1">
                                                                         <div className="text-sm">Légende :</div>
-                                                                        <div
-                                                                            className="text-sm text-muted-foreground mt-1">
-                                                                            {image.title || 'Sans légende'}
-                                                                        </div>
+                                                                        <Input
+                                                                            defaultValue={image.title || ''}
+                                                                            placeholder="Sans légende"
+                                                                            className="mt-1 text-sm"
+                                                                            onBlur={(e) => {
+                                                                                const newTitle = e.target.value.trim();
+                                                                                if (newTitle !== (image.title || '')) {
+                                                                                    updateExistingImageTitle(image.id, newTitle);
+                                                                                }
+                                                                            }}
+                                                                            onKeyDown={(e) => {
+                                                                                if (e.key === 'Enter') {
+                                                                                    (e.target as HTMLInputElement).blur();
+                                                                                }
+                                                                            }}
+                                                                        />
                                                                     </div>
                                                                     <Button
                                                                         type="button"
                                                                         variant="ghost"
                                                                         size="sm"
                                                                         onClick={() => removeExistingImage(image.id)}
-                                                                        className="text-destructive hover:text-destructive"
+                                                                        className="text-destructive hover:text-destructive ml-2"
                                                                     >
                                                                         <Trash2 className="w-4 h-4"/>
                                                                     </Button>
@@ -2525,7 +2560,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                         {Array.isArray(furnituresTechniques) && furnituresTechniques.length > 0 ? (
                                             <SearchableMultiSelect
                                                 options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({
-                                                    id: t.id,
+                                                    id: String(t.id),
                                                     name: t.name
                                                 }))}
                                                 selectedValues={formData.techniques || []}
