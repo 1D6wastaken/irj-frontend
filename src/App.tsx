@@ -116,8 +116,8 @@ export default function App() {
         personnes_morales: [],
         personnes_physiques: []
     });
-    const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-    const formsPollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const pollingIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const formsPollingIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     // Fonction pour charger les contributeurs en attente (pour les admins)
     const loadPendingUsers = async () => {
         if (!user || user.role !== 'admin') return;

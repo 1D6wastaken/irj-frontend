@@ -47,7 +47,7 @@ export const LocationFilter = forwardRef<LocationFilterRef, LocationFilterProps>
         const [isSearchingCommunes, setIsSearchingCommunes] = useState(false);
 
         // Ref pour le debounce
-        const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+        const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
         // Chargement initial des données
         useEffect(() => {

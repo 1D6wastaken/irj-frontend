@@ -844,7 +844,12 @@ export function ValidateFormDetailPage({
             mobilier.protected !== undefined || mobilier.protection_comment ||
             mobilier.materials?.length || mobilier.conservation?.length ||
             mobilier.techniques?.length || result.themes?.length ||
-            mobilier.sources || mobilier.bibliography;
+            mobilier.sources || mobilier.bibliography ||
+            mobilier.cote_reference || mobilier.date_fabrication ||
+            mobilier.auteur_oeuvre || mobilier.commanditaire ||
+            mobilier.emplacement || mobilier.support ||
+            mobilier.proprietaire_actuel || mobilier.dimensions_support ||
+            mobilier.dimensions_image;
 
         if (hasTechnicalInfo) {
             sections.push(
@@ -927,6 +932,52 @@ export function ValidateFormDetailPage({
                             <HtmlContent content={mobilier.bibliography} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md" />
                         </TechnicalInfoItem>
                     )}
+
+                    {mobilier.cote_reference && (
+                        <TechnicalInfoItem label="Cote / Référence">
+                            <span>{mobilier.cote_reference}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {mobilier.date_fabrication && (
+                        <TechnicalInfoItem label="Date de fabrication">
+                            <span>{mobilier.date_fabrication}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {mobilier.auteur_oeuvre && (
+                        <TechnicalInfoItem label="Auteur de l'oeuvre">
+                            <span>{mobilier.auteur_oeuvre}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {mobilier.commanditaire && (
+                        <TechnicalInfoItem label="Commanditaire">
+                            <span>{mobilier.commanditaire}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {mobilier.emplacement && (
+                        <TechnicalInfoItem label="Emplacement">
+                            <span>{mobilier.emplacement}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {mobilier.support && (
+                        <TechnicalInfoItem label="Support">
+                            <span>{mobilier.support}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {mobilier.proprietaire_actuel && (
+                        <TechnicalInfoItem label="Propriétaire actuel">
+                            <span>{mobilier.proprietaire_actuel}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {mobilier.dimensions_support && (
+                        <TechnicalInfoItem label="Dimensions du support">
+                            <span>{mobilier.dimensions_support}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {mobilier.dimensions_image && (
+                        <TechnicalInfoItem label="Dimensions de l'image">
+                            <span>{mobilier.dimensions_image}</span>
+                        </TechnicalInfoItem>
+                    )}
                 </TechnicalSection>
             );
         }
@@ -959,7 +1010,12 @@ export function ValidateFormDetailPage({
         const hasTechnicalInfo = result.centuries?.length || personne.natures?.length ||
             personne.simple_mention !== undefined || personne.foundation_deed !== undefined ||
             personne.process || personne.social_involvement || personne.objects ||
-            personne.comment || personne.sources || personne.bibliography || result.themes?.length;
+            personne.comment || personne.sources || personne.bibliography || result.themes?.length ||
+            personne.biens || personne.date_premiere_mention || personne.date_derniere_mention ||
+            personne.refondation_date || personne.date_fin || personne.status_text !== undefined ||
+            personne.origine_sociale_prof || personne.membres_connus || personne.frequence_reunions ||
+            personne.participation_vie_pol || personne.funerailles || personne.autres_fetes ||
+            personne.inhumation_costume || personne.fondateurs || personne.statuts || personne.autorisations;
 
         if (hasTechnicalInfo) {
             sections.push(
@@ -1044,6 +1100,89 @@ export function ValidateFormDetailPage({
                             <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
                         </TechnicalInfoItem>
                     )}
+
+                    {personne.date_premiere_mention && (
+                        <TechnicalInfoItem label="Date de première mention">
+                            <span>{personne.date_premiere_mention}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.date_derniere_mention && (
+                        <TechnicalInfoItem label="Date de dernière mention">
+                            <span>{personne.date_derniere_mention}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.refondation_date && (
+                        <TechnicalInfoItem label="Date de refondation">
+                            <span>{personne.refondation_date}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.date_fin && (
+                        <TechnicalInfoItem label="Date de fin">
+                            <span>{personne.date_fin}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.status_text !== undefined && (
+                        <TechnicalInfoItem label="Texte des statuts">
+                            <Badge variant={personne.status_text ? "secondary" : "outline"}>
+                                {personne.status_text ? 'Oui' : 'Non'}
+                            </Badge>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.biens && (
+                        <TechnicalInfoItem label="Biens">
+                            <HtmlContent content={personne.biens} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.origine_sociale_prof && (
+                        <TechnicalInfoItem label="Origine sociale / professionnelle">
+                            <HtmlContent content={personne.origine_sociale_prof} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.membres_connus && (
+                        <TechnicalInfoItem label="Membres connus">
+                            <HtmlContent content={personne.membres_connus} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.frequence_reunions && (
+                        <TechnicalInfoItem label="Fréquence des réunions">
+                            <HtmlContent content={personne.frequence_reunions} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.participation_vie_pol && (
+                        <TechnicalInfoItem label="Participation à la vie politique">
+                            <HtmlContent content={personne.participation_vie_pol} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.funerailles && (
+                        <TechnicalInfoItem label="Funérailles">
+                            <HtmlContent content={personne.funerailles} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.autres_fetes && (
+                        <TechnicalInfoItem label="Autres fêtes">
+                            <HtmlContent content={personne.autres_fetes} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.inhumation_costume && (
+                        <TechnicalInfoItem label="Inhumation / Costume">
+                            <HtmlContent content={personne.inhumation_costume} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.fondateurs && (
+                        <TechnicalInfoItem label="Fondateurs">
+                            <HtmlContent content={personne.fondateurs} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.statuts && (
+                        <TechnicalInfoItem label="Statuts">
+                            <HtmlContent content={personne.statuts} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
+                    {personne.autorisations && (
+                        <TechnicalInfoItem label="Autorisations">
+                            <HtmlContent content={personne.autorisations} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                        </TechnicalInfoItem>
+                    )}
                 </TechnicalSection>
             );
         }
@@ -1103,7 +1242,9 @@ export function ValidateFormDetailPage({
         const hasTechnicalInfo = monument.centuries?.length || monument.natures?.length ||
             monument.protected !== undefined || monument.protection_comment ||
             monument.materials?.length || monument.conservation?.length ||
-            monument.themes?.length;
+            monument.themes?.length || monument.dimensions || monument.altitude ||
+            monument.emplacement || monument.date_construction || monument.premiere_mention ||
+            monument.proprietaire_actuel || monument.architecte || monument.commanditaire;
 
         if (hasTechnicalInfo) {
             sections.push(
@@ -1163,6 +1304,47 @@ export function ValidateFormDetailPage({
                     {result.themes && result.themes.length > 0 && (
                         <TechnicalInfoItem label="Thèmes">
                             <TechnicalBadgeList items={result.themes.map(o => o.name)}/>
+                        </TechnicalInfoItem>
+                    )}
+
+                    {monument.dimensions && (
+                        <TechnicalInfoItem label="Dimensions">
+                            <span>{monument.dimensions}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {monument.altitude && (
+                        <TechnicalInfoItem label="Altitude">
+                            <span>{monument.altitude}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {monument.emplacement && (
+                        <TechnicalInfoItem label="Emplacement">
+                            <span>{monument.emplacement}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {monument.date_construction && (
+                        <TechnicalInfoItem label="Date de construction">
+                            <span>{monument.date_construction}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {monument.premiere_mention && (
+                        <TechnicalInfoItem label="Première mention">
+                            <span>{monument.premiere_mention}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {monument.proprietaire_actuel && (
+                        <TechnicalInfoItem label="Propriétaire actuel">
+                            <span>{monument.proprietaire_actuel}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {monument.architecte && (
+                        <TechnicalInfoItem label="Architecte">
+                            <span>{monument.architecte}</span>
+                        </TechnicalInfoItem>
+                    )}
+                    {monument.commanditaire && (
+                        <TechnicalInfoItem label="Commanditaire">
+                            <span>{monument.commanditaire}</span>
                         </TechnicalInfoItem>
                     )}
                 </TechnicalSection>
@@ -1228,10 +1410,19 @@ export function ValidateFormDetailPage({
         }
 
         // Éléments du pèlerinage
-        if (personne.pilgrimage_elements) {
+        if (personne.pilgrimage_element) {
             sections.push(
                 <TechnicalSection key="pilgrimage" title="Éléments du pèlerinage">
-                    <HtmlContent content={personne.pilgrimage_elements} className="text-sm leading-relaxed" />
+                    <HtmlContent content={personne.pilgrimage_element} className="text-sm leading-relaxed" />
+                </TechnicalSection>
+            );
+        }
+
+        // Historiographie
+        if (personne.historiography) {
+            sections.push(
+                <TechnicalSection key="historiography" title="Historiographie">
+                    <HtmlContent content={personne.historiography} className="text-sm leading-relaxed" />
                 </TechnicalSection>
             );
         }
@@ -1241,6 +1432,64 @@ export function ValidateFormDetailPage({
             sections.push(
                 <TechnicalSection key="event-nature" title="Nature de l'événement">
                     <HtmlContent content={personne.event_nature} className="text-sm leading-relaxed" />
+                </TechnicalSection>
+            );
+        }
+
+        // Nouveaux champs personnes physiques
+        if (personne.age) {
+            sections.push(
+                <TechnicalSection key="age" title="Âge">
+                    <span className="text-sm">{personne.age}</span>
+                </TechnicalSection>
+            );
+        }
+        if (personne.evenements) {
+            sections.push(
+                <TechnicalSection key="evenements" title="Événements">
+                    <HtmlContent content={personne.evenements} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                </TechnicalSection>
+            );
+        }
+        if (personne.preparatifs) {
+            sections.push(
+                <TechnicalSection key="preparatifs" title="Préparatifs">
+                    <HtmlContent content={personne.preparatifs} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                </TechnicalSection>
+            );
+        }
+        if (personne.chemin_suivi) {
+            sections.push(
+                <TechnicalSection key="chemin_suivi" title="Chemin suivi">
+                    <HtmlContent content={personne.chemin_suivi} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                </TechnicalSection>
+            );
+        }
+        if (personne.arrivee) {
+            sections.push(
+                <TechnicalSection key="arrivee" title="Arrivée">
+                    <HtmlContent content={personne.arrivee} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                </TechnicalSection>
+            );
+        }
+        if (personne.retour) {
+            sections.push(
+                <TechnicalSection key="retour" title="Retour">
+                    <HtmlContent content={personne.retour} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                </TechnicalSection>
+            );
+        }
+        if (personne.non_execution) {
+            sections.push(
+                <TechnicalSection key="non_execution" title="Non-exécution">
+                    <HtmlContent content={personne.non_execution} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
+                </TechnicalSection>
+            );
+        }
+        if (personne.composition_groupe) {
+            sections.push(
+                <TechnicalSection key="composition_groupe" title="Composition du groupe">
+                    <HtmlContent content={personne.composition_groupe} className="text-sm leading-relaxed bg-muted/30 p-3 rounded-md"/>
                 </TechnicalSection>
             );
         }
