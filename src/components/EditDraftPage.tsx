@@ -99,7 +99,7 @@ interface FormData {
     // Champs spécifiques aux personnes morales
     simpleMention?: boolean;
     foundationAct?: boolean;
-    statutesText?: string;
+    statutesText?: boolean;
     functioningDescription?: string;
     socialParticipation?: string;
     relatedObjects?: string;
@@ -746,7 +746,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             const personneMoraleData = data as PersonneMoraleDetail;
             formDataToSet.simpleMention = personneMoraleData.simple_mention || false;
             formDataToSet.foundationAct = personneMoraleData.foundation_deed || false;
-            formDataToSet.statutesText = personneMoraleData.process || '';
+            formDataToSet.statutesText = personneMoraleData.status_text || false;
             formDataToSet.functioningDescription = personneMoraleData.process || '';
             formDataToSet.socialParticipation = personneMoraleData.social_involvement || '';
             formDataToSet.relatedObjects = personneMoraleData.objects || '';
@@ -1422,7 +1422,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                     natures: formData.natures ? formData.natures.map(c => parseInt(c)) : [],
                     simple_mention: formData.simpleMention || false,
                     foundation_deed: formData.foundationAct || false,
-                    status_Text: formData.statutesText || undefined,
+                    status_text: formData.statutesText || false,
                     functioning: formData.functioningDescription || undefined,
                     social_involvement: formData.socialParticipation || undefined,
                     linked_objects: formData.relatedObjects || undefined,
@@ -2456,20 +2456,16 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                         </div>
 
                                         {/* Texte des statuts */}
-                                        <div>
-                                            <RichTextEditor
-                                                value={formData.statutesText || ''}
-                                                onChange={(value) => handleInputChange('statutesText', value)}
-                                                label={
-                                                    <span className="flex items-center gap-1">
-                                                        Texte des statuts
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.statutesText} />
-                                                    </span>
-                                                }
-                                                placeholder="Texte des statuts de la personne morale"
-                                                required={false}
-                                                minHeight="150px"
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id="statutesText"
+                                                checked={formData.statutesText || false}
+                                                onCheckedChange={(checked) => handleInputChange('statutesText', checked)}
                                             />
+                                            <Label className="flex items-center gap-1 text-sm" htmlFor="statutesText">
+                                                Texte des statuts
+                                                <InfoTooltip content={tooltipTexts.personnesMorales.statutesText} />
+                                            </Label>
                                         </div>
 
                                         {/* Description du fonctionnement */}
