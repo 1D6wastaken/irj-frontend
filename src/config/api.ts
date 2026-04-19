@@ -316,6 +316,15 @@ export interface MonumentLieuDetail {
     linked_legal_entities?: number[];
     parent_id?: number;
     temoinComment?: string;
+    // Nouveaux champs
+    dimensions?: string;
+    altitude?: string;
+    emplacement?: string;
+    date_construction?: string;
+    premiere_mention?: string;
+    proprietaire_actuel?: string;
+    architecte?: string;
+    commanditaire?: string;
 }
 
 export interface MobilierImageDetail {
@@ -350,6 +359,16 @@ export interface MobilierImageDetail {
     linked_legal_entities?: number[];
     parent_id?: number;
     temoinComment?: string;
+    // Nouveaux champs
+    cote_reference?: string;
+    date_fabrication?: string;
+    auteur_oeuvre?: string;
+    commanditaire?: string;
+    emplacement?: string;
+    support?: string;
+    proprietaire_actuel?: string;
+    dimensions_support?: string;
+    dimensions_image?: string;
 }
 
 export interface PersonneMoraleDetail {
@@ -382,6 +401,23 @@ export interface PersonneMoraleDetail {
     linked_furniture_images?: number[];
     parent_id?: number;
     temoinComment?: string;
+    // Nouveaux champs
+    biens?: string;
+    date_premiere_mention?: string;
+    date_derniere_mention?: string;
+    refondation_date?: string;
+    date_fin?: string;
+    status_text?: boolean;
+    origine_sociale_prof?: string;
+    membres_connus?: string;
+    frequence_reunions?: string;
+    participation_vie_pol?: string;
+    funerailles?: string;
+    autres_fetes?: string;
+    inhumation_costume?: string;
+    fondateurs?: string;
+    statuts?: string;
+    autorisations?: string;
 }
 
 export interface PersonnePhysiqueDetail {
@@ -394,7 +430,8 @@ export interface PersonnePhysiqueDetail {
     bibliography?: string;
     biographical_elements?: string;
     historical_period?: FilterOption[];
-    pilgrimage_elements?: string;
+    pilgrimage_element?: string;
+    historiography?: string;
     event_nature?: string;
     sources?: string;
     creation_date: string;
@@ -415,6 +452,15 @@ export interface PersonnePhysiqueDetail {
     linked_legal_entities?: number[];
     parent_id?: number;
     temoinComment?: string;
+    // Nouveaux champs
+    evenements?: string;
+    preparatifs?: string;
+    chemin_suivi?: string;
+    arrivee?: string;
+    retour?: string;
+    non_execution?: string;
+    age?: string;
+    composition_groupe?: string;
 }
 
 export type DetailResult = MonumentLieuDetail | MobilierImageDetail | PersonneMoraleDetail | PersonnePhysiqueDetail;

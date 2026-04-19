@@ -99,7 +99,7 @@ interface FormData {
     // Champs spécifiques aux personnes morales
     simpleMention?: boolean;
     foundationAct?: boolean;
-    statutesText?: string;
+    statutesText?: boolean;
     functioningDescription?: string;
     socialParticipation?: string;
     relatedObjects?: string;
@@ -112,10 +112,52 @@ interface FormData {
     professions?: string[];
     biographicalElements?: string;
     pilgrimage?: string;
+    historiography?: string;
     transportModes?: string[];
     eventNature?: string;
     commutationVow?: string;
     temoinComment?: string;
+    // Nouveaux champs Mobiliers & Images
+    coteReference?: string;
+    dateFabrication?: string;
+    auteurOeuvre?: string;
+    commanditaire?: string;
+    emplacementField?: string;
+    supportField?: string;
+    proprietaireActuel?: string;
+    dimensionsSupport?: string;
+    dimensionsImage?: string;
+    // Nouveaux champs Monuments & Lieux
+    dimensionsField?: string;
+    altitude?: string;
+    dateConstruction?: string;
+    premiereMention?: string;
+    architecte?: string;
+    // Nouveaux champs Personnes Morales
+    biens?: string;
+    datePremiereMention?: string;
+    dateDerniereMention?: string;
+    refondationDate?: string;
+    dateFin?: string;
+    origineSocialeProf?: string;
+    membresConnus?: string;
+    frequenceReunions?: string;
+    participationViePol?: string;
+    funerailles?: string;
+    autresFetes?: string;
+    inhumationCostume?: string;
+    fondateurs?: string;
+    statutsContenu?: string;
+    autorisations?: string;
+    // Nouveaux champs Personnes Physiques
+    evenements?: string;
+    preparatifs?: string;
+    cheminSuivi?: string;
+    arrivee?: string;
+    retourPelerinage?: string;
+    nonExecution?: string;
+    agePers?: string;
+    compositionGroupe?: string;
 }
 
 export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}: EditDraftPageProps) {
@@ -661,6 +703,15 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             formDataToSet.inscription = mobilierData.inscriptions || '';
             formDataToSet.currentLocation = mobilierData.conservation_place || '';
             formDataToSet.originalLocation = mobilierData.origin_place || '';
+            formDataToSet.coteReference = mobilierData.cote_reference || '';
+            formDataToSet.dateFabrication = mobilierData.date_fabrication || '';
+            formDataToSet.auteurOeuvre = mobilierData.auteur_oeuvre || '';
+            formDataToSet.commanditaire = mobilierData.commanditaire || '';
+            formDataToSet.emplacementField = mobilierData.emplacement || '';
+            formDataToSet.supportField = mobilierData.support || '';
+            formDataToSet.proprietaireActuel = mobilierData.proprietaire_actuel || '';
+            formDataToSet.dimensionsSupport = mobilierData.dimensions_support || '';
+            formDataToSet.dimensionsImage = mobilierData.dimensions_image || '';
         }
 
         // Ajouter les champs spécifiques aux monuments
@@ -680,6 +731,14 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             } else {
                 formDataToSet.coordinates = {latitude: '', longitude: ''};
             }
+            formDataToSet.dimensionsField = monumentData.dimensions || '';
+            formDataToSet.altitude = monumentData.altitude || '';
+            formDataToSet.emplacementField = monumentData.emplacement || '';
+            formDataToSet.dateConstruction = monumentData.date_construction || '';
+            formDataToSet.premiereMention = monumentData.premiere_mention || '';
+            formDataToSet.proprietaireActuel = monumentData.proprietaire_actuel || '';
+            formDataToSet.architecte = monumentData.architecte || '';
+            formDataToSet.commanditaire = monumentData.commanditaire || '';
         }
 
         // Ajouter les champs spécifiques aux personnes morales
@@ -687,11 +746,26 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             const personneMoraleData = data as PersonneMoraleDetail;
             formDataToSet.simpleMention = personneMoraleData.simple_mention || false;
             formDataToSet.foundationAct = personneMoraleData.foundation_deed || false;
-            formDataToSet.statutesText = personneMoraleData.process || '';
+            formDataToSet.statutesText = personneMoraleData.status_text || false;
             formDataToSet.functioningDescription = personneMoraleData.process || '';
             formDataToSet.socialParticipation = personneMoraleData.social_involvement || '';
             formDataToSet.relatedObjects = personneMoraleData.objects || '';
             formDataToSet.comment = personneMoraleData.comment || '';
+            formDataToSet.biens = personneMoraleData.biens || '';
+            formDataToSet.datePremiereMention = personneMoraleData.date_premiere_mention || '';
+            formDataToSet.dateDerniereMention = personneMoraleData.date_derniere_mention || '';
+            formDataToSet.refondationDate = personneMoraleData.refondation_date || '';
+            formDataToSet.dateFin = personneMoraleData.date_fin || '';
+            formDataToSet.origineSocialeProf = personneMoraleData.origine_sociale_prof || '';
+            formDataToSet.membresConnus = personneMoraleData.membres_connus || '';
+            formDataToSet.frequenceReunions = personneMoraleData.frequence_reunions || '';
+            formDataToSet.participationViePol = personneMoraleData.participation_vie_pol || '';
+            formDataToSet.funerailles = personneMoraleData.funerailles || '';
+            formDataToSet.autresFetes = personneMoraleData.autres_fetes || '';
+            formDataToSet.inhumationCostume = personneMoraleData.inhumation_costume || '';
+            formDataToSet.fondateurs = personneMoraleData.fondateurs || '';
+            formDataToSet.statutsContenu = personneMoraleData.statuts || '';
+            formDataToSet.autorisations = personneMoraleData.autorisations || '';
         }
 
         // Ajouter les champs spécifiques aux personnes physiques
@@ -703,10 +777,19 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             formDataToSet.historicalPeriods = extractIds(personnePhysiqueData.historical_period);
             formDataToSet.professions = extractIds(personnePhysiqueData.professions);
             formDataToSet.biographicalElements = personnePhysiqueData.biographical_elements || '';
-            formDataToSet.pilgrimage = personnePhysiqueData.pilgrimage_elements || '';
+            formDataToSet.pilgrimage = personnePhysiqueData.pilgrimage_element || '';
+            formDataToSet.historiography = personnePhysiqueData.historiography || '';
             formDataToSet.transportModes = extractIds(personnePhysiqueData.travels);
             formDataToSet.eventNature = personnePhysiqueData.event_nature || '';
             formDataToSet.comment = personnePhysiqueData.comment || '';
+            formDataToSet.evenements = personnePhysiqueData.evenements || '';
+            formDataToSet.preparatifs = personnePhysiqueData.preparatifs || '';
+            formDataToSet.cheminSuivi = personnePhysiqueData.chemin_suivi || '';
+            formDataToSet.arrivee = personnePhysiqueData.arrivee || '';
+            formDataToSet.retourPelerinage = personnePhysiqueData.retour || '';
+            formDataToSet.nonExecution = personnePhysiqueData.non_execution || '';
+            formDataToSet.agePers = personnePhysiqueData.age || '';
+            formDataToSet.compositionGroupe = personnePhysiqueData.composition_groupe || '';
         }
 
         setFormData(formDataToSet);
@@ -1016,6 +1099,15 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
         }));
     };
 
+    const updateExistingImageTitle = (imageId: string, newTitle: string) => {
+        setFormData(prev => ({
+            ...prev,
+            existingImages: prev.existingImages.map(img =>
+                img.id === imageId ? { ...img, title: newTitle } : img
+            ),
+        }));
+    };
+
     // Gestion des champs
     const handleInputChange = (field: string, value: any) => {
         setFormData(prev => ({...prev, [field]: value}));
@@ -1058,6 +1150,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
         if (formData.attestation !== initialFormData.attestation) return true;
         if (formData.biographicalElements !== initialFormData.biographicalElements) return true;
         if (formData.pilgrimage !== initialFormData.pilgrimage) return true;
+        if (formData.historiography !== initialFormData.historiography) return true;
         if (formData.eventNature !== initialFormData.eventNature) return true;
         if (formData.commutationVow !== initialFormData.commutationVow) return true;
 
@@ -1072,6 +1165,45 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
 
         // Comparer le commentaire témoin
         if (formData.temoinComment !== initialFormData.temoinComment) return true;
+
+        // Comparer les nouveaux champs
+        if (formData.coteReference !== initialFormData.coteReference) return true;
+        if (formData.dateFabrication !== initialFormData.dateFabrication) return true;
+        if (formData.auteurOeuvre !== initialFormData.auteurOeuvre) return true;
+        if (formData.commanditaire !== initialFormData.commanditaire) return true;
+        if (formData.emplacementField !== initialFormData.emplacementField) return true;
+        if (formData.supportField !== initialFormData.supportField) return true;
+        if (formData.proprietaireActuel !== initialFormData.proprietaireActuel) return true;
+        if (formData.dimensionsSupport !== initialFormData.dimensionsSupport) return true;
+        if (formData.dimensionsImage !== initialFormData.dimensionsImage) return true;
+        if (formData.dimensionsField !== initialFormData.dimensionsField) return true;
+        if (formData.altitude !== initialFormData.altitude) return true;
+        if (formData.dateConstruction !== initialFormData.dateConstruction) return true;
+        if (formData.premiereMention !== initialFormData.premiereMention) return true;
+        if (formData.architecte !== initialFormData.architecte) return true;
+        if (formData.biens !== initialFormData.biens) return true;
+        if (formData.datePremiereMention !== initialFormData.datePremiereMention) return true;
+        if (formData.dateDerniereMention !== initialFormData.dateDerniereMention) return true;
+        if (formData.refondationDate !== initialFormData.refondationDate) return true;
+        if (formData.dateFin !== initialFormData.dateFin) return true;
+        if (formData.origineSocialeProf !== initialFormData.origineSocialeProf) return true;
+        if (formData.membresConnus !== initialFormData.membresConnus) return true;
+        if (formData.frequenceReunions !== initialFormData.frequenceReunions) return true;
+        if (formData.participationViePol !== initialFormData.participationViePol) return true;
+        if (formData.funerailles !== initialFormData.funerailles) return true;
+        if (formData.autresFetes !== initialFormData.autresFetes) return true;
+        if (formData.inhumationCostume !== initialFormData.inhumationCostume) return true;
+        if (formData.fondateurs !== initialFormData.fondateurs) return true;
+        if (formData.statutsContenu !== initialFormData.statutsContenu) return true;
+        if (formData.autorisations !== initialFormData.autorisations) return true;
+        if (formData.evenements !== initialFormData.evenements) return true;
+        if (formData.preparatifs !== initialFormData.preparatifs) return true;
+        if (formData.cheminSuivi !== initialFormData.cheminSuivi) return true;
+        if (formData.arrivee !== initialFormData.arrivee) return true;
+        if (formData.retourPelerinage !== initialFormData.retourPelerinage) return true;
+        if (formData.nonExecution !== initialFormData.nonExecution) return true;
+        if (formData.agePers !== initialFormData.agePers) return true;
+        if (formData.compositionGroupe !== initialFormData.compositionGroupe) return true;
 
         // Comparer les tableaux triés
         const arraysEqual = (a: string[], b: string[]): boolean => {
@@ -1108,6 +1240,10 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
 
         // Vérifier si les images existantes ont changé
         if (formData.existingImages.length !== initialFormData.existingImages.length) return true;
+        for (const img of formData.existingImages) {
+            const original = initialFormData.existingImages.find(o => o.id === img.id);
+            if (!original || original.title !== img.title) return true;
+        }
 
         return false;
     };
@@ -1179,6 +1315,15 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                 .map(img => parseInt(img.id));
             const allMediaIds = [...existingMediaIds, ...newMediaIds];
 
+            // Construire media_titles pour les légendes modifiées
+            const mediaTitles: Record<string, string> = {};
+            for (const img of formData.existingImages) {
+                const original = initialFormData?.existingImages.find(o => o.id === img.id);
+                if (!original || original.title !== img.title) {
+                    mediaTitles[img.id] = img.title;
+                }
+            }
+
             // Extraire les fiches liées par type
             const linkedMonumentsLieux = formData.relatedForms
                 .filter(form => form.source === 'monuments_lieux')
@@ -1198,6 +1343,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                 title: formData.name,
                 centuries: formData.centuries.map(c => parseInt(c)),
                 medias: allMediaIds.length > 0 ? allMediaIds : undefined,
+                mediaTitles: Object.keys(mediaTitles).length > 0 ? mediaTitles : undefined,
                 city: selectedCommune == null ? undefined : parseInt(selectedCommune.id),
                 department: selectedDepartment == null ? undefined : parseInt(selectedDepartment.id),
                 region: selectedRegion == null ? undefined : parseInt(selectedRegion.id),
@@ -1227,7 +1373,16 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                     presentPlace: formData.currentLocation,
                     linkedMonumentsLieux,
                     linkedPersMorales,
-                    linkedPersPhysiques
+                    linkedPersPhysiques,
+                    cote_reference: formData.coteReference || undefined,
+                    date_fabrication: formData.dateFabrication || undefined,
+                    auteur_oeuvre: formData.auteurOeuvre || undefined,
+                    commanditaire: formData.commanditaire || undefined,
+                    emplacement: formData.emplacementField || undefined,
+                    support: formData.supportField || undefined,
+                    proprietaire_actuel: formData.proprietaireActuel || undefined,
+                    dimensions_support: formData.dimensionsSupport || undefined,
+                    dimensions_image: formData.dimensionsImage || undefined,
                 };
 
                 await apiService.updateMobilierImage(recordId, submissionData);
@@ -1235,7 +1390,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
             } else if (source === 'monuments_lieux') {
                 submissionData = {
                     ...submissionData,
-                    conservationStates: formData.conservationStates,
+                    conservationStates: formData.conservationStates ? formData.conservationStates.map(c => parseInt(c)) : [],
                     isProtected: formData.protected || false,
                     protectionComment: formData.protectionComment || undefined,
                     materials: formData.materials ? formData.materials.map(c => parseInt(c)) : [],
@@ -1248,7 +1403,15 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                         : undefined,
                     linkedMobiliersImages,
                     linkedPersMorales,
-                    linkedPersPhysiques
+                    linkedPersPhysiques,
+                    dimensions: formData.dimensionsField || undefined,
+                    altitude: formData.altitude || undefined,
+                    emplacement: formData.emplacementField || undefined,
+                    date_construction: formData.dateConstruction || undefined,
+                    premiere_mention: formData.premiereMention || undefined,
+                    proprietaire_actuel: formData.proprietaireActuel || undefined,
+                    architecte: formData.architecte || undefined,
+                    commanditaire: formData.commanditaire || undefined,
                 };
 
                 await apiService.updateMonumentLieu(recordId, submissionData);
@@ -1259,14 +1422,29 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                     natures: formData.natures ? formData.natures.map(c => parseInt(c)) : [],
                     simple_mention: formData.simpleMention || false,
                     foundation_deed: formData.foundationAct || false,
-                    status_Text: formData.statutesText || undefined,
+                    status_text: formData.statutesText || false,
                     functioning: formData.functioningDescription || undefined,
                     social_involvement: formData.socialParticipation || undefined,
                     linked_objects: formData.relatedObjects || undefined,
                     comment: formData.comment || undefined,
                     linkedMobiliersImages,
                     linkedMonumentsLieux,
-                    linkedPersPhysiques
+                    linkedPersPhysiques,
+                    biens: formData.biens || undefined,
+                    date_premiere_mention: formData.datePremiereMention || undefined,
+                    date_derniere_mention: formData.dateDerniereMention || undefined,
+                    refondation_date: formData.refondationDate || undefined,
+                    date_fin: formData.dateFin || undefined,
+                    origine_sociale_prof: formData.origineSocialeProf || undefined,
+                    membres_connus: formData.membresConnus || undefined,
+                    frequence_reunions: formData.frequenceReunions || undefined,
+                    participation_vie_pol: formData.participationViePol || undefined,
+                    funerailles: formData.funerailles || undefined,
+                    autres_fetes: formData.autresFetes || undefined,
+                    inhumation_costume: formData.inhumationCostume || undefined,
+                    fondateurs: formData.fondateurs || undefined,
+                    statuts: formData.statutsContenu || undefined,
+                    autorisations: formData.autorisations || undefined,
                 };
 
                 await apiService.updatePersonneMorale(recordId, submissionData);
@@ -1280,14 +1458,23 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                     historical_periods: formData.historicalPeriods ? formData.historicalPeriods.map(c => parseInt(c)) : [],
                     professions: formData.professions ? formData.professions.map(c => parseInt(c)) : [],
                     biographical_elements: formData.biographicalElements || undefined,
-                    pilgrimage_elements: formData.pilgrimage || undefined,
+                    pilgrimage_element: formData.pilgrimage || undefined,
+                    historiography: formData.historiography || undefined,
                     travels: formData.transportModes ? formData.transportModes.map(c => parseInt(c)) : [],
                     nature: formData.eventNature || undefined,
                     commutation: formData.commutationVow || undefined,
                     comment: formData.comment || undefined,
                     linkedMobiliersImages,
                     linkedMonumentsLieux,
-                    linkedPersMorales
+                    linkedPersMorales,
+                    evenements: formData.evenements || undefined,
+                    preparatifs: formData.preparatifs || undefined,
+                    chemin_suivi: formData.cheminSuivi || undefined,
+                    arrivee: formData.arrivee || undefined,
+                    retour: formData.retourPelerinage || undefined,
+                    non_execution: formData.nonExecution || undefined,
+                    age: formData.agePers || undefined,
+                    composition_groupe: formData.compositionGroupe || undefined,
                 };
 
                 await apiService.updatePersonnePhysique(recordId, submissionData);
@@ -1729,7 +1916,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                             <div>
                                                 <Label className="text-sm">Images existantes</Label>
                                                 <p className="text-sm text-muted-foreground mb-3">
-                                                    Les légendes des images existantes ne peuvent pas être modifiées
+                                                    Cliquez sur une légende pour la modifier
                                                 </p>
                                                 <div className="space-y-3">
                                                     {formData.existingImages.map((image) => (
@@ -1743,19 +1930,31 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                                                 />
                                                                 <div
                                                                     className="flex-1 flex items-center justify-between">
-                                                                    <div>
+                                                                    <div className="flex-1">
                                                                         <div className="text-sm">Légende :</div>
-                                                                        <div
-                                                                            className="text-sm text-muted-foreground mt-1">
-                                                                            {image.title || 'Sans légende'}
-                                                                        </div>
+                                                                        <Input
+                                                                            defaultValue={image.title || ''}
+                                                                            placeholder="Sans légende"
+                                                                            className="mt-1 text-sm"
+                                                                            onBlur={(e) => {
+                                                                                const newTitle = e.target.value.trim();
+                                                                                if (newTitle !== (image.title || '')) {
+                                                                                    updateExistingImageTitle(image.id, newTitle);
+                                                                                }
+                                                                            }}
+                                                                            onKeyDown={(e) => {
+                                                                                if (e.key === 'Enter') {
+                                                                                    (e.target as HTMLInputElement).blur();
+                                                                                }
+                                                                            }}
+                                                                        />
                                                                     </div>
                                                                     <Button
                                                                         type="button"
                                                                         variant="ghost"
                                                                         size="sm"
                                                                         onClick={() => removeExistingImage(image.id)}
-                                                                        className="text-destructive hover:text-destructive"
+                                                                        className="text-destructive hover:text-destructive ml-2"
                                                                     >
                                                                         <Trash2 className="w-4 h-4"/>
                                                                     </Button>
@@ -2066,6 +2265,78 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                                 placeholder="Emplacement d'origine de l'objet"
                                             />
                                         </div>
+
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="coteReference">
+                                                Cote / Référence
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.coteReference} />
+                                            </Label>
+                                            <Input id="coteReference" value={formData.coteReference || ''} onChange={(e) => handleInputChange('coteReference', e.target.value)} placeholder="Cote ou référence" />
+                                        </div>
+
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="dateFabrication">
+                                                Date de fabrication
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.dateFabrication} />
+                                            </Label>
+                                            <Input id="dateFabrication" value={formData.dateFabrication || ''} onChange={(e) => handleInputChange('dateFabrication', e.target.value)} placeholder="Date ou période de fabrication" />
+                                        </div>
+
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="auteurOeuvre">
+                                                Auteur de l'œuvre
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.auteurOeuvre} />
+                                            </Label>
+                                            <Input id="auteurOeuvre" value={formData.auteurOeuvre || ''} onChange={(e) => handleInputChange('auteurOeuvre', e.target.value)} placeholder="Nom de l'auteur" />
+                                        </div>
+
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="commanditaire">
+                                                Commanditaire
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.commanditaire} />
+                                            </Label>
+                                            <Input id="commanditaire" value={formData.commanditaire || ''} onChange={(e) => handleInputChange('commanditaire', e.target.value)} placeholder="Commanditaire de l'œuvre" />
+                                        </div>
+
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="emplacementField">
+                                                Emplacement
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.emplacement} />
+                                            </Label>
+                                            <Input id="emplacementField" value={formData.emplacementField || ''} onChange={(e) => handleInputChange('emplacementField', e.target.value)} placeholder="Emplacement précis dans l'édifice" />
+                                        </div>
+
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="supportField">
+                                                Support
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.support} />
+                                            </Label>
+                                            <Input id="supportField" value={formData.supportField || ''} onChange={(e) => handleInputChange('supportField', e.target.value)} placeholder="Support de l'œuvre" />
+                                        </div>
+
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="proprietaireActuel">
+                                                Propriétaire actuel
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.proprietaireActuel} />
+                                            </Label>
+                                            <Input id="proprietaireActuel" value={formData.proprietaireActuel || ''} onChange={(e) => handleInputChange('proprietaireActuel', e.target.value)} placeholder="Nom du propriétaire actuel" />
+                                        </div>
+
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="dimensionsSupport">
+                                                Dimensions du support
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.dimensionsSupport} />
+                                            </Label>
+                                            <Input id="dimensionsSupport" value={formData.dimensionsSupport || ''} onChange={(e) => handleInputChange('dimensionsSupport', e.target.value)} placeholder="Hauteur x largeur x profondeur" />
+                                        </div>
+
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="dimensionsImage">
+                                                Dimensions de l'image
+                                                <InfoTooltip content={tooltipTexts.mobiliersImages.dimensionsImage} />
+                                            </Label>
+                                            <Input id="dimensionsImage" value={formData.dimensionsImage || ''} onChange={(e) => handleInputChange('dimensionsImage', e.target.value)} placeholder="Dimensions de la partie figurée" />
+                                        </div>
                                     </>
                                 )}
 
@@ -2117,6 +2388,43 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                     </div>
                                 )}
 
+                                {source === 'monuments_lieux' && (
+                                    <>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="dimensionsField">Dimensions <InfoTooltip content={tooltipTexts.monumentsLieux.dimensions} /></Label>
+                                            <Input id="dimensionsField" value={formData.dimensionsField || ''} onChange={(e) => handleInputChange('dimensionsField', e.target.value)} placeholder="Dimensions du monument" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="altitude">Altitude <InfoTooltip content={tooltipTexts.monumentsLieux.altitude} /></Label>
+                                            <Input id="altitude" value={formData.altitude || ''} onChange={(e) => handleInputChange('altitude', e.target.value)} placeholder="Altitude en mètres" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="emplacementField">Emplacement <InfoTooltip content={tooltipTexts.monumentsLieux.emplacement} /></Label>
+                                            <Input id="emplacementField" value={formData.emplacementField || ''} onChange={(e) => handleInputChange('emplacementField', e.target.value)} placeholder="Emplacement précis" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="dateConstruction">Date de construction <InfoTooltip content={tooltipTexts.monumentsLieux.dateConstruction} /></Label>
+                                            <Input id="dateConstruction" value={formData.dateConstruction || ''} onChange={(e) => handleInputChange('dateConstruction', e.target.value)} placeholder="Date ou période de construction" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="premiereMention">Première mention <InfoTooltip content={tooltipTexts.monumentsLieux.premiereMention} /></Label>
+                                            <Input id="premiereMention" value={formData.premiereMention || ''} onChange={(e) => handleInputChange('premiereMention', e.target.value)} placeholder="Date de la première mention" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="proprietaireActuel">Propriétaire actuel <InfoTooltip content={tooltipTexts.monumentsLieux.proprietaireActuel} /></Label>
+                                            <Input id="proprietaireActuel" value={formData.proprietaireActuel || ''} onChange={(e) => handleInputChange('proprietaireActuel', e.target.value)} placeholder="Nom du propriétaire actuel" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="architecte">Architecte <InfoTooltip content={tooltipTexts.monumentsLieux.architecte} /></Label>
+                                            <Input id="architecte" value={formData.architecte || ''} onChange={(e) => handleInputChange('architecte', e.target.value)} placeholder="Nom de l'architecte" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="commanditaire">Commanditaire <InfoTooltip content={tooltipTexts.monumentsLieux.commanditaire} /></Label>
+                                            <Input id="commanditaire" value={formData.commanditaire || ''} onChange={(e) => handleInputChange('commanditaire', e.target.value)} placeholder="Commanditaire de la construction" />
+                                        </div>
+                                    </>
+                                )}
+
                                 {/* Champs spécifiques aux personnes morales */}
                                 {source === 'personnes_morales' && (
                                     <>
@@ -2148,20 +2456,16 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                         </div>
 
                                         {/* Texte des statuts */}
-                                        <div>
-                                            <RichTextEditor
-                                                value={formData.statutesText || ''}
-                                                onChange={(value) => handleInputChange('statutesText', value)}
-                                                label={
-                                                    <span className="flex items-center gap-1">
-                                                        Texte des statuts
-                                                        <InfoTooltip content={tooltipTexts.personnesMorales.statutesText} />
-                                                    </span>
-                                                }
-                                                placeholder="Texte des statuts de la personne morale"
-                                                required={false}
-                                                minHeight="150px"
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id="statutesText"
+                                                checked={formData.statutesText || false}
+                                                onCheckedChange={(checked) => handleInputChange('statutesText', checked)}
                                             />
+                                            <Label className="flex items-center gap-1 text-sm" htmlFor="statutesText">
+                                                Texte des statuts
+                                                <InfoTooltip content={tooltipTexts.personnesMorales.statutesText} />
+                                            </Label>
                                         </div>
 
                                         {/* Description du fonctionnement */}
@@ -2230,6 +2534,56 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                                 required={false}
                                                 minHeight="150px"
                                             />
+                                        </div>
+
+                                        <div>
+                                            <RichTextEditor value={formData.biens || ''} onChange={(value) => handleInputChange('biens', value)} label={<span className="flex items-center gap-1">Biens <InfoTooltip content={tooltipTexts.personnesMorales.biens} /></span>} placeholder="Biens de l'organisation" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="datePremiereMention">Date de première mention <InfoTooltip content={tooltipTexts.personnesMorales.datePremiereMention} /></Label>
+                                            <Input id="datePremiereMention" value={formData.datePremiereMention || ''} onChange={(e) => handleInputChange('datePremiereMention', e.target.value)} placeholder="Date de la première mention" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="dateDerniereMention">Date de dernière mention <InfoTooltip content={tooltipTexts.personnesMorales.dateDerniereMention} /></Label>
+                                            <Input id="dateDerniereMention" value={formData.dateDerniereMention || ''} onChange={(e) => handleInputChange('dateDerniereMention', e.target.value)} placeholder="Date de la dernière mention" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="refondationDate">Date de refondation <InfoTooltip content={tooltipTexts.personnesMorales.refondationDate} /></Label>
+                                            <Input id="refondationDate" value={formData.refondationDate || ''} onChange={(e) => handleInputChange('refondationDate', e.target.value)} placeholder="Date de refondation" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="dateFin">Date de fin <InfoTooltip content={tooltipTexts.personnesMorales.dateFin} /></Label>
+                                            <Input id="dateFin" value={formData.dateFin || ''} onChange={(e) => handleInputChange('dateFin', e.target.value)} placeholder="Date de dissolution ou fin d'activité" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.origineSocialeProf || ''} onChange={(value) => handleInputChange('origineSocialeProf', value)} label={<span className="flex items-center gap-1">Origine sociale et professionnelle <InfoTooltip content={tooltipTexts.personnesMorales.origineSocialeProf} /></span>} placeholder="Origine sociale et professionnelle des membres" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.membresConnus || ''} onChange={(value) => handleInputChange('membresConnus', value)} label={<span className="flex items-center gap-1">Membres connus <InfoTooltip content={tooltipTexts.personnesMorales.membresConnus} /></span>} placeholder="Liste des membres connus" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.frequenceReunions || ''} onChange={(value) => handleInputChange('frequenceReunions', value)} label={<span className="flex items-center gap-1">Fréquence des réunions <InfoTooltip content={tooltipTexts.personnesMorales.frequenceReunions} /></span>} placeholder="Fréquence et modalités des réunions" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.participationViePol || ''} onChange={(value) => handleInputChange('participationViePol', value)} label={<span className="flex items-center gap-1">Participation à la vie politique <InfoTooltip content={tooltipTexts.personnesMorales.participationViePol} /></span>} placeholder="Participation à la vie politique" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.funerailles || ''} onChange={(value) => handleInputChange('funerailles', value)} label={<span className="flex items-center gap-1">Funérailles <InfoTooltip content={tooltipTexts.personnesMorales.funerailles} /></span>} placeholder="Pratiques funéraires" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.autresFetes || ''} onChange={(value) => handleInputChange('autresFetes', value)} label={<span className="flex items-center gap-1">Autres fêtes <InfoTooltip content={tooltipTexts.personnesMorales.autresFetes} /></span>} placeholder="Autres fêtes et célébrations" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.inhumationCostume || ''} onChange={(value) => handleInputChange('inhumationCostume', value)} label={<span className="flex items-center gap-1">Inhumation et costume <InfoTooltip content={tooltipTexts.personnesMorales.inhumationCostume} /></span>} placeholder="Pratiques d'inhumation et costume" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.fondateurs || ''} onChange={(value) => handleInputChange('fondateurs', value)} label={<span className="flex items-center gap-1">Fondateurs <InfoTooltip content={tooltipTexts.personnesMorales.fondateurs} /></span>} placeholder="Fondateurs de l'organisation" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.statutsContenu || ''} onChange={(value) => handleInputChange('statutsContenu', value)} label={<span className="flex items-center gap-1">Contenu des statuts <InfoTooltip content={tooltipTexts.personnesMorales.statuts} /></span>} placeholder="Contenu ou résumé des statuts" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.autorisations || ''} onChange={(value) => handleInputChange('autorisations', value)} label={<span className="flex items-center gap-1">Autorisations <InfoTooltip content={tooltipTexts.personnesMorales.autorisations} /></span>} placeholder="Autorisations obtenues" required={false} minHeight="150px" />
                                         </div>
                                     </>
                                 )}
@@ -2373,6 +2727,23 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                             />
                                         </div>
 
+                                        {/* Historiographie */}
+                                        <div>
+                                            <RichTextEditor
+                                                value={formData.historiography || ''}
+                                                onChange={(value) => handleInputChange('historiography', value)}
+                                                label={
+                                                    <span className="flex items-center gap-1">
+                                                        Historiographie
+                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.historiography} />
+                                                    </span>
+                                                }
+                                                placeholder="État de la recherche historiographique sur cette personne"
+                                                required={false}
+                                                minHeight="150px"
+                                            />
+                                        </div>
+
                                         {/* Modes de transport */}
                                         <div>
                                             <Label className="flex items-center gap-1">
@@ -2452,6 +2823,32 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                                 minHeight="150px"
                                             />
                                         </div>
+
+                                        <div>
+                                            <RichTextEditor value={formData.evenements || ''} onChange={(value) => handleInputChange('evenements', value)} label={<span className="flex items-center gap-1">Événements <InfoTooltip content={tooltipTexts.personnesPhysiques.evenements} /></span>} placeholder="Événements marquants" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.preparatifs || ''} onChange={(value) => handleInputChange('preparatifs', value)} label={<span className="flex items-center gap-1">Préparatifs <InfoTooltip content={tooltipTexts.personnesPhysiques.preparatifs} /></span>} placeholder="Préparatifs du pèlerinage" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.cheminSuivi || ''} onChange={(value) => handleInputChange('cheminSuivi', value)} label={<span className="flex items-center gap-1">Chemin suivi <InfoTooltip content={tooltipTexts.personnesPhysiques.cheminSuivi} /></span>} placeholder="Itinéraire suivi" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.arrivee || ''} onChange={(value) => handleInputChange('arrivee', value)} label={<span className="flex items-center gap-1">Arrivée <InfoTooltip content={tooltipTexts.personnesPhysiques.arrivee} /></span>} placeholder="Informations sur l'arrivée" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.retourPelerinage || ''} onChange={(value) => handleInputChange('retourPelerinage', value)} label={<span className="flex items-center gap-1">Retour <InfoTooltip content={tooltipTexts.personnesPhysiques.retour} /></span>} placeholder="Informations sur le retour" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.nonExecution || ''} onChange={(value) => handleInputChange('nonExecution', value)} label={<span className="flex items-center gap-1">Non-exécution <InfoTooltip content={tooltipTexts.personnesPhysiques.nonExecution} /></span>} placeholder="Raisons de non-exécution" required={false} minHeight="150px" />
+                                        </div>
+                                        <div>
+                                            <Label className="flex items-center gap-1" htmlFor="agePers">Âge <InfoTooltip content={tooltipTexts.personnesPhysiques.age} /></Label>
+                                            <Input id="agePers" value={formData.agePers || ''} onChange={(e) => handleInputChange('agePers', e.target.value)} placeholder="Âge de la personne" />
+                                        </div>
+                                        <div>
+                                            <RichTextEditor value={formData.compositionGroupe || ''} onChange={(value) => handleInputChange('compositionGroupe', value)} label={<span className="flex items-center gap-1">Composition du groupe <InfoTooltip content={tooltipTexts.personnesPhysiques.compositionGroupe} /></span>} placeholder="Composition du groupe de pèlerins" required={false} minHeight="150px" />
+                                        </div>
                                     </>
                                 )}
 
@@ -2525,7 +2922,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                         {Array.isArray(furnituresTechniques) && furnituresTechniques.length > 0 ? (
                                             <SearchableMultiSelect
                                                 options={furnituresTechniques.filter(t => t && t.id && t.name).map(t => ({
-                                                    id: t.id,
+                                                    id: String(t.id),
                                                     name: t.name
                                                 }))}
                                                 selectedValues={formData.techniques || []}

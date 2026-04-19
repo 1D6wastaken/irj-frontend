@@ -90,6 +90,7 @@ interface FormData {
     historicalPeriods?: string[];
     biographicalElements?: string;
     pilgrimage?: string;
+    historiography?: string;
     commutationVow?: string;
     transportModes?: string[];
     professions?: string[];
@@ -104,6 +105,47 @@ interface FormData {
     birthDate?: string;
     deathDate?: string;
     temoinComment: string;
+    // Nouveaux champs Mobiliers & Images
+    coteReference?: string;
+    dateFabrication?: string;
+    auteurOeuvre?: string;
+    commanditaire?: string;
+    emplacementField?: string;
+    supportField?: string;
+    proprietaireActuel?: string;
+    dimensionsSupport?: string;
+    dimensionsImage?: string;
+    // Nouveaux champs Monuments & Lieux
+    dimensionsField?: string;
+    altitude?: string;
+    dateConstruction?: string;
+    premiereMention?: string;
+    architecte?: string;
+    // Nouveaux champs Personnes Morales
+    biens?: string;
+    datePremiereMention?: string;
+    dateDerniereMention?: string;
+    refondationDate?: string;
+    dateFin?: string;
+    origineSocialeProf?: string;
+    membresConnus?: string;
+    frequenceReunions?: string;
+    participationViePol?: string;
+    funerailles?: string;
+    autresFetes?: string;
+    inhumationCostume?: string;
+    fondateurs?: string;
+    statutsContenu?: string;
+    autorisations?: string;
+    // Nouveaux champs Personnes Physiques
+    evenements?: string;
+    preparatifs?: string;
+    cheminSuivi?: string;
+    arrivee?: string;
+    retourPelerinage?: string;
+    nonExecution?: string;
+    agePers?: string;
+    compositionGroupe?: string;
 }
 
 export function ContributePage({user, onBack}: ContributePageProps) {
@@ -851,7 +893,15 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     linkedPersMorales,
                     linkedPersPhysiques,
                     draft: isDraft,
-                    temoinComment: formData.temoinComment
+                    temoinComment: formData.temoinComment,
+                    dimensions: formData.dimensionsField || undefined,
+                    altitude: formData.altitude || undefined,
+                    emplacement: formData.emplacementField || undefined,
+                    date_construction: formData.dateConstruction || undefined,
+                    premiere_mention: formData.premiereMention || undefined,
+                    proprietaire_actuel: formData.proprietaireActuel || undefined,
+                    architecte: formData.architecte || undefined,
+                    commanditaire: formData.commanditaire || undefined,
                 };
 
                 await apiService.submitMonumentLieu(submissionData);
@@ -885,7 +935,16 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     linkedPersMorales,
                     linkedPersPhysiques,
                     draft: isDraft,
-                    temoinComment: formData.temoinComment
+                    temoinComment: formData.temoinComment,
+                    cote_reference: formData.coteReference || undefined,
+                    date_fabrication: formData.dateFabrication || undefined,
+                    auteur_oeuvre: formData.auteurOeuvre || undefined,
+                    commanditaire: formData.commanditaire || undefined,
+                    emplacement: formData.emplacementField || undefined,
+                    support: formData.supportField || undefined,
+                    proprietaire_actuel: formData.proprietaireActuel || undefined,
+                    dimensions_support: formData.dimensionsSupport || undefined,
+                    dimensions_image: formData.dimensionsImage || undefined,
                 };
 
                 await apiService.submitMobilierImage(submissionData);
@@ -917,7 +976,22 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     linkedMobiliersImages,
                     linkedPersPhysiques,
                     draft: isDraft,
-                    temoinComment: formData.temoinComment
+                    temoinComment: formData.temoinComment,
+                    biens: formData.biens || undefined,
+                    date_premiere_mention: formData.datePremiereMention || undefined,
+                    date_derniere_mention: formData.dateDerniereMention || undefined,
+                    refondation_date: formData.refondationDate || undefined,
+                    date_fin: formData.dateFin || undefined,
+                    origine_sociale_prof: formData.origineSocialeProf || undefined,
+                    membres_connus: formData.membresConnus || undefined,
+                    frequence_reunions: formData.frequenceReunions || undefined,
+                    participation_vie_pol: formData.participationViePol || undefined,
+                    funerailles: formData.funerailles || undefined,
+                    autres_fetes: formData.autresFetes || undefined,
+                    inhumation_costume: formData.inhumationCostume || undefined,
+                    fondateurs: formData.fondateurs || undefined,
+                    statuts: formData.statutsContenu || undefined,
+                    autorisations: formData.autorisations || undefined,
                 };
 
                 await apiService.submitPersonneMorale(submissionData);
@@ -941,7 +1015,8 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     historical_periods: formData.historicalPeriods,
                     professions: formData.professions,
                     biographical_elements: formData.biographicalElements || undefined,
-                    pilgrimage_elements: formData.pilgrimage || undefined,
+                    pilgrimage_element: formData.pilgrimage || undefined,
+                    historiography: formData.historiography || undefined,
                     travels: formData.transportModes,
                     nature: formData.eventNature || undefined,
                     commutation: formData.commutationVow || undefined,
@@ -951,7 +1026,15 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     linkedMobiliersImages,
                     linkedPersMorales,
                     draft: isDraft,
-                    temoinComment: formData.temoinComment
+                    temoinComment: formData.temoinComment,
+                    evenements: formData.evenements || undefined,
+                    preparatifs: formData.preparatifs || undefined,
+                    chemin_suivi: formData.cheminSuivi || undefined,
+                    arrivee: formData.arrivee || undefined,
+                    retour: formData.retourPelerinage || undefined,
+                    non_execution: formData.nonExecution || undefined,
+                    age: formData.agePers || undefined,
+                    composition_groupe: formData.compositionGroupe || undefined,
                 };
 
                 await apiService.submitPersonnePhysique(submissionData);
@@ -1865,6 +1948,110 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="dimensionsField">
+                                                        Dimensions
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.dimensions}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="dimensionsField"
+                                                        value={formData.dimensionsField || ''}
+                                                        onChange={(e) => handleInputChange('dimensionsField', e.target.value)}
+                                                        placeholder="Dimensions du monument"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="altitude">
+                                                        Altitude
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.altitude}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="altitude"
+                                                        value={formData.altitude || ''}
+                                                        onChange={(e) => handleInputChange('altitude', e.target.value)}
+                                                        placeholder="Altitude en mètres"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="emplacementField">
+                                                        Emplacement
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.emplacement}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="emplacementField"
+                                                        value={formData.emplacementField || ''}
+                                                        onChange={(e) => handleInputChange('emplacementField', e.target.value)}
+                                                        placeholder="Emplacement précis"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="dateConstruction">
+                                                        Date de construction
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.dateConstruction}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="dateConstruction"
+                                                        value={formData.dateConstruction || ''}
+                                                        onChange={(e) => handleInputChange('dateConstruction', e.target.value)}
+                                                        placeholder="Date ou période de construction"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="premiereMention">
+                                                        Première mention
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.premiereMention}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="premiereMention"
+                                                        value={formData.premiereMention || ''}
+                                                        onChange={(e) => handleInputChange('premiereMention', e.target.value)}
+                                                        placeholder="Date de la première mention"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="proprietaireActuel">
+                                                        Propriétaire actuel
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.proprietaireActuel}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="proprietaireActuel"
+                                                        value={formData.proprietaireActuel || ''}
+                                                        onChange={(e) => handleInputChange('proprietaireActuel', e.target.value)}
+                                                        placeholder="Nom du propriétaire actuel"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="architecte">
+                                                        Architecte
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.architecte}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="architecte"
+                                                        value={formData.architecte || ''}
+                                                        onChange={(e) => handleInputChange('architecte', e.target.value)}
+                                                        placeholder="Nom de l'architecte"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="commanditaire">
+                                                        Commanditaire
+                                                        <InfoTooltip content={tooltipTexts.monumentsLieux.commanditaire}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="commanditaire"
+                                                        value={formData.commanditaire || ''}
+                                                        onChange={(e) => handleInputChange('commanditaire', e.target.value)}
+                                                        placeholder="Commanditaire de la construction"
+                                                    />
+                                                </div>
                                             </>
                                         )}
 
@@ -2112,6 +2299,123 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         minHeight="150px"
                                                     />
                                                 </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="coteReference">
+                                                        Cote / Référence
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.coteReference}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="coteReference"
+                                                        value={formData.coteReference || ''}
+                                                        onChange={(e) => handleInputChange('coteReference', e.target.value)}
+                                                        placeholder="Cote ou référence"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="dateFabrication">
+                                                        Date de fabrication
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.dateFabrication}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="dateFabrication"
+                                                        value={formData.dateFabrication || ''}
+                                                        onChange={(e) => handleInputChange('dateFabrication', e.target.value)}
+                                                        placeholder="Date ou période de fabrication"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="auteurOeuvre">
+                                                        Auteur de l'œuvre
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.auteurOeuvre}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="auteurOeuvre"
+                                                        value={formData.auteurOeuvre || ''}
+                                                        onChange={(e) => handleInputChange('auteurOeuvre', e.target.value)}
+                                                        placeholder="Nom de l'auteur"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="commanditaire">
+                                                        Commanditaire
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.commanditaire}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="commanditaire"
+                                                        value={formData.commanditaire || ''}
+                                                        onChange={(e) => handleInputChange('commanditaire', e.target.value)}
+                                                        placeholder="Commanditaire de l'œuvre"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="emplacementField">
+                                                        Emplacement
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.emplacement}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="emplacementField"
+                                                        value={formData.emplacementField || ''}
+                                                        onChange={(e) => handleInputChange('emplacementField', e.target.value)}
+                                                        placeholder="Emplacement précis dans l'édifice"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="supportField">
+                                                        Support
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.support}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="supportField"
+                                                        value={formData.supportField || ''}
+                                                        onChange={(e) => handleInputChange('supportField', e.target.value)}
+                                                        placeholder="Support de l'œuvre"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="proprietaireActuel">
+                                                        Propriétaire actuel
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.proprietaireActuel}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="proprietaireActuel"
+                                                        value={formData.proprietaireActuel || ''}
+                                                        onChange={(e) => handleInputChange('proprietaireActuel', e.target.value)}
+                                                        placeholder="Nom du propriétaire actuel"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="dimensionsSupport">
+                                                        Dimensions du support
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.dimensionsSupport}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="dimensionsSupport"
+                                                        value={formData.dimensionsSupport || ''}
+                                                        onChange={(e) => handleInputChange('dimensionsSupport', e.target.value)}
+                                                        placeholder="Hauteur x largeur x profondeur"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="dimensionsImage">
+                                                        Dimensions de l'image
+                                                        <InfoTooltip content={tooltipTexts.mobiliersImages.dimensionsImage}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="dimensionsImage"
+                                                        value={formData.dimensionsImage || ''}
+                                                        onChange={(e) => handleInputChange('dimensionsImage', e.target.value)}
+                                                        placeholder="Dimensions de la partie figurée"
+                                                    />
+                                                </div>
                                             </>
                                         )}
 
@@ -2274,6 +2578,234 @@ export function ContributePage({user, onBack}: ContributePageProps) {
 
                                                 <div>
                                                     <RichTextEditor
+                                                        value={formData.biens || ''}
+                                                        onChange={(value) => handleInputChange('biens', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Biens
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.biens}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Biens de l'organisation"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="datePremiereMention">
+                                                        Date de première mention
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.datePremiereMention}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="datePremiereMention"
+                                                        value={formData.datePremiereMention || ''}
+                                                        onChange={(e) => handleInputChange('datePremiereMention', e.target.value)}
+                                                        placeholder="Date de la première mention"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="dateDerniereMention">
+                                                        Date de dernière mention
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.dateDerniereMention}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="dateDerniereMention"
+                                                        value={formData.dateDerniereMention || ''}
+                                                        onChange={(e) => handleInputChange('dateDerniereMention', e.target.value)}
+                                                        placeholder="Date de la dernière mention"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="refondationDate">
+                                                        Date de refondation
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.refondationDate}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="refondationDate"
+                                                        value={formData.refondationDate || ''}
+                                                        onChange={(e) => handleInputChange('refondationDate', e.target.value)}
+                                                        placeholder="Date de refondation"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="dateFin">
+                                                        Date de fin
+                                                        <InfoTooltip content={tooltipTexts.personnesMorales.dateFin}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="dateFin"
+                                                        value={formData.dateFin || ''}
+                                                        onChange={(e) => handleInputChange('dateFin', e.target.value)}
+                                                        placeholder="Date de dissolution ou fin d'activité"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.origineSocialeProf || ''}
+                                                        onChange={(value) => handleInputChange('origineSocialeProf', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Origine sociale et professionnelle
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.origineSocialeProf}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Origine sociale et professionnelle des membres"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.membresConnus || ''}
+                                                        onChange={(value) => handleInputChange('membresConnus', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Membres connus
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.membresConnus}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Liste des membres connus"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.frequenceReunions || ''}
+                                                        onChange={(value) => handleInputChange('frequenceReunions', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Fréquence des réunions
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.frequenceReunions}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Fréquence et modalités des réunions"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.participationViePol || ''}
+                                                        onChange={(value) => handleInputChange('participationViePol', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Participation à la vie politique
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.participationViePol}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Participation à la vie politique"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.funerailles || ''}
+                                                        onChange={(value) => handleInputChange('funerailles', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Funérailles
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.funerailles}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Pratiques funéraires"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.autresFetes || ''}
+                                                        onChange={(value) => handleInputChange('autresFetes', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Autres fêtes
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.autresFetes}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Autres fêtes et célébrations"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.inhumationCostume || ''}
+                                                        onChange={(value) => handleInputChange('inhumationCostume', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Inhumation et costume
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.inhumationCostume}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Pratiques d'inhumation et costume"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.fondateurs || ''}
+                                                        onChange={(value) => handleInputChange('fondateurs', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Fondateurs
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.fondateurs}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Fondateurs de l'organisation"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.statutsContenu || ''}
+                                                        onChange={(value) => handleInputChange('statutsContenu', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Contenu des statuts
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.statuts}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Contenu ou résumé des statuts"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.autorisations || ''}
+                                                        onChange={(value) => handleInputChange('autorisations', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Autorisations
+                                                                <InfoTooltip content={tooltipTexts.personnesMorales.autorisations}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Autorisations obtenues"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
                                                         value={formData.bibliography || ''}
                                                         onChange={(value) => handleInputChange('bibliography', value)}
                                                         label={
@@ -2369,6 +2901,23 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                             </span>
                                                         }
                                                         placeholder="Informations sur le pèlerinage"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.historiography || ''}
+                                                        onChange={(value) => handleInputChange('historiography', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Historiographie
+                                                                <InfoTooltip
+                                                                    content={tooltipTexts.personnesPhysiques.historiography}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="État de la recherche historiographique sur cette personne"
                                                         required={false}
                                                         minHeight="150px"
                                                     />
@@ -2504,6 +3053,131 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                             </span>
                                                         }
                                                         placeholder="Commentaire sur la personne physique"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.evenements || ''}
+                                                        onChange={(value) => handleInputChange('evenements', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Événements
+                                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.evenements}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Événements marquants"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.preparatifs || ''}
+                                                        onChange={(value) => handleInputChange('preparatifs', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Préparatifs
+                                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.preparatifs}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Préparatifs du pèlerinage"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.cheminSuivi || ''}
+                                                        onChange={(value) => handleInputChange('cheminSuivi', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Chemin suivi
+                                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.cheminSuivi}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Itinéraire suivi"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.arrivee || ''}
+                                                        onChange={(value) => handleInputChange('arrivee', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Arrivée
+                                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.arrivee}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Informations sur l'arrivée"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.retourPelerinage || ''}
+                                                        onChange={(value) => handleInputChange('retourPelerinage', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Retour
+                                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.retour}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Informations sur le retour"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.nonExecution || ''}
+                                                        onChange={(value) => handleInputChange('nonExecution', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Non-exécution
+                                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.nonExecution}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Raisons de non-exécution"
+                                                        required={false}
+                                                        minHeight="150px"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <Label className="flex items-center gap-1" htmlFor="agePers">
+                                                        Âge
+                                                        <InfoTooltip content={tooltipTexts.personnesPhysiques.age}/>
+                                                    </Label>
+                                                    <Input
+                                                        id="agePers"
+                                                        value={formData.agePers || ''}
+                                                        onChange={(e) => handleInputChange('agePers', e.target.value)}
+                                                        placeholder="Âge de la personne"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <RichTextEditor
+                                                        value={formData.compositionGroupe || ''}
+                                                        onChange={(value) => handleInputChange('compositionGroupe', value)}
+                                                        label={
+                                                            <span className="flex items-center gap-1">
+                                                                Composition du groupe
+                                                                <InfoTooltip content={tooltipTexts.personnesPhysiques.compositionGroupe}/>
+                                                            </span>
+                                                        }
+                                                        placeholder="Composition du groupe de pèlerins"
                                                         required={false}
                                                         minHeight="150px"
                                                     />
