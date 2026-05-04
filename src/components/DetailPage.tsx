@@ -191,6 +191,9 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
 
         if (recordSource === 'monuments_lieux') {
             const monument = record as MonumentLieuDetail;
+            if (monument.linked_monuments_places?.length) {
+                relatedIds.monuments_lieux = monument.linked_monuments_places;
+            }
             if (monument.linked_furniture_images?.length) {
                 relatedIds.mobiliers_images = monument.linked_furniture_images;
             }
@@ -202,6 +205,9 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
             }
         } else if (recordSource === 'mobiliers_images') {
             const mobilier = record as MobilierImageDetail;
+            if (mobilier.linked_furniture_images?.length) {
+                relatedIds.mobiliers_images = mobilier.linked_furniture_images;
+            }
             if (mobilier.linked_monuments_places?.length) {
                 relatedIds.monuments_lieux = mobilier.linked_monuments_places;
             }
@@ -213,6 +219,9 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
             }
         } else if (recordSource === 'personnes_morales') {
             const personne = record as PersonneMoraleDetail;
+            if (personne.linked_legal_entities?.length) {
+                relatedIds.personnes_morales = personne.linked_legal_entities;
+            }
             if (personne.linked_monuments_places?.length) {
                 relatedIds.monuments_lieux = personne.linked_monuments_places;
             }
@@ -224,6 +233,9 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
             }
         } else if (recordSource === 'personnes_physiques') {
             const personne = record as PersonnePhysiqueDetail;
+            if (personne.linked_individuals?.length) {
+                relatedIds.personnes_physiques = personne.linked_individuals;
+            }
             if (personne.linked_monuments_places?.length) {
                 relatedIds.monuments_lieux = personne.linked_monuments_places;
             }
