@@ -32,6 +32,7 @@ import {CookieBanner} from "./components/CookieBanner";
 import {toast, Toaster} from "sonner";
 import {apiService, ApiError, PendingUser, PendingForm} from "./config/api";
 import {CrashBoundary} from "./components/CrashBoundary.tsx";
+import {InMemoriamSection} from "./components/InMemoriamSection.tsx";
 import {LanguageProvider} from "./hooks/dynamicHomeText.tsx";
 
 export interface AdvancedFilters {
@@ -1378,6 +1379,7 @@ export default function App() {
                         pendingFormsCount={pendingFormsCount}
                         pendingContributorsCount={pendingContributorsCount}
                     />
+                    <InMemoriamSection />
                     <HeroSection
                         onLearnMore={() => scrollToSection('mission-section')}
                         onExploreNow={() => scrollToSection('categories-section')}
