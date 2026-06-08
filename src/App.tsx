@@ -1379,7 +1379,6 @@ export default function App() {
                         pendingFormsCount={pendingFormsCount}
                         pendingContributorsCount={pendingContributorsCount}
                     />
-                    <InMemoriamSection />
                     <HeroSection
                         onLearnMore={() => scrollToSection('mission-section')}
                         onExploreNow={() => scrollToSection('categories-section')}
