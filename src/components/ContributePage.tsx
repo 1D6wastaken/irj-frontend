@@ -1927,7 +1927,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     </div>
                                                 </div>
 
-                                                <div>
+                                                {/* <div>
                                                     <Label className="flex items-center gap-1" htmlFor="dimensionsField">
                                                         Dimensions
                                                         <InfoTooltip content={tooltipTexts.monumentsLieux.dimensions}/>
@@ -2029,7 +2029,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         onChange={(e) => handleInputChange('commanditaire', e.target.value)}
                                                         placeholder="Commanditaire de la construction"
                                                     />
-                                                </div>
+                                                </div> */}
                                             </>
                                         )}
 
@@ -2278,7 +2278,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     />
                                                 </div>
 
-                                                <div>
+                                                {/* <div>
                                                     <Label className="flex items-center gap-1" htmlFor="coteReference">
                                                         Cote / Référence
                                                         <InfoTooltip content={tooltipTexts.mobiliersImages.coteReference}/>
@@ -2393,7 +2393,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         onChange={(e) => handleInputChange('dimensionsImage', e.target.value)}
                                                         placeholder="Dimensions de la partie figurée"
                                                     />
-                                                </div>
+                                                </div> */}
                                             </>
                                         )}
 

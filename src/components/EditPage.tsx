@@ -2150,7 +2150,7 @@ export function EditPage({user, recordId, source, onBack, onSessionExpired }: Ed
                                             />
                                         </div>
 
-                                        <div>
+                                        {/* <div>
                                             <Label className="flex items-center gap-1" htmlFor="coteReference">
                                                 Cote / Référence
                                                 <InfoTooltip content={tooltipTexts.mobiliersImages.coteReference} />
@@ -2265,7 +2265,7 @@ export function EditPage({user, recordId, source, onBack, onSessionExpired }: Ed
                                                 onChange={(e) => handleInputChange('dimensionsImage', e.target.value)}
                                                 placeholder="Dimensions de la partie figurée"
                                             />
-                                        </div>
+                                        </div> */}
                                     </>
                                 )}
 
@@ -2317,7 +2317,7 @@ export function EditPage({user, recordId, source, onBack, onSessionExpired }: Ed
                                     </div>
                                 )}
 
-                                {source === 'monuments_lieux' && (
+                                {/* {source === 'monuments_lieux' && (
                                     <>
                                         <div>
                                             <Label className="flex items-center gap-1" htmlFor="dimensionsField">
@@ -2423,7 +2423,7 @@ export function EditPage({user, recordId, source, onBack, onSessionExpired }: Ed
                                             />
                                         </div>
                                     </>
-                                )}
+                                )} */}
 
                                 {/* Champs spécifiques aux personnes morales */}
                                 {source === 'personnes_morales' && (

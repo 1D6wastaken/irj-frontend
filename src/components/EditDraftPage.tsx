@@ -2255,7 +2255,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                             />
                                         </div>
 
-                                        <div>
+                                        {/* <div>
                                             <Label className="flex items-center gap-1" htmlFor="coteReference">
                                                 Cote / Référence
                                                 <InfoTooltip content={tooltipTexts.mobiliersImages.coteReference} />
@@ -2325,7 +2325,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                                 <InfoTooltip content={tooltipTexts.mobiliersImages.dimensionsImage} />
                                             </Label>
                                             <Input id="dimensionsImage" value={formData.dimensionsImage || ''} onChange={(e) => handleInputChange('dimensionsImage', e.target.value)} placeholder="Dimensions de la partie figurée" />
-                                        </div>
+                                        </div> */}
                                     </>
                                 )}
 
@@ -2377,7 +2377,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                     </div>
                                 )}
 
-                                {source === 'monuments_lieux' && (
+                                {/* {source === 'monuments_lieux' && (
                                     <>
                                         <div>
                                             <Label className="flex items-center gap-1" htmlFor="dimensionsField">Dimensions <InfoTooltip content={tooltipTexts.monumentsLieux.dimensions} /></Label>
@@ -2412,7 +2412,7 @@ export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}
                                             <Input id="commanditaire" value={formData.commanditaire || ''} onChange={(e) => handleInputChange('commanditaire', e.target.value)} placeholder="Commanditaire de la construction" />
                                         </div>
                                     </>
-                                )}
+                                )} */}
 
                                 {/* Champs spécifiques aux personnes morales */}
                                 {source === 'personnes_morales' && (
