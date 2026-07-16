@@ -190,6 +190,9 @@ export function ValidateFormDetailPage({
 
         if (formSource === 'monuments_lieux') {
             const monument = record as MonumentLieuDetail;
+            if (monument.linked_monuments_places?.length) {
+                relatedIds.monuments_lieux = monument.linked_monuments_places;
+            }
             if (monument.linked_furniture_images?.length) {
                 relatedIds.mobiliers_images = monument.linked_furniture_images;
             }
@@ -201,6 +204,9 @@ export function ValidateFormDetailPage({
             }
         } else if (formSource === 'mobiliers_images') {
             const mobilier = record as MobilierImageDetail;
+            if (mobilier.linked_furniture_images?.length) {
+                relatedIds.mobiliers_images = mobilier.linked_furniture_images;
+            }
             if (mobilier.linked_monuments_places?.length) {
                 relatedIds.monuments_lieux = mobilier.linked_monuments_places;
             }
@@ -212,6 +218,9 @@ export function ValidateFormDetailPage({
             }
         } else if (formSource === 'personnes_morales') {
             const personne = record as PersonneMoraleDetail;
+            if (personne.linked_legal_entities?.length) {
+                relatedIds.personnes_morales = personne.linked_legal_entities;
+            }
             if (personne.linked_monuments_places?.length) {
                 relatedIds.monuments_lieux = personne.linked_monuments_places;
             }
@@ -223,6 +232,9 @@ export function ValidateFormDetailPage({
             }
         } else if (formSource === 'personnes_physiques') {
             const personne = record as PersonnePhysiqueDetail;
+            if (personne.linked_individuals?.length) {
+                relatedIds.personnes_physiques = personne.linked_individuals;
+            }
             if (personne.linked_monuments_places?.length) {
                 relatedIds.monuments_lieux = personne.linked_monuments_places;
             }
@@ -1599,9 +1611,9 @@ export function ValidateFormDetailPage({
                         {getRecordTitle()}
                     </h4>
                     {/* Localisation courte */}
-                    {(record.city || record.department) && (
+                    {(record.city?.name || record.department?.name) && (
                         <p className="text-xs text-muted-foreground line-clamp-1">
-                            {[record.city, record.department].filter(Boolean).join(', ')}
+                            {[record.city?.name, record.department?.name].filter(Boolean).join(', ')}
                         </p>
                     )}
                 </div>

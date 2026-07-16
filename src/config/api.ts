@@ -314,6 +314,7 @@ export interface MonumentLieuDetail {
     linked_furniture_images?: number[];
     linked_individuals?: number[];
     linked_legal_entities?: number[];
+    linked_monuments_places?: number[];
     parent_id?: number;
     temoinComment?: string;
     // Nouveaux champs
@@ -357,6 +358,7 @@ export interface MobilierImageDetail {
     linked_monuments_places?: number[];
     linked_individuals?: number[];
     linked_legal_entities?: number[];
+    linked_furniture_images?: number[];
     parent_id?: number;
     temoinComment?: string;
     // Nouveaux champs
@@ -399,6 +401,7 @@ export interface PersonneMoraleDetail {
     linked_monuments_places?: number[];
     linked_individuals?: number[];
     linked_furniture_images?: number[];
+    linked_legal_entities?: number[];
     parent_id?: number;
     temoinComment?: string;
     // Nouveaux champs
@@ -450,6 +453,7 @@ export interface PersonnePhysiqueDetail {
     linked_monuments_places?: number[];
     linked_furniture_images?: number[];
     linked_legal_entities?: number[];
+    linked_individuals?: number[];
     parent_id?: number;
     temoinComment?: string;
     // Nouveaux champs

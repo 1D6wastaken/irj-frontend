@@ -424,40 +424,12 @@ export function ContributePage({user, onBack}: ContributePageProps) {
         setIsSearchingFiches(true);
         try {
             let searchReqBody: SearchRequestBody = {}
-            switch (formData.category) {
-                case 'monuments_lieux':
-                    searchReqBody = {
-                        mobiliers_images: {},
-                        pers_morales: {},
-                        pers_physiques: {},
-                    }
-
-                    break;
-                case 'mobiliers_images':
-                    searchReqBody = {
-                        monuments_lieux: {},
-                        pers_morales: {},
-                        pers_physiques: {},
-                    }
-
-                    break;
-                case 'personnes_morales':
-                    searchReqBody = {
-                        mobiliers_images: {},
-                        monuments_lieux: {},
-                        pers_physiques: {},
-                    }
-
-                    break;
-                case 'personnes_physiques':
-                    searchReqBody = {
-                        mobiliers_images: {},
-                        pers_morales: {},
-                        monuments_lieux: {},
-                    }
-
-                    break;
-            }
+            searchReqBody = {
+                monuments_lieux: {},
+                mobiliers_images: {},
+                pers_morales: {},
+                pers_physiques: {},
+            };
             const response = await apiService.search(
                 query,
                 searchReqBody,
@@ -720,7 +692,9 @@ export function ContributePage({user, onBack}: ContributePageProps) {
 
     const handleSelectFiche = (fiche: any) => {
         // Éviter les doublons
-        const isAlreadySelected = formData.relatedForms.some(form => form.id === fiche.id);
+        const isAlreadySelected = formData.relatedForms.some(
+            form => form.id === fiche.id && form.source === fiche.source
+        );
         if (isAlreadySelected) {
             toast.info('Cette fiche est déjà ajoutée à la liste.');
             return;
@@ -889,6 +863,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     longitude: formData.coordinates?.longitude && formData.coordinates.longitude.trim() !== ''
                         ? formData.coordinates.longitude
                         : undefined,
+                    linkedMonumentsLieux,
                     linkedMobiliersImages,
                     linkedPersMorales,
                     linkedPersPhysiques,
@@ -932,6 +907,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     originPlace: formData.originalLocation,
                     presentPlace: formData.currentLocation,
                     linkedMonumentsLieux,
+                    linkedMobiliersImages,
                     linkedPersMorales,
                     linkedPersPhysiques,
                     draft: isDraft,
@@ -974,6 +950,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     comment: formData.comment || undefined,
                     linkedMonumentsLieux,
                     linkedMobiliersImages,
+                    linkedPersMorales,
                     linkedPersPhysiques,
                     draft: isDraft,
                     temoinComment: formData.temoinComment,
@@ -1025,6 +1002,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                     linkedMonumentsLieux,
                     linkedMobiliersImages,
                     linkedPersMorales,
+                    linkedPersPhysiques,
                     draft: isDraft,
                     temoinComment: formData.temoinComment,
                     evenements: formData.evenements || undefined,
@@ -1949,7 +1927,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     </div>
                                                 </div>
 
-                                                <div>
+                                                {/* <div>
                                                     <Label className="flex items-center gap-1" htmlFor="dimensionsField">
                                                         Dimensions
                                                         <InfoTooltip content={tooltipTexts.monumentsLieux.dimensions}/>
@@ -2051,7 +2029,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         onChange={(e) => handleInputChange('commanditaire', e.target.value)}
                                                         placeholder="Commanditaire de la construction"
                                                     />
-                                                </div>
+                                                </div> */}
                                             </>
                                         )}
 
@@ -2300,7 +2278,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                     />
                                                 </div>
 
-                                                <div>
+                                                {/* <div>
                                                     <Label className="flex items-center gap-1" htmlFor="coteReference">
                                                         Cote / Référence
                                                         <InfoTooltip content={tooltipTexts.mobiliersImages.coteReference}/>
@@ -2415,7 +2393,7 @@ export function ContributePage({user, onBack}: ContributePageProps) {
                                                         onChange={(e) => handleInputChange('dimensionsImage', e.target.value)}
                                                         placeholder="Dimensions de la partie figurée"
                                                     />
-                                                </div>
+                                                </div> */}
                                             </>
                                         )}
 
