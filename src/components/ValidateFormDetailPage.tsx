@@ -513,6 +513,13 @@ export function ValidateFormDetailPage({
                     </TechnicalInfoItem>
                 )}
 
+                {/* Emplacement actuel */}
+                {mobilier.conservation_place && (
+                    <TechnicalInfoItem label="Emplacement actuel">
+                        <span>{mobilier.conservation_place}</span>
+                    </TechnicalInfoItem>
+                )}
+
                 {/* Localisation */}
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
@@ -522,13 +529,6 @@ export function ValidateFormDetailPage({
                             {result.region && <div>{result.region.name}</div>}
                             {result.country && <div>{result.country.name}</div>}
                         </div>
-                    </TechnicalInfoItem>
-                )}
-
-                {/* Emplacement actuel */}
-                {mobilier.conservation_place && (
-                    <TechnicalInfoItem label="Emplacement actuel">
-                        <span>{mobilier.conservation_place}</span>
                     </TechnicalInfoItem>
                 )}
 

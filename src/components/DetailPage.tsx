@@ -588,6 +588,13 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                     </TechnicalInfoItem>
                 )}
 
+                {/* Emplacement actuel */}
+                {mobilier.conservation_place && (
+                    <TechnicalInfoItem label="Emplacement actuel">
+                        <span>{mobilier.conservation_place}</span>
+                    </TechnicalInfoItem>
+                )}
+
                 {/* Localisation */}
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
@@ -947,13 +954,6 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                     {result.centuries && result.centuries.length > 0 && (
                         <TechnicalInfoItem label="Siècles">
                             <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
-                        </TechnicalInfoItem>
-                    )}
-
-                    {/* Emplacement actuel */}
-                    {mobilier.conservation_place && (
-                        <TechnicalInfoItem label="Emplacement actuel">
-                            <span>{mobilier.conservation_place}</span>
                         </TechnicalInfoItem>
                     )}
 
