@@ -41,12 +41,8 @@ import {SearchableSelect} from "./SearchableSelect";
 import {InfoTooltip} from "./InfoTooltip";
 import {tooltipTexts} from "../constants/tooltipTexts";
 import {RichTextEditor} from "./RichTextEditor";
-
-
-interface ContributePageProps {
-    user: User;
-    onBack: () => void;
-}
+import {useAuth} from "../contexts/AuthContext";
+import {useSmartBack} from "../hooks/useSmartBack";
 
 interface ImageUpload {
     file: File;
@@ -148,7 +144,19 @@ interface FormData {
     compositionGroupe?: string;
 }
 
-export function ContributePage({user, onBack}: ContributePageProps) {
+export function ContributePage() {
+    const {user} = useAuth();
+    const onBack = useSmartBack("/");
+    if (!user) return null;
+    return <ContributePageInner user={user} onBack={onBack}/>;
+}
+
+interface ContributePageInnerProps {
+    user: User;
+    onBack: () => void;
+}
+
+function ContributePageInner({user, onBack}: ContributePageInnerProps) {
     const [formData, setFormData] = useState<FormData>({
         category: '',
         name: '',

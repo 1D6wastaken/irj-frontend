@@ -1,29 +1,37 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {ArrowLeft, Eye, MapPin, Calendar, User, FileText, Clock, RefreshCw, Trash2} from "lucide-react";
 import {Button} from "./ui/button";
 import {Card, CardContent} from "./ui/card";
 import {Badge} from "./ui/badge";
 import {AspectRatio} from "./ui/aspect-ratio";
 import {ImageWithFallback} from "./ImageWithFallback.tsx";
-import { PendingForm, apiService, ApiError } from "../config/api";
+import { apiService, ApiError, PendingForm } from "../config/api";
 import { formatCreationDate } from "../config/api";
 import {toast} from "sonner";
 import {getMediaImageUrl} from "../utils/searchUtils";
+import {useNavigate} from "react-router-dom";
+import {useAuth} from "../contexts/AuthContext";
+import {useSmartBack} from "../hooks/useSmartBack";
+import {FicheSource, draftEditUrl} from "../utils/ficheUrl";
 
-interface MyDraftsPageProps {
-    onBack: () => void;
-    draftForms: {
-        monuments_lieux: PendingForm[];
-        mobiliers_images: PendingForm[];
-        personnes_morales: PendingForm[];
-        personnes_physiques: PendingForm[];
+type DraftFormSource = FicheSource;
+
+export function MyDraftsPage() {
+    const navigate = useNavigate();
+    const {draftForms, loadDraftForms, handleSessionExpired} = useAuth();
+    const onBack = useSmartBack("/");
+    const onRefresh = () => { loadDraftForms(); };
+    const onSessionExpired = (message?: string) => handleSessionExpired(message);
+    const onViewFormDetail = (formId: string, formSource: DraftFormSource) => {
+        navigate(draftEditUrl(formSource, formId));
     };
-    onRefresh: () => void;
-    onSessionExpired: (message?: string) => void;
-    onViewFormDetail: (formId: string, formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
-}
 
-export function MyDraftsPage({onBack, draftForms, onRefresh, onSessionExpired, onViewFormDetail}: MyDraftsPageProps) {
+    // Charger les brouillons à chaque montage (équivalent de l'ancien useEffect sur currentPage === 'my-drafts')
+    useEffect(() => {
+        loadDraftForms();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Calculer le nombre total de brouillons

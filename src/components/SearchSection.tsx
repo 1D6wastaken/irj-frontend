@@ -36,13 +36,18 @@ export function SearchSection({
     const inputRef = useRef<HTMLInputElement>(null);
     const autocompleteRef = useRef<HTMLDivElement>(null);
 
-    // Mettre à jour les états quand les props initiales changent
+    // Mettre à jour les états quand les props initiales changent.
+    // On dépend de la sérialisation JSON pour éviter une boucle infinie quand le parent
+    // passe des defaults `[]`/`{}` recréés à chaque render (identité changeante).
+    const initialCategoriesKey = JSON.stringify(initialCategories);
+    const initialFiltersKey = JSON.stringify(initialFilters);
     useEffect(() => {
         setSearchQuery(initialQuery);
         setSelectedCategories(initialCategories);
         setPendingFilters(initialFilters);
         setShowAdvancedFilters(Object.keys(initialFilters).length > 0);
-    }, [initialQuery, initialCategories, initialFilters]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialQuery, initialCategoriesKey, initialFiltersKey]);
 
     const toggleCategory = (categoryId: string) => {
         setSelectedCategories(prev =>

@@ -31,14 +31,10 @@ import { tooltipTexts } from "../constants/tooltipTexts";
 import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "./ui/dialog.tsx";
 import {User} from "../App";
 import {RichTextEditor} from "./RichTextEditor.tsx";
-
-interface EditPageProps {
-    user: User;
-    recordId: string;
-    source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques';
-    onBack: () => void;
-    onSessionExpired: () => void;
-}
+import {useParams} from "react-router-dom";
+import {useAuth} from "../contexts/AuthContext";
+import {useSmartBack} from "../hooks/useSmartBack";
+import {FicheSource, isFicheSource} from "../utils/ficheUrl";
 
 interface ImageUpload {
     file: File;
@@ -147,7 +143,30 @@ interface FormData {
     compositionGroupe?: string;
 }
 
-export function EditPage({user, recordId, source, onBack, onSessionExpired }: EditPageProps) {
+export function EditPage() {
+    const {source: sourceParam, id: rawIdParam} = useParams<{source: string; id: string}>();
+    const source: FicheSource = isFicheSource(sourceParam) ? sourceParam : "monuments_lieux";
+    const recordId = rawIdParam ? decodeURIComponent(rawIdParam) : "";
+
+    const {user, handleSessionExpired} = useAuth();
+    const onBack = useSmartBack("/");
+    const onSessionExpired = () => {
+        handleSessionExpired("Votre session a expiré. Veuillez vous reconnecter.");
+    };
+
+    if (!user) return null;
+    return <EditPageInner user={user} recordId={recordId} source={source} onBack={onBack} onSessionExpired={onSessionExpired}/>;
+}
+
+interface EditPageInnerProps {
+    user: User;
+    recordId: string;
+    source: FicheSource;
+    onBack: () => void;
+    onSessionExpired: () => void;
+}
+
+function EditPageInner({user, recordId, source, onBack, onSessionExpired}: EditPageInnerProps) {
     const [result, setResult] = useState<MobilierImageDetail | MonumentLieuDetail | PersonneMoraleDetail | PersonnePhysiqueDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

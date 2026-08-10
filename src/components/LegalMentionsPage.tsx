@@ -2,12 +2,10 @@ import {ArrowLeft, Mail} from "lucide-react";
 import {Button} from "./ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "./ui/card";
 import {Separator} from "./ui/separator";
+import {useSmartBack} from "../hooks/useSmartBack";
 
-interface LegalMentionsPageProps {
-    onBack: () => void;
-}
-
-export function LegalMentionsPage({onBack}: LegalMentionsPageProps) {
+export function LegalMentionsPage() {
+    const onBack = useSmartBack("/");
     return (
         <div className="min-h-screen bg-background">
             {/* En-tête */}

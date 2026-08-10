@@ -1,4 +1,5 @@
 import {useState, useEffect} from "react";
+import {useNavigate, useSearchParams} from "react-router-dom";
 import {ArrowLeft, Clock, ChevronLeft, ChevronRight} from "lucide-react";
 import {Button} from "./ui/button";
 import {Card, CardContent} from "./ui/card";
@@ -6,26 +7,45 @@ import {Table, TableBody, TableHead, TableHeader, TableRow} from "./ui/table";
 import {apiService, HistoryEvent, ApiError} from "../config/api";
 import {toast} from "sonner";
 import {HistoryTableRow} from "./HistoryTableRow";
+import {useAuth} from "../contexts/AuthContext";
+import {FicheSource, ficheUrl, ficheEditUrl} from "../utils/ficheUrl";
 
-interface HistoryPageProps {
-    onBack: () => void;
-    onSessionExpired: () => void;
-    userId: string;
-    onViewFormDetail: (formId: string, formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
-    onEditForm: (formId: string, formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
-}
+type HistorySource = FicheSource;
 
-export function HistoryPage({onBack, onSessionExpired, userId, onViewFormDetail, onEditForm}: HistoryPageProps) {
+export function HistoryPage() {
+    const navigate = useNavigate();
+    const {user, handleSessionExpired} = useAuth();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const currentPage = Math.max(1, Number(searchParams.get("page") ?? "1"));
+    const setCurrentPage = (p: number) => {
+        const next = new URLSearchParams(searchParams);
+        if (p <= 1) next.delete("page"); else next.set("page", String(p));
+        setSearchParams(next);
+    };
+
+    const onBack = () => navigate("/");
+    const onSessionExpired = () => handleSessionExpired();
+    const onViewFormDetail = (formId: string, formSource: HistorySource) => {
+        navigate(ficheUrl(formSource, formId));
+    };
+    const onEditForm = (formId: string, formSource: HistorySource) => {
+        navigate(ficheEditUrl(formSource, formId));
+    };
+
+    const userId = user?.id ?? "";
+
     const [events, setEvents] = useState<HistoryEvent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
     const limit = 10;
 
     useEffect(() => {
+        if (!userId) return;
         loadHistory();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, userId]);
 
     const loadHistory = async () => {

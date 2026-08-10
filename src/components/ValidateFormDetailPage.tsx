@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import {useState, useEffect, useCallback} from "react";
 import {
     ArrowLeft,
     MapPin,
@@ -36,15 +36,10 @@ import {
 import {getMediaImageUrl} from "../utils/searchUtils";
 import {toast} from "sonner";
 import {ImageModal} from "./modals/ImageModal.tsx";
-
-interface ValidateFormDetailPageProps {
-    formId: string;
-    formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques';
-    onBack: () => void;
-    onValidated: () => void;
-    onSessionExpired: (message?: string) => void;
-    onViewDetail: (resultId: string, source?: string) => void;
-}
+import {useNavigate, useParams} from "react-router-dom";
+import {useAuth} from "../contexts/AuthContext";
+import {useSmartBack} from "../hooks/useSmartBack";
+import {FicheSource, isFicheSource, ficheUrl} from "../utils/ficheUrl";
 
 // Fonction pour obtenir le badge de type selon la source
 function getTypeBadge(source: string) {
@@ -62,14 +57,33 @@ function getTypeBadge(source: string) {
     }
 }
 
-export function ValidateFormDetailPage({
-                                           formId,
-                                           formSource,
-                                           onBack,
-                                           onValidated,
-                                           onSessionExpired,
-                                           onViewDetail
-                                       }: ValidateFormDetailPageProps) {
+export function ValidateFormDetailPage() {
+    const {source: sourceParam, id: rawIdParam} = useParams<{source: string; id: string}>();
+    const navigate = useNavigate();
+    const {handleSessionExpired, loadPendingForms} = useAuth();
+    const onBack = useSmartBack("/admin/validation-fiches");
+
+    const formId = rawIdParam ? decodeURIComponent(rawIdParam) : "";
+    const formSource: FicheSource = isFicheSource(sourceParam) ? sourceParam : "monuments_lieux";
+
+    // useCallback pour stabiliser l'identité et éviter les boucles de fetch dans les
+    // useEffect qui listent ces callbacks dans leurs deps.
+    const onSessionExpired = useCallback(
+        (message?: string) => handleSessionExpired(message),
+        [handleSessionExpired]
+    );
+    const onValidated = useCallback(() => {
+        loadPendingForms();
+        onBack();
+    }, [loadPendingForms, onBack]);
+    const onViewDetail = useCallback(
+        (resultId: string, source?: string) => {
+            const s: FicheSource = isFicheSource(source) ? source : formSource;
+            navigate(ficheUrl(s, resultId));
+        },
+        [navigate, formSource]
+    );
+
     const [result, setResult] = useState<DetailResult | null>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
