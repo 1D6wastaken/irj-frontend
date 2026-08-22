@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FileText, Search, Calendar, User, Shield, ArrowUpDown, ChevronLeft, ChevronRight, Loader2, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { ficheUrl, isFicheSource } from "../utils/ficheUrl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
@@ -238,17 +240,55 @@ function DocumentFullTitle({
     return <span className="text-sm">{getTitle()}</span>;
 }
 
-export function ContributionsPage({ onViewDetail }: { onViewDetail?: (documentId: string, category: string) => void }) {
+export function ContributionsPage() {
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const currentPage = Math.max(1, Number(searchParams.get("page") ?? "1"));
+    const setCurrentPage = (updater: number | ((prev: number) => number)) => {
+        const next = new URLSearchParams(searchParams);
+        const value = typeof updater === "function" ? updater(currentPage) : updater;
+        if (value <= 1) next.delete("page"); else next.set("page", String(value));
+        setSearchParams(next);
+    };
+
+    const searchQuery = searchParams.get("q") ?? "";
+    const setSearchQuery = (q: string) => {
+        const next = new URLSearchParams(searchParams);
+        if (q.trim()) next.set("q", q); else next.delete("q");
+        // reset page si on lance une nouvelle recherche
+        next.delete("page");
+        setSearchParams(next);
+    };
+
+    const sortKey = searchParams.get("sortKey");
+    const sortDir = searchParams.get("sortDir");
+    const sortConfig: {key: keyof ContributionEvent; direction: 'asc' | 'desc'} | null =
+        sortKey && (sortDir === "asc" || sortDir === "desc")
+            ? {key: sortKey as keyof ContributionEvent, direction: sortDir}
+            : null;
+    const setSortConfig = (cfg: {key: keyof ContributionEvent; direction: 'asc' | 'desc'} | null) => {
+        const next = new URLSearchParams(searchParams);
+        if (cfg) {
+            next.set("sortKey", String(cfg.key));
+            next.set("sortDir", cfg.direction);
+        } else {
+            next.delete("sortKey");
+            next.delete("sortDir");
+        }
+        setSearchParams(next);
+    };
+
+    const onViewDetail = (documentId: string, category: string) => {
+        if (isFicheSource(category)) {
+            navigate(ficheUrl(category, documentId));
+        }
+    };
+
     const [contributions, setContributions] = useState<ContributionEvent[]>([]);
     const [total, setTotal] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [sortConfig, setSortConfig] = useState<{
-        key: keyof ContributionEvent;
-        direction: 'asc' | 'desc';
-    } | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
     // Fonction pour toggler l'expansion d'une ligne

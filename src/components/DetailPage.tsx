@@ -1,4 +1,5 @@
 import {useState, useEffect} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 import {
     ArrowLeft,
     MapPin,
@@ -30,14 +31,10 @@ import {
     PersonnePhysiqueDetail
 } from "../config/api";
 import {getMediaImageUrl} from "../utils/searchUtils";
+import {useAuth} from "../contexts/AuthContext";
+import {useSmartBack} from "../hooks/useSmartBack";
+import {ficheUrl, ficheEditUrl, isFicheSource, FicheSource} from "../utils/ficheUrl";
 
-interface DetailPageProps {
-    resultId: string;
-    onBack: () => void;
-    onViewDetail?: (resultId: string) => void;
-    onEdit?: (recordId: string, source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
-    isAuthenticated?: boolean;
-}
 
 // Fonction pour extraire le type de source et l'ID réel depuis l'ID combiné
 function extractSourceAndId(combinedId: string): {
@@ -75,7 +72,31 @@ function getTypeBadge(source: string) {
     }
 }
 
-export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthenticated}: DetailPageProps) {
+export function DetailPage() {
+    const {source: sourceParam, id: rawIdParam} = useParams<{source: string; id: string}>();
+    const routeSource: FicheSource = isFicheSource(sourceParam) ? sourceParam : "monuments_lieux";
+    const routeId = rawIdParam ? decodeURIComponent(rawIdParam) : "";
+    // resultId conserve le format hérité "source:id" pour la logique interne.
+    const resultId = routeId ? `${routeSource}:${routeId}` : "";
+    const navigate = useNavigate();
+    const onBack = useSmartBack("/search");
+    const {isAuthenticated} = useAuth();
+
+    const onViewDetail = (childResultId: string) => {
+        // childResultId peut arriver au format "source:id" (legacy interne) ou juste "id".
+        if (childResultId.includes(":")) {
+            const [s, ...rest] = childResultId.split(":");
+            if (isFicheSource(s)) {
+                navigate(ficheUrl(s, rest.join(":")));
+                return;
+            }
+        }
+        navigate(ficheUrl(routeSource, childResultId));
+    };
+    const onEdit = (recordId: string, s: FicheSource) => {
+        navigate(ficheEditUrl(s, recordId));
+    };
+
     const [result, setResult] = useState<DetailResult | null>(null);
     const [source, setSource] = useState<'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques' | null>(null);
     const [relatedCards, setRelatedCards] = useState<{ [key: string]: DetailResult[] }>({});
@@ -588,6 +609,13 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                     </TechnicalInfoItem>
                 )}
 
+                {/* Emplacement actuel */}
+                {mobilier.conservation_place && (
+                    <TechnicalInfoItem label="Emplacement actuel">
+                        <span>{mobilier.conservation_place}</span>
+                    </TechnicalInfoItem>
+                )}
+
                 {/* Localisation */}
                 {(result.city || result.department || result.region || result.country) && (
                     <TechnicalInfoItem label="Localisation">
@@ -947,13 +975,6 @@ export function DetailPage({resultId, onBack, onViewDetail, onEdit, isAuthentica
                     {result.centuries && result.centuries.length > 0 && (
                         <TechnicalInfoItem label="Siècles">
                             <TechnicalBadgeList items={result.centuries.map(o => o.name)}/>
-                        </TechnicalInfoItem>
-                    )}
-
-                    {/* Emplacement actuel */}
-                    {mobilier.conservation_place && (
-                        <TechnicalInfoItem label="Emplacement actuel">
-                            <span>{mobilier.conservation_place}</span>
                         </TechnicalInfoItem>
                     )}
 

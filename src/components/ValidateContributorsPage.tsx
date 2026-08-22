@@ -5,17 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
-import { PendingUser, DOMAIN_MAPPING, apiService, ApiError } from "../config/api";
+import { DOMAIN_MAPPING, apiService, ApiError } from "../config/api";
 import { toast } from "sonner";
+import { useAuth } from "../contexts/AuthContext";
+import { useSmartBack } from "../hooks/useSmartBack";
+import type { PendingUser } from "../config/api";
 
-interface ValidateContributorsPageProps {
-  onBack: () => void;
-  pendingUsers: PendingUser[];
-  onRefresh: () => void;
-  onSessionExpired?: () => void;
-}
-
-export function ValidateContributorsPage({ onBack, pendingUsers, onRefresh, onSessionExpired }: ValidateContributorsPageProps) {
+export function ValidateContributorsPage() {
+  const {pendingUsers, loadPendingUsers, handleSessionExpired} = useAuth();
+  const onBack = useSmartBack("/");
+  const onRefresh = () => { loadPendingUsers(); };
+  const onSessionExpired = () => handleSessionExpired();
   const [selectedContributor, setSelectedContributor] = useState<PendingUser | null>(null);
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [validationType, setValidationType] = useState<'approve' | 'reject'>('approve');

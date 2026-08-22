@@ -10,21 +10,22 @@ import { PendingForm, apiService, ApiError } from "../config/api";
 import { formatCreationDate } from "../config/api";
 import { toast } from "sonner";
 import { getMediaImageUrl } from "../utils/searchUtils";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useSmartBack } from "../hooks/useSmartBack";
+import { FicheSource, validateFormDetailUrl } from "../utils/ficheUrl";
 
-interface ValidateFormsPageProps {
-  onBack: () => void;
-  pendingForms: {
-    monuments_lieux: PendingForm[];
-    mobiliers_images: PendingForm[];
-    personnes_morales: PendingForm[];
-    personnes_physiques: PendingForm[];
+type FormSource = FicheSource;
+
+export function ValidateFormsPage() {
+  const navigate = useNavigate();
+  const {pendingForms, loadPendingForms, handleSessionExpired} = useAuth();
+  const onBack = useSmartBack("/");
+  const onRefresh = () => { loadPendingForms(); };
+  const onSessionExpired = (message?: string) => handleSessionExpired(message);
+  const onViewFormDetail = (formId: string, formSource: FormSource) => {
+    navigate(validateFormDetailUrl(formSource, formId));
   };
-  onRefresh: () => void;
-  onSessionExpired: (message?: string) => void;
-  onViewFormDetail: (formId: string, formSource: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques') => void;
-}
-
-export function ValidateFormsPage({ onBack, pendingForms, onRefresh, onSessionExpired, onViewFormDetail }: ValidateFormsPageProps) {
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [selectedForm, setSelectedForm] = useState<PendingForm & { source: string } | null>(null);
   const [validationType, setValidationType] = useState<'activate' | 'reject'>('activate');

@@ -1,14 +1,11 @@
+import {Link} from "react-router-dom";
 import {Mail, MapPin, MousePointerClick, Phone, User} from "lucide-react";
 import {dynamicHomeText} from "../hooks/dynamicHomeText.tsx";
+import {useAuth} from "../contexts/AuthContext";
 
-interface FooterProps {
-    user?: any;
-    onContribute?: () => void;
-    onNavigateToLegal: (page: 'legal-mentions' | 'privacy-policy' | 'terms-of-use') => void;
-}
-
-export function Footer({ user, onContribute, onNavigateToLegal }: FooterProps) {
+export function Footer() {
     const {t} = dynamicHomeText();
+    const {user, openSignupModal} = useAuth();
     return (
         <footer className="bg-primary text-primary-foreground">
             <div className="container mx-auto px-4 py-12 md:py-16">
@@ -87,28 +84,28 @@ export function Footer({ user, onContribute, onNavigateToLegal }: FooterProps) {
                         <h4 className="font-bold mt-6 mb-3 text-white">Informations légales</h4>
                         <ul className="space-y-2 text-sm">
                             <li>
-                                <button
-                                    onClick={() => onNavigateToLegal('legal-mentions')}
+                                <Link
+                                    to="/mentions-legales"
                                     className="text-red-200 hover:text-red-100 transition-colors duration-200 text-left cursor-pointer"
                                 >
                                     Mentions légales
-                                </button>
+                                </Link>
                             </li>
                             <li>
-                                <button
-                                    onClick={() => onNavigateToLegal('privacy-policy')}
+                                <Link
+                                    to="/politique-confidentialite"
                                     className="text-red-200 hover:text-red-100 transition-colors duration-200 text-left cursor-pointer"
                                 >
                                     Confidentialité
-                                </button>
+                                </Link>
                             </li>
                             <li>
-                                <button
-                                    onClick={() => onNavigateToLegal('terms-of-use')}
+                                <Link
+                                    to="/conditions-utilisation"
                                     className="text-red-200 hover:text-red-100 transition-colors duration-200 text-left cursor-pointer"
                                 >
                                     CGU
-                                </button>
+                                </Link>
                             </li>
                         </ul>
                     </div>
@@ -121,7 +118,7 @@ export function Footer({ user, onContribute, onNavigateToLegal }: FooterProps) {
                     {!user && (
                         <div>
                             <button
-                                onClick={onContribute}
+                                onClick={openSignupModal}
                                 className="bg-white text-primary px-4 md:px-6 py-2 rounded-lg text-sm hover:bg-red-50 hover:shadow-lg transition-all duration-200  cursor-pointer"
                             >
                                 Contribuer au projet

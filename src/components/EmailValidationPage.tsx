@@ -3,15 +3,14 @@ import { ChevronLeft, CheckCircle, XCircle, AlertCircle, Loader2 } from "lucide-
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { apiService, ApiError } from "../config/api";
+import { useNavigate, useParams } from "react-router-dom";
 
 type ValidationStatus = 'loading' | 'success' | 'already-verified' | 'invalid-token' | 'error';
 
-interface EmailValidationPageProps {
-  token: string;
-  onBack: () => void;
-}
-
-export function EmailValidationPage({ token, onBack }: EmailValidationPageProps) {
+export function EmailValidationPage() {
+  const {token} = useParams<{token: string}>();
+  const navigate = useNavigate();
+  const onBack = () => navigate("/");
   const [status, setStatus] = useState<ValidationStatus>('loading');
 
   useEffect(() => {

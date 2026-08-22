@@ -56,25 +56,33 @@ export const LocationFilter = forwardRef<LocationFilterRef, LocationFilterProps>
             loadDepartments();
         }, []);
 
-        // Synchronisation avec les valeurs externes
+        // Synchronisation avec les valeurs externes.
+        // Comparaison string↔string : l'API peut renvoyer les IDs en number tandis
+        // que les valeurs qui viennent de l'URL (useSearchParams) sont toujours des strings.
         useEffect(() => {
-            if (value.countries) {
-                const selected = countries.filter(c => value.countries!.includes(c.id));
-                setSelectedCountries(selected);
+            if (value.countries && value.countries.length > 0) {
+                const wanted = new Set(value.countries.map(String));
+                setSelectedCountries(countries.filter(c => wanted.has(String(c.id))));
+            } else {
+                setSelectedCountries([]);
             }
         }, [value.countries, countries]);
 
         useEffect(() => {
-            if (value.regions) {
-                const selected = regions.filter(r => value.regions!.includes(r.id));
-                setSelectedRegions(selected);
+            if (value.regions && value.regions.length > 0) {
+                const wanted = new Set(value.regions.map(String));
+                setSelectedRegions(regions.filter(r => wanted.has(String(r.id))));
+            } else {
+                setSelectedRegions([]);
             }
         }, [value.regions, regions]);
 
         useEffect(() => {
-            if (value.departments) {
-                const selected = departments.filter(d => value.departments!.includes(d.id));
-                setSelectedDepartments(selected);
+            if (value.departments && value.departments.length > 0) {
+                const wanted = new Set(value.departments.map(String));
+                setSelectedDepartments(departments.filter(d => wanted.has(String(d.id))));
+            } else {
+                setSelectedDepartments([]);
             }
         }, [value.departments, departments]);
 
@@ -85,8 +93,8 @@ export const LocationFilter = forwardRef<LocationFilterRef, LocationFilterProps>
                 if (storedCommunes) {
                     try {
                         const parsed = JSON.parse(storedCommunes) as Commune[];
-                        // Filtrer pour garder seulement celles qui sont dans value.communes
-                        const matchingCommunes = parsed.filter(c => value.communes!.includes(c.id));
+                        const wanted = new Set(value.communes.map(String));
+                        const matchingCommunes = parsed.filter(c => wanted.has(String(c.id)));
                         if (matchingCommunes.length > 0) {
                             setSelectedCommunes(matchingCommunes);
                         }
@@ -94,8 +102,7 @@ export const LocationFilter = forwardRef<LocationFilterRef, LocationFilterProps>
                         console.error('Erreur lors du parsing des communes:', error);
                     }
                 }
-            } else if (!value.communes || value.communes.length === 0) {
-                // Si pas de communes dans les filtres, vider la sélection
+            } else {
                 setSelectedCommunes([]);
             }
         }, [value.communes]);

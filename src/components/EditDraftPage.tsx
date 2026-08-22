@@ -43,14 +43,11 @@ import {tooltipTexts} from "../constants/tooltipTexts.ts";
 import {User} from "../App";
 import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "./ui/dialog.tsx";
 import {RichTextEditor} from "./RichTextEditor.tsx";
+import {useParams} from "react-router-dom";
+import {useAuth} from "../contexts/AuthContext";
+import {useSmartBack} from "../hooks/useSmartBack";
+import {FicheSource, isFicheSource} from "../utils/ficheUrl";
 
-interface EditDraftPageProps {
-    user: User;
-    recordId: string;
-    source: 'monuments_lieux' | 'mobiliers_images' | 'personnes_morales' | 'personnes_physiques';
-    onBack: () => void;
-    onSessionExpired: () => void;
-}
 
 interface ImageUpload {
     file: File;
@@ -160,7 +157,32 @@ interface FormData {
     compositionGroupe?: string;
 }
 
-export function EditDraftPage({user, recordId, source, onBack, onSessionExpired}: EditDraftPageProps) {
+export function EditDraftPage() {
+    const {source: sourceParam, id: rawIdParam} = useParams<{source: string; id: string}>();
+    const {user, handleSessionExpired, loadDraftForms} = useAuth();
+    const onBackRaw = useSmartBack("/mes-brouillons");
+    const onBack = () => {
+        loadDraftForms();
+        onBackRaw();
+    };
+    const onSessionExpired = () => handleSessionExpired("Votre session a expiré. Veuillez vous reconnecter.");
+
+    const recordId = rawIdParam ? decodeURIComponent(rawIdParam) : "";
+    const source: FicheSource = isFicheSource(sourceParam) ? sourceParam : "monuments_lieux";
+
+    if (!user) return null;
+    return <EditDraftPageInner user={user} recordId={recordId} source={source} onBack={onBack} onSessionExpired={onSessionExpired}/>;
+}
+
+interface EditDraftPageInnerProps {
+    user: User;
+    recordId: string;
+    source: FicheSource;
+    onBack: () => void;
+    onSessionExpired: () => void;
+}
+
+function EditDraftPageInner({user, recordId, source, onBack, onSessionExpired}: EditDraftPageInnerProps) {
     const [result, setResult] = useState<MobilierImageDetail | MonumentLieuDetail | PersonneMoraleDetail | PersonnePhysiqueDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

@@ -12,15 +12,27 @@ import { User as UserType } from "../App";
 import { validatePassword, getPasswordStrengthColor, getPasswordStrengthText } from "../utils/passwordValidation";
 import { apiService, ApiError, UserProfile, DOMAIN_MAPPING, formatCreationDate } from "../config/api";
 import { toast } from "sonner";
+import { useAuth } from "../contexts/AuthContext";
+import { useSmartBack } from "../hooks/useSmartBack";
 
-interface AccountPageProps {
+export function AccountPage() {
+  const { user, setUser, handleSessionExpired } = useAuth();
+  const onBack = useSmartBack("/");
+  const onUpdateUser = (u: UserType) => setUser(u);
+  const onSessionExpired = (message?: string) => handleSessionExpired(message);
+
+  if (!user) return null;
+  return <AccountPageInner user={user} onUpdateUser={onUpdateUser} onBack={onBack} onSessionExpired={onSessionExpired}/>;
+}
+
+interface AccountPageInnerProps {
   user: UserType;
   onUpdateUser: (user: UserType) => void;
   onBack: () => void;
   onSessionExpired: (message?: string) => void;
 }
 
-export function AccountPage({ user, onUpdateUser, onBack, onSessionExpired }: AccountPageProps) {
+function AccountPageInner({ user, onUpdateUser, onBack, onSessionExpired }: AccountPageInnerProps) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',

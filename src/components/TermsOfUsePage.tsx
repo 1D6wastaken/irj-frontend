@@ -2,12 +2,10 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
+import {useSmartBack} from "../hooks/useSmartBack";
 
-interface TermsOfUsePageProps {
-    onBack: () => void;
-}
-
-export function TermsOfUsePage({ onBack }: TermsOfUsePageProps) {
+export function TermsOfUsePage() {
+    const onBack = useSmartBack("/");
     return (
         <div className="min-h-screen bg-background">
             {/* En-tête */}
