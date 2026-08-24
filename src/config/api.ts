@@ -287,6 +287,8 @@ export interface MediaDetail {
     title: string;
 }
 
+export type PublicationStatus = 'DRAFT' | 'PENDING' | 'PUBLISHED';
+
 export interface MonumentLieuDetail {
     id: string;
     title: string;
@@ -316,6 +318,7 @@ export interface MonumentLieuDetail {
     linked_legal_entities?: number[];
     linked_monuments_places?: number[];
     parent_id?: number;
+    publication_status?: PublicationStatus;
     temoinComment?: string;
     // Nouveaux champs
     dimensions?: string;
@@ -360,6 +363,7 @@ export interface MobilierImageDetail {
     linked_legal_entities?: number[];
     linked_furniture_images?: number[];
     parent_id?: number;
+    publication_status?: PublicationStatus;
     temoinComment?: string;
     // Nouveaux champs
     cote_reference?: string;
@@ -403,6 +407,7 @@ export interface PersonneMoraleDetail {
     linked_furniture_images?: number[];
     linked_legal_entities?: number[];
     parent_id?: number;
+    publication_status?: PublicationStatus;
     temoinComment?: string;
     // Nouveaux champs
     biens?: string;
@@ -455,6 +460,7 @@ export interface PersonnePhysiqueDetail {
     linked_legal_entities?: number[];
     linked_individuals?: number[];
     parent_id?: number;
+    publication_status?: PublicationStatus;
     temoinComment?: string;
     // Nouveaux champs
     evenements?: string;
