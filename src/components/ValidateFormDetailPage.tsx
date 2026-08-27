@@ -851,18 +851,24 @@ export function ValidateFormDetailPage() {
                 )}
 
                 {/* Dates de création/modification */}
-                <TechnicalInfoItem label="Dates">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Créée le {formatDate(result.creation_date)}</span>
+                {(isValidDate(result.creation_date) || isValidDate(result.update_date)) && (
+                    <TechnicalInfoItem label="Dates">
+                        <div className="space-y-2">
+                            {isValidDate(result.creation_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Créée le {formatDate(result.creation_date)}</span>
+                                </div>
+                            )}
+                            {isValidDate(result.update_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Mise à jour le {formatDate(result.update_date)}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Mise à jour le {formatDate(result.update_date)}</span>
-                        </div>
-                    </div>
-                </TechnicalInfoItem>
+                    </TechnicalInfoItem>
+                )}
             </>
         );
     };
