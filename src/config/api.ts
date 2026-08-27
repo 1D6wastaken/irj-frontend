@@ -199,7 +199,8 @@ export interface PendingFormMedia {
 export interface PendingForm {
     id: string;
     title: string;
-    creation_date: string;
+    // Absent quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
     authors: string[]; // Obligatoire
     city?: string;
     department?: string;
@@ -296,8 +297,9 @@ export interface MonumentLieuDetail {
     history?: string;
     bibliography?: string;
     geolocalisation?: string;
-    creation_date: string;
-    update_date: string;
+    // Absents quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
+    update_date?: string;
     contributors: string;
     protected?: boolean;
     protection_comment?: string;
@@ -338,8 +340,9 @@ export interface MobilierImageDetail {
     history?: string;
     bibliography?: string;
     inscriptions?: string;
-    creation_date: string;
-    update_date: string;
+    // Absents quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
+    update_date?: string;
     contributors: string;
     protected?: boolean;
     protection_comment?: string;
@@ -389,8 +392,9 @@ export interface PersonneMoraleDetail {
     objects?: string;
     sources?: string;
     comment?: string;
-    creation_date: string;
-    update_date: string;
+    // Absents quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
+    update_date?: string;
     contributors: string;
     authors: FilterOption[];
     city?: FilterOption;
@@ -442,8 +446,9 @@ export interface PersonnePhysiqueDetail {
     historiography?: string;
     event_nature?: string;
     sources?: string;
-    creation_date: string;
-    update_date: string;
+    // Absents quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
+    update_date?: string;
     contributors: string;
     authors: FilterOption[];
     city?: FilterOption;

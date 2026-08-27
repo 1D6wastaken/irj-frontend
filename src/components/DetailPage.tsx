@@ -310,10 +310,9 @@ export function DetailPage() {
         });
     };
 
-    // Fonction pour vérifier si une date est invalide (0001-01-01)
-    const isValidDate = (dateString: string | null | undefined) => {
+    // Fonction pour vérifier si une date est utilisable (non vide, non 0001-01-01)
+    const isValidDate = (dateString: string | null | undefined): dateString is string => {
         if (!dateString) return false;
-        // Vérifie si la date commence par "0001-01-01"
         return !dateString.startsWith('0001-01-01');
     };
 

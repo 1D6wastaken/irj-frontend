@@ -167,10 +167,12 @@ export function MyDraftsPage() {
                                             <Badge className={getCategoryColor(form.source)} variant="secondary">
                                                 {getCategoryLabel(form.source)}
                                             </Badge>
-                                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                <Clock className="w-3 h-3"/>
-                                                {formatCreationDate(form.creation_date)}
-                                            </div>
+                                            {form.creation_date && !form.creation_date.startsWith('0001-01-01') && (
+                                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                                    <Clock className="w-3 h-3"/>
+                                                    {formatCreationDate(form.creation_date)}
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Badge Brouillon */}

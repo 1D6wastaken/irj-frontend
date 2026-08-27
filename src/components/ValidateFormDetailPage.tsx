@@ -380,6 +380,12 @@ export function ValidateFormDetailPage() {
         });
     };
 
+    // Une date est utilisable si elle est présente et n'est pas le zéro Go "0001-01-01".
+    const isValidDate = (dateString: string | null | undefined): dateString is string => {
+        if (!dateString) return false;
+        return !dateString.startsWith('0001-01-01');
+    };
+
     // Fonction pour obtenir le titre selon le type de fiche
     const getTitle = (record: DetailResult | null = result) => {
         if (!record) return '';
@@ -595,18 +601,24 @@ export function ValidateFormDetailPage() {
                 )}
 
                 {/* Dates */}
-                <TechnicalInfoItem label="Dates">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Créée le {formatDate(result.creation_date)}</span>
+                {(isValidDate(result.creation_date) || isValidDate(result.update_date)) && (
+                    <TechnicalInfoItem label="Dates">
+                        <div className="space-y-2">
+                            {isValidDate(result.creation_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Créée le {formatDate(result.creation_date)}</span>
+                                </div>
+                            )}
+                            {isValidDate(result.update_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Mise à jour le {formatDate(result.update_date)}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Mise à jour le {formatDate(result.update_date)}</span>
-                        </div>
-                    </div>
-                </TechnicalInfoItem>
+                    </TechnicalInfoItem>
+                )}
             </>
         );
     };
@@ -659,18 +671,24 @@ export function ValidateFormDetailPage() {
                 )}
 
                 {/* Dates */}
-                <TechnicalInfoItem label="Dates">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Créée le {formatDate(result.creation_date)}</span>
+                {(isValidDate(result.creation_date) || isValidDate(result.update_date)) && (
+                    <TechnicalInfoItem label="Dates">
+                        <div className="space-y-2">
+                            {isValidDate(result.creation_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Créée le {formatDate(result.creation_date)}</span>
+                                </div>
+                            )}
+                            {isValidDate(result.update_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Mise à jour le {formatDate(result.update_date)}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Mise à jour le {formatDate(result.update_date)}</span>
-                        </div>
-                    </div>
-                </TechnicalInfoItem>
+                    </TechnicalInfoItem>
+                )}
             </>
         );
     };
@@ -744,18 +762,24 @@ export function ValidateFormDetailPage() {
                 )}
 
                 {/* Dates */}
-                <TechnicalInfoItem label="Dates">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Créée le {formatDate(result.creation_date)}</span>
+                {(isValidDate(result.creation_date) || isValidDate(result.update_date)) && (
+                    <TechnicalInfoItem label="Dates">
+                        <div className="space-y-2">
+                            {isValidDate(result.creation_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Créée le {formatDate(result.creation_date)}</span>
+                                </div>
+                            )}
+                            {isValidDate(result.update_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Mise à jour le {formatDate(result.update_date)}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Mise à jour le {formatDate(result.update_date)}</span>
-                        </div>
-                    </div>
-                </TechnicalInfoItem>
+                    </TechnicalInfoItem>
+                )}
             </>
         );
     };
