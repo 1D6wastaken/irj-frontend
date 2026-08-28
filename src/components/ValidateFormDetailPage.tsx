@@ -117,6 +117,16 @@ export function ValidateFormDetailPage() {
 
             try {
                 const detailResult = await apiService.getRecordDetail(formSource, formId);
+
+                // Fiche déjà traitée par un autre admin (validée ou rejetée-publiée) :
+                // rediriger vers la vue publique de la fiche.
+                if (detailResult.publication_status && detailResult.publication_status !== 'PENDING') {
+                    toast.info("Cette fiche a déjà été traitée par un autre administrateur.");
+                    loadPendingForms();
+                    navigate(ficheUrl(formSource, formId), {replace: true});
+                    return;
+                }
+
                 setResult(detailResult);
 
                 // Charger les fiches liées
@@ -133,7 +143,12 @@ export function ValidateFormDetailPage() {
                         onSessionExpired("Votre session a expiré. Veuillez vous reconnecter.");
                         return;
                     } else if (error.status === 404) {
-                        setError(`Fiche non trouvée pour l'ID: ${formId}`);
+                        // Fiche déjà rejetée (donc supprimée) par un autre admin,
+                        // ou ID invalide.
+                        toast.info("Cette fiche n'existe plus (déjà rejetée ou supprimée par un autre administrateur).");
+                        loadPendingForms();
+                        navigate('/admin/validation-fiches', {replace: true});
+                        return;
                     } else {
                         setError('Une erreur est survenue lors du chargement de la fiche.');
                     }
@@ -146,7 +161,7 @@ export function ValidateFormDetailPage() {
         };
 
         loadDetailResult();
-    }, [formId, formSource, onSessionExpired]);
+    }, [formId, formSource, onSessionExpired, navigate, loadPendingForms]);
 
     // Fonction pour charger les fiches liées
     const loadRelatedRecords = async (record: DetailResult) => {
@@ -298,9 +313,19 @@ export function ValidateFormDetailPage() {
                 } else if (error.status === 403) {
                     toast.error("Vous n'avez pas les permissions nécessaires pour cette action.");
                     return;
+                } else if (error.status === 409) {
+                    // Fiche déjà traitée par un autre admin entre l'ouverture
+                    // de la page et le clic du bouton.
+                    toast.info("Cette fiche a déjà été traitée par un autre administrateur.");
+                    setShowValidationModal(false);
+                    loadPendingForms();
+                    navigate(ficheUrl(formSource, formId), {replace: true});
+                    return;
                 } else if (error.status === 404) {
-                    toast.error("Cette fiche n'existe plus ou a déjà été traitée.");
-                    onBack(); // Retourner à la liste
+                    toast.info("Cette fiche n'existe plus ou a déjà été rejetée.");
+                    setShowValidationModal(false);
+                    loadPendingForms();
+                    navigate('/admin/validation-fiches', {replace: true});
                     return;
                 }
             }
@@ -353,6 +378,12 @@ export function ValidateFormDetailPage() {
             month: 'long',
             year: 'numeric'
         });
+    };
+
+    // Une date est utilisable si elle est présente et n'est pas le zéro Go "0001-01-01".
+    const isValidDate = (dateString: string | null | undefined): dateString is string => {
+        if (!dateString) return false;
+        return !dateString.startsWith('0001-01-01');
     };
 
     // Fonction pour obtenir le titre selon le type de fiche
@@ -570,18 +601,24 @@ export function ValidateFormDetailPage() {
                 )}
 
                 {/* Dates */}
-                <TechnicalInfoItem label="Dates">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Créée le {formatDate(result.creation_date)}</span>
+                {(isValidDate(result.creation_date) || isValidDate(result.update_date)) && (
+                    <TechnicalInfoItem label="Dates">
+                        <div className="space-y-2">
+                            {isValidDate(result.creation_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Créée le {formatDate(result.creation_date)}</span>
+                                </div>
+                            )}
+                            {isValidDate(result.update_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Mise à jour le {formatDate(result.update_date)}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Mise à jour le {formatDate(result.update_date)}</span>
-                        </div>
-                    </div>
-                </TechnicalInfoItem>
+                    </TechnicalInfoItem>
+                )}
             </>
         );
     };
@@ -634,18 +671,24 @@ export function ValidateFormDetailPage() {
                 )}
 
                 {/* Dates */}
-                <TechnicalInfoItem label="Dates">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Créée le {formatDate(result.creation_date)}</span>
+                {(isValidDate(result.creation_date) || isValidDate(result.update_date)) && (
+                    <TechnicalInfoItem label="Dates">
+                        <div className="space-y-2">
+                            {isValidDate(result.creation_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Créée le {formatDate(result.creation_date)}</span>
+                                </div>
+                            )}
+                            {isValidDate(result.update_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Mise à jour le {formatDate(result.update_date)}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Mise à jour le {formatDate(result.update_date)}</span>
-                        </div>
-                    </div>
-                </TechnicalInfoItem>
+                    </TechnicalInfoItem>
+                )}
             </>
         );
     };
@@ -719,18 +762,24 @@ export function ValidateFormDetailPage() {
                 )}
 
                 {/* Dates */}
-                <TechnicalInfoItem label="Dates">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Créée le {formatDate(result.creation_date)}</span>
+                {(isValidDate(result.creation_date) || isValidDate(result.update_date)) && (
+                    <TechnicalInfoItem label="Dates">
+                        <div className="space-y-2">
+                            {isValidDate(result.creation_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Créée le {formatDate(result.creation_date)}</span>
+                                </div>
+                            )}
+                            {isValidDate(result.update_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Mise à jour le {formatDate(result.update_date)}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Mise à jour le {formatDate(result.update_date)}</span>
-                        </div>
-                    </div>
-                </TechnicalInfoItem>
+                    </TechnicalInfoItem>
+                )}
             </>
         );
     };
@@ -802,18 +851,24 @@ export function ValidateFormDetailPage() {
                 )}
 
                 {/* Dates de création/modification */}
-                <TechnicalInfoItem label="Dates">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Créée le {formatDate(result.creation_date)}</span>
+                {(isValidDate(result.creation_date) || isValidDate(result.update_date)) && (
+                    <TechnicalInfoItem label="Dates">
+                        <div className="space-y-2">
+                            {isValidDate(result.creation_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Créée le {formatDate(result.creation_date)}</span>
+                                </div>
+                            )}
+                            {isValidDate(result.update_date) && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Clock className="w-4 h-4 text-muted-foreground"/>
+                                    <span>Mise à jour le {formatDate(result.update_date)}</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <Clock className="w-4 h-4 text-muted-foreground"/>
-                            <span>Mise à jour le {formatDate(result.update_date)}</span>
-                        </div>
-                    </div>
-                </TechnicalInfoItem>
+                    </TechnicalInfoItem>
+                )}
             </>
         );
     };
@@ -1729,7 +1784,7 @@ export function ValidateFormDetailPage() {
                                     size="sm"
                                     onClick={() => handleValidation('activate')}
                                     className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1.5 h-auto"
-                                    disabled={isValidating}
+                                    disabled={isValidating || (result?.publication_status !== undefined && result.publication_status !== 'PENDING')}
                                 >
                                     <CheckCircle className="w-4 h-4 sm:mr-2"/>
                                     <span className="hidden sm:inline">Approuver</span>
@@ -1738,7 +1793,7 @@ export function ValidateFormDetailPage() {
                                     variant="destructive"
                                     size="sm"
                                     onClick={() => handleValidation('reject')}
-                                    disabled={isValidating}
+                                    disabled={isValidating || (result?.publication_status !== undefined && result.publication_status !== 'PENDING')}
                                     className="text-sm px-3 py-1.5 h-auto"
                                 >
                                     <XCircle className="w-4 h-4 sm:mr-2"/>

@@ -199,7 +199,8 @@ export interface PendingFormMedia {
 export interface PendingForm {
     id: string;
     title: string;
-    creation_date: string;
+    // Absent quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
     authors: string[]; // Obligatoire
     city?: string;
     department?: string;
@@ -287,6 +288,8 @@ export interface MediaDetail {
     title: string;
 }
 
+export type PublicationStatus = 'DRAFT' | 'PENDING' | 'PUBLISHED';
+
 export interface MonumentLieuDetail {
     id: string;
     title: string;
@@ -294,8 +297,9 @@ export interface MonumentLieuDetail {
     history?: string;
     bibliography?: string;
     geolocalisation?: string;
-    creation_date: string;
-    update_date: string;
+    // Absents quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
+    update_date?: string;
     contributors: string;
     protected?: boolean;
     protection_comment?: string;
@@ -316,6 +320,7 @@ export interface MonumentLieuDetail {
     linked_legal_entities?: number[];
     linked_monuments_places?: number[];
     parent_id?: number;
+    publication_status?: PublicationStatus;
     temoinComment?: string;
     // Nouveaux champs
     dimensions?: string;
@@ -335,8 +340,9 @@ export interface MobilierImageDetail {
     history?: string;
     bibliography?: string;
     inscriptions?: string;
-    creation_date: string;
-    update_date: string;
+    // Absents quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
+    update_date?: string;
     contributors: string;
     protected?: boolean;
     protection_comment?: string;
@@ -360,6 +366,7 @@ export interface MobilierImageDetail {
     linked_legal_entities?: number[];
     linked_furniture_images?: number[];
     parent_id?: number;
+    publication_status?: PublicationStatus;
     temoinComment?: string;
     // Nouveaux champs
     cote_reference?: string;
@@ -385,8 +392,9 @@ export interface PersonneMoraleDetail {
     objects?: string;
     sources?: string;
     comment?: string;
-    creation_date: string;
-    update_date: string;
+    // Absents quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
+    update_date?: string;
     contributors: string;
     authors: FilterOption[];
     city?: FilterOption;
@@ -403,6 +411,7 @@ export interface PersonneMoraleDetail {
     linked_furniture_images?: number[];
     linked_legal_entities?: number[];
     parent_id?: number;
+    publication_status?: PublicationStatus;
     temoinComment?: string;
     // Nouveaux champs
     biens?: string;
@@ -437,8 +446,9 @@ export interface PersonnePhysiqueDetail {
     historiography?: string;
     event_nature?: string;
     sources?: string;
-    creation_date: string;
-    update_date: string;
+    // Absents quand la fiche n'a ni date_creation ni date_maj en base (rare, provenance NocoDB).
+    creation_date?: string;
+    update_date?: string;
     contributors: string;
     authors: FilterOption[];
     city?: FilterOption;
@@ -455,6 +465,7 @@ export interface PersonnePhysiqueDetail {
     linked_legal_entities?: number[];
     linked_individuals?: number[];
     parent_id?: number;
+    publication_status?: PublicationStatus;
     temoinComment?: string;
     // Nouveaux champs
     evenements?: string;
